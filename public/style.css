@@ -1,0 +1,135 @@
+/* Reset */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #1E1E1E;
+  color: #F4EFEE;
+  text-align: center;
+}
+
+/* Topbar */
+.topbar {
+  background: #9F3B3B;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+.logo {
+  width: 120px;      
+  height: 120px;
+  border-radius: 50%;
+  background: white;
+  padding: 8px;
+  object-fit: contain;  
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  height: 400px;
+  background: url('img/portada.jpg') center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+.hero p {
+  margin-bottom: 20px;
+}
+.btn {
+  background: #C24242;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+/* CTA bar */
+.cta-bar {
+  background: #2A2A2A;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.pill {
+  background: #C24242;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+/* Footer */
+footer {
+  background: #E9ECEF;
+  color: #333;
+  padding: 10px;
+}
+/* Hero especial para servicios */
+.hero-servicios {
+  height: 320px;
+  background: url('img/servicios.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.hero-servicios .hero-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+.hero-servicios .hero-content h1 {
+  font-size: 2.8rem;
+}
+.hero-servicios .hero-content p {
+  font-size: 1.1rem;
+  color: #f1eeee;
+}
+
+/* Sección de servicios */
+.servicios {
+  padding: 40px 20px;
+  display: grid;
+  gap: 28px;
+  max-width: 900px;    /* ancho máximo */
+  margin: 0 auto;      /* centrado horizontal */
+}
+.servicio {
+  background: linear-gradient(145deg, #1f1f1f, #2a2a2a);
+  border-left: 6px solid #C24242;
+  padding: 24px 28px;
+  border-radius: 16px;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.servicio:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+.servicio h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  color: #F4EFEE;
+}
+
+.servicio p {
+  color: #CCCCCC;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+
