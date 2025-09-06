@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Taller Raquelita – Acceso</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --brand-primary:#B23940; /* rojo vino */
+            --brand-dark:#000000; /* negro */
+            --brand-bg:#F3EEEE; /* fondo claro */
+            --brand-muted:#B06B74; /* rosa viejo */
+            --brand-accent:#D44A52; /* rojo coral */
+            --radius:18px;
+            --shadow:0 10px 30px rgba(0,0,0,.08);
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            background:var(--brand-bg); color:#222;
+            display:flex; align-items:stretch; justify-content:center;
+        }
+        .split{
+            display:grid; grid-template-columns: 1.1fr 1fr; width:100%; max-width:1200px; min-height:100vh;
+            background:#fff; box-shadow:var(--shadow);
+        }
+        @media (max-width: 960px){ .split{grid-template-columns:1fr} .hero{display:none} }
+
+        .hero{
+            position:relative; overflow:hidden; border-top-left-radius:var(--radius); border-bottom-left-radius:var(--radius);
+            background:#111; color:#fff;
+        }
+        .hero img{position:absolute; top:0; right:0; bottom:0; left:0; width:100%; height:100%; object-fit:cover; opacity:.65; filter:contrast(1.05) saturate(1.05)}
+        .hero::after{
+            content:""; position:absolute; top:0; right:0; bottom:0; left:0;
+            background:linear-gradient(135deg, rgba(178,57,64,.55), rgba(212,74,82,.15));
+        }
+        .hero-badge{
+            position:absolute; top:24px; left:24px; display:flex; align-items:center; gap:12px;
+            background:rgba(0,0,0,.45); padding:10px 14px; border-radius:999px;
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            font-weight:600; letter-spacing:0;
+        }
+        .hero-badge .dot{width:10px; height:10px; border-radius:999px; background:var(--brand-accent); box-shadow:0 0 0 4px rgba(212,74,82,.35)}
+        .hero-caption{position:absolute; left:24px; bottom:24px; right:24px; color:#fff}
+        .hero-caption h2{margin:0 0 6px; font-size:28px; font-weight:700}
+        .hero-caption p{margin:0; opacity:.9}
+
+        .panel{
+            display:flex; align-items:center; justify-content:center; padding:40px; position:relative;
+            border-top-right-radius:var(--radius); border-bottom-right-radius:var(--radius);
+            background:linear-gradient(180deg, #fff, #fff0), radial-gradient(1200px 600px at 120% -10%, #fff 50%, transparent 55%), var(--brand-bg);
+        }
+
+        .card{ width:100%; max-width:460px; background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:28px 26px 24px; }
+        .brand{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+        .brand .logo{
+            width:56px; height:56px; border-radius:14px; object-fit:contain; background:#fff; border:1px solid #eee; padding:6px;
+            box-shadow: 0 8px 18px rgba(212,74,82,.25);
+        }
+        .brand .name{font-weight:800; color:var(--brand-dark); font-size:20px}
+        .brand .tag{font-size:12px; color:var(--brand-muted); font-weight:600; letter-spacing:0}
+
+        .tabs{display:flex; gap:8px; margin:10px 0 18px}
+        .tab-btn{
+            appearance:none; border:1px solid #eee; background:#fff; padding:10px 14px; border-radius:12px; cursor:pointer;
+            font-weight:600; color:#555; transition:.2s border, .2s color, .2s background, .2s transform;
+        }
+        .tab-btn[aria-selected="true"]{ background:var(--brand-bg); border-color:var(--brand-accent); color:var(--brand-dark)}
+        .tab-btn:focus-visible{outline:3px solid var(--brand-accent); outline-offset:2px}
+        .tab-btn:hover{transform:translateY(-1px)}
+
+        form{display:grid; gap:14px}
+        label{font-size:13px; font-weight:700; color:#333}
+        .input{ position:relative }
+        input[type="text"], input[type="email"], input[type="password"]{
+            width:100%; padding:14px 14px 14px 44px; border-radius:12px; border:1px solid #e7e3e3; background:#fff; color:#222;
+            transition:border-color .15s, box-shadow .15s;
+        }
+        input::placeholder{color:#b9b3b3}
+        .icon{position:absolute; left:12px; top:50%; transform: translateY(-50%); opacity:.55}
+
+        .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+        @media (max-width:520px){ .row{grid-template-columns:1fr} }
+
+        .actions{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:6px}
+        .link{color:var(--brand-primary); font-weight:700; text-decoration:none}
+        .link:hover{text-decoration:underline}
+
+        .btn{
+            appearance:none; border:none; cursor:pointer; border-radius:12px; padding:14px 16px; font-weight:800; letter-spacing:0;
+            background:linear-gradient(180deg,var(--brand-primary), var(--brand-accent)); color:#fff; box-shadow:0 10px 20px rgba(178,57,64,.28);
+            transition: transform .06s ease-in-out, filter .2s;
+        }
+        .btn:hover{filter:brightness(1.03)}
+        .btn:active{transform:translateY(1px)}
+
+        .btn-secondary{background:#fff; border:2px solid var(--brand-muted); color:var(--brand-dark); box-shadow:none}
+        .btn-secondary:hover{background:var(--brand-bg)}
+
+        .note{margin-top:10px; font-size:12px; color:#6b6464}
+        .divider{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:12px; color:#a39b9b; font-weight:700; margin:10px 0}
+        .divider::before,.divider::after{content:""; height:1px; background:#eee}
+
+        .success{display:none; margin-top:8px; font-size:14px; color:var(--brand-primary); font-weight:700}
+
+        footer{ position:absolute; bottom:10px; right:16px; color:#8b8484; font-size:12px }
+        footer a{ color:var(--brand-primary); text-decoration:none; font-weight:700 }
+    </style>
+
+
+
+</head>
+<body>
+<main class="split" role="main">
+    <!-- PANEL IZQUIERDA -->
+    <aside class="hero" aria-hidden="true">
+        <img alt="Taller mecánico" src="img/taller-mec.webp"/>
+        <div class="hero-badge"><span class="dot"></span> Taller Raquelita</div>
+        <div class="hero-caption">
+            <h2>Servicio técnico con garantía</h2>
+            <p>Agilidad, transparencia y seguridad de punta.</p>
+        </div>
+    </aside>
+
+    <!-- PANEL DERECHO -->
+    <section class="panel">
+        <div class="card" id="authCard">
+            <!-- Marca / Logo -->
+            <header class="brand">
+                <img src="https://raw.githubusercontent.com/Suzzanne20/ResourceNekoStation/refs/heads/main/1757173060470.png"
+                     class="logo" alt="Logo Taller" />
+                <div>
+                    <div class="name">Taller Raquelita</div>
+                    <div class="tag">Servicio automotriz</div>
+                </div>
+            </header>
+
+            <!-- Tabs -->
+            <nav class="tabs" role="tablist" aria-label="Autenticación">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="panel-login" id="tab-login">Iniciar sesión</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-register" id="tab-register">Registrarse</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-recover" id="tab-recover">Recuperar</button>
+            </nav>
+
+            <!-- LOGIN -->
+            <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+                <form id="form-login">
+                    <div class="input">
+                        <label for="login-email">Correo</label>
+                        <!-- Icono correo -->
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                            <rect x="4" y="6" width="16" height="12" stroke="currentColor" stroke-width="1" fill="none"/>
+                            <path d="M4 7l8 5 8-5" stroke="currentColor" stroke-width="1" fill="none"/>
+                        </svg>
+                        <input id="login-email" required type="email" placeholder="correo@gmail.com" />
+                    </div>
+                    <div class="input">
+                        <label for="login-pass">Contraseña</label>
+                        <!-- Icono candado -->
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                            <rect x="3" y="10" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1" fill="none"/>
+                        </svg>
+                        <input id="login-pass" required type="password" placeholder="Tu contraseña" />
+                    </div>
+                    <div class="actions">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:13px"><input type="checkbox" checked> Recuérdame</label>
+                        <a class="link" href="#" id="goto-recover">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <button class="btn" type="submit">Acceder</button>
+                    <div class="divider">o</div>
+                    <button type="button" class="btn btn-secondary" id="goto-register">Crear cuenta</button>
+                    <div class="success" id="ok-login">✔ Listo: simulado login.</div>
+                </form>
+            </section>
+
+            <!-- REGISTRO -->
+            <section id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
+                <form id="form-register">
+                    <div class="row">
+                        <div class="input">
+                            <label for="reg-nombre">Nombre</label>
+                            <!-- Icono usuario -->
+                            <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" stroke="currentColor" stroke-width="1" fill="none"/>
+                                <path d="M4 21a8 8 0 1 1 16 0" stroke="currentColor" stroke-width="1" fill="none"/>
+                            </svg>
+                            <input id="reg-nombre" required type="text" placeholder="Nombre" />
+                        </div>
+                        <div class="input">
+                            <label for="reg-apellido">Apellido</label>
+                            <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5z" stroke="currentColor" stroke-width="1" fill="none"/>
+                                <path d="M4 21a8 8 0 1 1 16 0" stroke="currentColor" stroke-width="1" fill="none"/>
+                            </svg>
+                            <input id="reg-apellido" required type="text" placeholder="Apellido" />
+                        </div>
+                    </div>
+                    <div class="input">
+                        <label for="reg-email">Correo</label>
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                            <rect x="4" y="6" width="16" height="12" stroke="currentColor" stroke-width="1" fill="none"/>
+                            <path d="M4 7l8 5 8-5" stroke="currentColor" stroke-width="1" fill="none"/>
+                        </svg>
+                        <input id="reg-email" required type="email" placeholder="correo@gmail.com" />
+                    </div>
+                    <div class="row">
+                        <div class="input">
+                            <label for="reg-pass">Contraseña</label>
+                            <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                                <rect x="3" y="10" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1" fill="none"/>
+                            </svg>
+                            <input id="reg-pass" minlength="6" required type="password" placeholder="Mínimo 6 caracteres" />
+                        </div>
+                        <div class="input">
+                            <label for="reg-pass2">Confirmar</label>
+                            <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                                <rect x="3" y="10" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1" fill="none"/>
+                            </svg>
+                            <input id="reg-pass2" minlength="6" required type="password" placeholder="Repite la contraseña" />
+                        </div>
+                    </div>
+                    <div class="actions" style="justify-content:flex-end">
+                        <button class="btn" type="submit">Crear cuenta</button>
+                    </div>
+                    <div class="note">Al registrarte aceptas los Términos y la Política de Privacidad.</div>
+                    <div class="success" id="ok-register">✔ Listo: simulado registro.</div>
+                </form>
+            </section>
+
+            <!-- RECUPERACIÓN -->
+            <section id="panel-recover" role="tabpanel" aria-labelledby="tab-recover" hidden>
+                <form id="form-recover">
+                    <div class="input">
+                        <label for="rec-email">Correo para recuperar</label>
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24">
+                            <rect x="4" y="6" width="16" height="12" stroke="currentColor" stroke-width="1" fill="none"/>
+                            <path d="M4 7l8 5 8-5" stroke="currentColor" stroke-width="1" fill="none"/>
+                        </svg>
+                        <input id="rec-email" required type="email" placeholder="correo@gmail.com" />
+                    </div>
+                    <div class="actions" style="justify-content:space-between">
+                        <button class="btn" type="submit">Enviar enlace</button>
+                        <button class="btn btn-secondary" type="button" id="back-login">Volver a login</button>
+                    </div>
+                    <div class="success" id="ok-recover">✔ Correo de recuperación enviado (simulado).</div>
+                </form>
+            </section>
+
+            <footer>
+                © 2025 Taller Raquelita • <a href="#">Soporte</a>
+            </footer>
+        </div>
+    </section>
+</main>
+
+<script>
+    const tabs = {
+        login: { btn: document.getElementById('tab-login'), panel: document.getElementById('panel-login') },
+        register: { btn: document.getElementById('tab-register'), panel: document.getElementById('panel-register') },
+        recover: { btn: document.getElementById('tab-recover'), panel: document.getElementById('panel-recover') },
+    };
+    function switchTab(name){
+        Object.entries(tabs).forEach(([key,{btn,panel}])=>{
+            const sel = key===name;
+            btn.setAttribute('aria-selected', String(sel));   // ⚑ string, no boolean
+            panel.hidden = !sel;
+        });
+        document.getElementById('authCard').scrollIntoView({behavior:'smooth', block:'start'});
+        return false;
+    }
+    function ok(id){ const el=document.getElementById('ok-'+id); el.style.display='block'; setTimeout(()=> el.style.display='none', 2600); }
+
+    // Tabs & navegación
+    ['login','register','recover'].forEach(name=>{
+        tabs[name].btn.addEventListener('click',()=>switchTab(name));
+    });
+    document.getElementById('goto-recover').addEventListener('click',(e)=>{ e.preventDefault(); switchTab('recover'); });
+    document.getElementById('goto-register').addEventListener('click',()=>switchTab('register'));
+    document.getElementById('back-login').addEventListener('click',()=>switchTab('login'));
+
+    // Forms
+    document.getElementById('form-login').addEventListener('submit',(e)=>{e.preventDefault(); ok('login');});
+    document.getElementById('form-recover').addEventListener('submit',(e)=>{e.preventDefault(); ok('recover');});
+    document.getElementById('form-register').addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const p1=document.getElementById('reg-pass').value; const p2=document.getElementById('reg-pass2').value;
+        if(p1!==p2){ alert('Las contraseñas no coinciden'); return; }
+        ok('register');
+    });
+
+    // Tab inicial
+    switchTab('login');
+</script>
+</body>
+</html>
