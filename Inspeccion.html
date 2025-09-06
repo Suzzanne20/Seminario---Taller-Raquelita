@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Registro fotográfico 360</title>
+<link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="./assets/logo.png" alt="Logo"/>
+      <div class="titles">
+        <h1>Inspeccion 360</h1>
+        <small>Centro de Servicio Raquelita</small>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-panel="front">Parte delantera</button>
+      <button class="tab" data-panel="top">Superior</button>
+      <button class="tab" data-panel="right">Lado derecho</button>
+      <button class="tab" data-panel="left">Lado izquierdo</button>
+      <button class="tab" data-panel="back">Parte trasera</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="canvas">
+      <div class="hint"></div>
+      <div class="vehicle-area" id="vehicleArea">
+        <img id="sectionImage" src="./assets/sections/front.jpg" alt="Sección actual"/>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="meta">
+        <div class="meta-item">
+          <span class="icon">👨‍🔧</span>
+          <div>
+            <label>Técnico</label>
+            <input type="text" placeholder="Nombre del técnico" id="tecnico"/>
+          </div>
+        </div>
+        <div class="meta-item">
+          <span class="icon">📅</span>
+          <div>
+            <label>Fecha</label>
+            <input type="date" id="fecha"/>
+          </div>
+        </div>
+      </div>
+
+      <h3>Detalles marcados</h3>
+      <ol class="issues" id="issuesList"></ol>
+
+      <div class="actions">
+        <button class="btn ghost" id="clearBtn">Limpiar</button>
+        <button class="btn primary" id="saveBtn">Guardar</button>
+      </div>
+      <div class="outputWrap"><pre id="output" class="output" aria-live="polite"></pre></div>
+    </aside>
+  </main>
+
+  <dialog id="viewer">
+    <img id="viewerImg" alt="Detalle"/>
+    <button id="viewerClose" class="btn">Cerrar</button>
+  </dialog>
+
+<script src="./app.js"></script>
+</body>
+</html>
