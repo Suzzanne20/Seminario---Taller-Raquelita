@@ -1,0 +1,147 @@
+      <!-- COMIENZA NAVBAR -->
+
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+      <span class="d-inline-flex"><i class="bi bi-list"></i></span>
+    </button>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas-header">
+
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menú</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+
+    <div class="mt-auto pb-2">
+      <div class="d-flex justify-content-center gap-3">
+<img
+  src="https://raw.githubusercontent.com/Suzzanne20/ResourceNekoStation/refs/heads/main/1757173060470.png"
+alt="logo" width="110" height="110" style="margin-top:-30px;">
+      </div>
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-house"></i>
+
+Inicio</a>
+          </li>
+
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+<i class="bi bi-bar-chart"></i>
+
+Dashboard</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#"><i class="bi bi-tools"></i>
+
+Servicios</a>
+
+  <hr class="my-2">
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-car-front-fill"></i>
+Vehiculos</a>
+
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-ev-front-fill"></i>
+
+Inspecciones 360°</a>
+
+
+
+<!-- Item: Ordenes de Trabajo -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<i class="bi bi-card-list"></i>              
+Ordenes de Trabajo
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-ev-front"></i>
+
+Listado de Ordenes</a></li>
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-pencil-square"></i>
+
+Nueva Orden de Trabajo</a></li>
+            </ul>
+          </li>
+
+
+  <hr class="my-2">
+
+
+<!-- Item: Bodega -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<i class="bi bi-box-seam"></i>
+
+Bodega
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-dropbox"></i>
+
+Inventario</a></li>
+
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-pencil-square"></i>
+
+Registro de Insumos</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">Ordenes de Compra</a></li>
+            </ul>
+          </li>
+        
+<!-- Item: Cotizaciones -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              
+<i class="bi bi-wallet2">
+
+</i>Cotizaciones
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
+              <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-person-rolodex"></i>
+
+Tecnicos</a>
+
+  <hr class="my-2">
+
+    <div class="mt-auto pb-2">
+      <div class="d-flex justify-content-center gap-3">
+        <a class="text-decoration-none" href="https://facebook.com/tu-pagina" target="_blank" aria-label="Facebook">
+          <i class="bi bi-facebook fs-4"></i>
+        </a>
+        <a class="text-decoration-none" href="https://instagram.com/tu-pagina" target="_blank" aria-label="Instagram">
+          <i class="bi bi-whatsapp fs-4"></i>
+        </a>
+        <!-- Si prefieres SVG en lugar de <i>, usa tus <svg> con fill='currentColor' -->
+      </div>
+
+      </div>
+    </div>
+
+
+
+
+      <!-- FINALIZA NAVBAR -->
