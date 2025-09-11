@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Orden de Trabajo – Centro de Servicio Raquelita</title>
+
+  <!-- Bootstrap 5 + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#111315;
+      --brand-2:#1f2428;
+      --accent:#00c853;         /* verde checks */
+      --accent-2:#ea4335;       /* rojo X */
+      --primary:#00a3ff;        /* azul UI */
+      --ink:#2b2f33;
+      --muted:#6c757d;
+      --panel:#ffffff;
+      --chip:#f1f3f5;
+      --badge:#ffe082;
+    }
+    body{ background:#f5f6f8; color:var(--ink); }
+    .appbar{
+      background:var(--brand);
+      color:#fff;
+      padding:10px 14px;
+      box-shadow:0 2px 6px rgba(0,0,0,.15);
+    }
+    .appbar .logo{
+      display:flex; align-items:center; gap:.65rem;
+    }
+    .appbar .logo img{ height:48px; width:48px; object-fit:contain; border-radius:50%; background:#fff; }
+    .appbar .tag{
+      background:#2b2f33; border-radius:10px; padding:6px 10px; font-size:.85rem;
+      border:1px solid #3a3f44;
+    }
+    .appbar .toolbar .btn-icon{
+      background:#2b2f33; border:1px solid #3a3f44; color:#e9ecef;
+      width:40px; height:40px; display:grid; place-items:center; border-radius:9px;
+    }
+    .btn-pill{ border-radius:999px; }
+    .btn-status{ background:#ff5449; color:#fff; border:0; }
+    .btn-registrar{ background:#0ecb6b; color:#fff; border:0; }
+    .box{ background:var(--panel); border:1px solid #e6e8eb; border-radius:14px; }
+    .section-title{ font-weight:600; color:#6b7177; font-size:.95rem; }
+    .radio-dot input[type="radio"]{ display:none; }
+    .radio-dot label{
+      border:1px solid #dfe3e6; border-radius:999px; padding:6px 12px; margin-right:8px;
+      cursor:pointer; background:#fff; font-weight:500;
+    }
+    .radio-dot input:checked + label{
+      border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,163,255,.15);
+      color:#0a58ca;
+    }
+    .shape-input{ border-radius:10px; }
+    .products-table thead th{ color:#6b7177; font-weight:600; }
+    .products-table td, .products-table th{ vertical-align:middle; }
+    .check i{ color:var(--accent); font-size:1.05rem; }
+    .x i{ color:var(--accent-2); font-size:1.05rem; }
+    .tab-lite .nav-link{ color:#6b7177; }
+    .tab-lite .nav-link.active{
+      color:#111; background:#fff; border-bottom:3px solid var(--primary);
+      font-weight:600;
+    }
+    /* Fuel gauge segmented bar */
+    .fuel{
+      --seg:5;
+      display:grid; grid-template-columns:repeat(var(--seg),1fr); gap:4px;
+      align-items:center;
+    }
+    .fuel .seg{ height:18px; background:#e9ecef; border-radius:4px; border:1px solid #dfe3e6; }
+    .fuel .seg.on{ background:#9be7a1; }
+    .fuel-legend{ font-size:.8rem; color:#6b7177; }
+    .chip{ background:var(--chip); border:1px solid #e9ecef; border-radius:12px; padding:8px 12px; font-weight:600; }
+    .action-pill{
+      display:inline-flex; align-items:center; gap:10px; background:#222831; color:#fff;
+      border-radius:999px; padding:10px 16px; border:0; font-weight:600;
+    }
+    .action-pill.secondary{ background:#6c757d; }
+    .inv-grid{
+      display:grid; grid-template-columns:repeat(4,1fr); gap:8px 16px;
+    }
+    .inv-grid .form-check{ margin-bottom:0; }
+    .totals .pill{
+      background:#212529; color:#fff; border-radius:999px; padding:8px 16px; min-width:120px; text-align:center; font-weight:600;
+    }
+    .status-badge{
+      background:var(--badge); color:#5f4b00; font-weight:700; padding:5px 10px; border-radius:8px; font-size:.8rem;
+    }
+    @media (max-width:992px){
+      .inv-grid{ grid-template-columns:repeat(2,1fr); }
+    }
+    @media print{
+      .appbar, .no-print{ display:none !important; }
+      .box{ box-shadow:none; border-color:#999; }
+      body{ background:#fff; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- APP BAR -->
+  <header class="appbar">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="logo">
+            <img src="https://raw.githubusercontent.com/Suzzanne20/ResourceNekoStation/refs/heads/main/1757173060470.png" alt="logo">
+            <div>
+              <div class="fw-semibold">ORDEN DE TRABAJO</div>
+              <div class="text-secondary small">No. 1</div>
+            </div>
+          </div>
+
+          <span class="tag"><i class="bi bi-calendar2-week me-2"></i>08 AGO 2025</span>
+          <span class="tag"><i class="bi bi-clock me-2"></i>15:30</span>
+
+          <button class="btn btn-dark btn-pill d-none d-md-inline-flex align-items-center gap-2">
+            <i class="bi bi-person-check"></i> ASIGNAR TÉCNICO
+          </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 toolbar">
+          <button class="btn-icon"><i class="bi bi-bell"></i></button>
+          <button class="btn-icon"><i class="bi bi-person"></i></button>
+          <button class="btn-icon"><i class="bi bi-calendar3"></i></button>
+          <button class="btn-icon"><i class="bi bi-box-arrow-in-down"></i></button>
+          <span class="btn btn-status btn-pill">PENDIENTE</span>
+          <button class="btn btn-registrar btn-pill">REGISTRAR</button>
+
+
+      <!-- COMIENZA NAVBAR -->
+
+    <button class="navbar-toggler text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+      <span class="d-inline-flex"><i class="bi bi-list"></i></span>
+    </button>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas-header">
+
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menú</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+
+    <div class="mt-auto pb-2">
+      <div class="d-flex justify-content-center gap-3">
+<img
+  src="https://raw.githubusercontent.com/Suzzanne20/ResourceNekoStation/refs/heads/main/1757173060470.png"
+alt="logo" width="110" height="110" style="margin-top:-30px;">
+      </div>
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-house"></i>
+
+Inicio</a>
+          </li>
+
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+<i class="bi bi-bar-chart"></i>
+
+Dashboard</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#"><i class="bi bi-tools"></i>
+
+Servicios</a>
+
+  <hr class="my-2">
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-car-front-fill"></i>
+Vehiculos</a>
+
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-ev-front-fill"></i>
+
+Inspecciones 360°</a>
+
+
+
+<!-- Item: Ordenes de Trabajo -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<i class="bi bi-card-list"></i>              
+Ordenes de Trabajo
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-ev-front"></i>
+
+Listado de Ordenes</a></li>
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-pencil-square"></i>
+
+Nueva Orden de Trabajo</a></li>
+            </ul>
+          </li>
+
+
+  <hr class="my-2">
+
+
+<!-- Item: Bodega -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<i class="bi bi-box-seam"></i>
+
+Bodega
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-dropbox"></i>
+
+Inventario</a></li>
+
+              <li><a class="dropdown-item" href="#">
+<i class="bi bi-pencil-square"></i>
+
+Registro de Insumos</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">Ordenes de Compra</a></li>
+            </ul>
+          </li>
+        
+<!-- Item: Cotizaciones -->
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              
+<i class="bi bi-wallet2">
+
+</i>Cotizaciones
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
+              <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">
+<i class="bi bi-person-rolodex"></i>
+
+Tecnicos</a>
+
+  <hr class="my-2">
+
+    <div class="mt-auto pb-2">
+      <div class="d-flex justify-content-center gap-3">
+        <a class="text-decoration-none" href="https://facebook.com/tu-pagina" target="_blank" aria-label="Facebook">
+          <i class="bi bi-facebook fs-4"></i>
+        </a>
+        <a class="text-decoration-none" href="https://instagram.com/tu-pagina" target="_blank" aria-label="Instagram">
+          <i class="bi bi-whatsapp fs-4"></i>
+        </a>
+        <!-- Si prefieres SVG en lugar de <i>, usa tus <svg> con fill='currentColor' -->
+      </div>
+
+      </div>
+    </div>
+
+
+
+
+      <!-- FINALIZA NAVBAR -->
+
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container my-4">
+    <div class="row g-4">
+      <!-- LEFT COLUMN -->
+      <section class="col-lg-6">
+        <div class="box p-3 p-md-4">
+          <!-- Cliente -->
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="display-6 text-secondary"><i class="bi bi-person"></i></div>
+              <div>
+                <div class="fw-semibold">Joaquín Hernandez</div>
+                <div class="text-secondary small">(+502) 5862-8662</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Requerimiento -->
+          <div class="mb-2 section-title">FALLA O REQUERIMIENTO</div>
+          <div class="mb-3 d-flex align-items-center">
+            <div class="radio-dot me-2">
+              <input type="radio" id="rep" name="tipo" checked>
+              <label for="rep"><i class="bi bi-tools me-1"></i> Reparación</label>
+            </div>
+            <div class="radio-dot">
+              <input type="radio" id="mant" name="tipo">
+              <label for="mant"><i class="bi bi-shield-check me-1"></i> Mantenimiento</label>
+            </div>
+          </div>
+          <textarea class="form-control shape-input mb-4" rows="4" placeholder="Describa la falla o requerimiento..."></textarea>
+
+          <!-- Productos/Servicios -->
+          <div class="table-responsive">
+            <table class="table products-table align-middle">
+              <thead>
+                <tr>
+                  <th class="w-50">Producto / Servicio</th>
+                  <th class="text-center">Cant.</th>
+                  <th class="text-end">Precio</th>
+                  <th class="text-end">Desc.</th>
+                  <th class="text-end">Total</th>
+                  <th class="text-center">OK</th>
+                  <th class="text-center">X</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ACEITE MOBIL 1 5W30</td>
+                  <td class="text-center">5</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-end">10%</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-center check"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center x"><i class="bi bi-x-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>CAMBIO BUJÍAS</td>
+                  <td class="text-center">1</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-end">10%</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-center check"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center x"><i class="bi bi-x-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>ROTACIÓN DE NEUMÁTICOS</td>
+                  <td class="text-center">1</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-end">10%</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-center check"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center x"><i class="bi bi-x-circle-fill"></i></td>
+                </tr>
+                <tr>
+                  <td>FILTRO DE ACEITE</td>
+                  <td class="text-center">1</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-end">10%</td>
+                  <td class="text-end">Q0.00</td>
+                  <td class="text-center check"><i class="bi bi-check-circle-fill"></i></td>
+                  <td class="text-center x"><i class="bi bi-x-circle-fill"></i></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <a href="#" class="small text-decoration-underline">Agregar nuevo producto o servicio</a>
+
+          <!-- Totales -->
+          <div class="row mt-4 g-3 align-items-center totals">
+            <div class="col-12 col-md">
+              <div class="text-secondary small">SUBTOTAL</div>
+              <div class="pill">Q 0.00</div>
+            </div>
+            <div class="col-12 col-md">
+              <div class="text-secondary small">IVA</div>
+              <div class="pill">Q 0.00</div>
+            </div>
+            <div class="col-12 col-md">
+              <div class="text-secondary small">TOTAL</div>
+              <div class="pill">Q 0.00</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN -->
+      <section class="col-lg-6">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs tab-lite mb-3 border-0">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vehiculo">Vehículo</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fotos">Fotos</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-notas">Notas</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-informe">Informe</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tareas">Tareas</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-citas">Citas</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pago">Pago</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-info">Info</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Vehículo -->
+          <div class="tab-pane fade show active" id="tab-vehiculo">
+            <div class="box p-3 p-md-4">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Toyota_logo_%28Red%29.svg/2560px-Toyota_logo_%28Red%29.svg.png" class="rounded-circle border" alt="bmw" width="64" height="64">
+                  <div>
+                    <div class="h5 mb-1 fw-bold">Toyota</div>
+                    <div class="text-secondary small">Rav4</div>
+                    <div class="text-secondary small">2006 · Gris</div>
+                  </div>
+                </div>
+                <a href="#" class="text-decoration-none small"><i class="bi bi-pencil-square me-1"></i>Editar</a>
+              </div>
+
+              <hr class="my-3">
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="text-secondary small">Kilometraje Actual</div>
+                  <input type="text" class="form-control shape-input" value="51,141 Kms">
+                </div>
+                <div class="col-md-6">
+                  <div class="text-secondary small d-flex align-items-center justify-content-between">
+                    <span>Nivel de Combustible</span>
+                    <span class="fw-semibold">50%</span>
+                  </div>
+                  <div class="fuel mt-1">
+                    <div class="seg on"></div>
+                    <div class="seg on"></div>
+                    <div class="seg on"></div>
+                    <div class="seg"></div>
+                    <div class="seg"></div>
+                  </div>
+                  <div class="d-flex justify-content-between fuel-legend mt-1">
+                    <span>E</span><span>1/4</span><span>1/2</span><span>3/4</span><span>F</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <button class="action-pill">
+                  <i class="bi bi-car-front-fill"></i> Inspección de Ingreso a taller
+                </button>
+                <button class="action-pill secondary">
+                  <i class="bi bi-clipboard2-check-fill"></i> Otra Inspección
+                </button>
+              </div>
+
+              <div class="mt-4">
+                <div class="section-title mb-2">Estado General Del Vehículo</div>
+                <textarea class="form-control shape-input" rows="3" placeholder="Ej: Raya en la puerta del copiloto">Raya en la puerta del copiloto</textarea>
+              </div>
+
+              <div class="mt-4">
+                <div class="section-title mb-2">Inventario del vehículo</div>
+                <div class="inv-grid">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i1"><label class="form-check-label" for="i1">Antenas</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i2" checked><label class="form-check-label" for="i2">Gata</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i3"><label class="form-check-label" for="i3">Pisos</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i4"><label class="form-check-label" for="i4">Gris</label></div>
+
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i5"><label class="form-check-label" for="i5">Botiquín</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i6" checked><label class="form-check-label" for="i6">Herramientas</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i7"><label class="form-check-label" for="i7">Rueda de repuesto</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i8"><label class="form-check-label" for="i8">Tag</label></div>
+
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i9"><label class="form-check-label" for="i9">Documentos</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i10"><label class="form-check-label" for="i10">Llave 1</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i11"><label class="form-check-label" for="i11">Tapas de ruedas</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i12"><label class="form-check-label" for="i12">Triángulos</label></div>
+
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i13"><label class="form-check-label" for="i13">Encendedor</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i14"><label class="form-check-label" for="i14">Llave 2</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i17"><label class="form-check-label" for="i17">Extintor</label></div>
+                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i18"><label class="form-check-label" for="i18">Llave de rueda</label></div>
+                </div>
+              </div>
+
+              <div class="mt-4 d-flex justify-content-end no-print">
+                <button class="btn btn-primary btn-pill" onclick="window.print()">
+                  <i class="bi bi-printer me-2"></i> IMPRIMIR
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestañas de ejemplo (vacías para extender) -->
+          <div class="tab-pane fade" id="tab-fotos">
+            <div class="box p-4 text-secondary">Sube y gestiona fotos del vehículo aquí.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-notas">
+            <div class="box p-4 text-secondary">Notas internas del trabajo.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-informe">
+            <div class="box p-4 text-secondary">Genera y descarga informes.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-tareas">
+            <div class="box p-4 text-secondary">Checklist de tareas asignadas.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-citas">
+            <div class="box p-4 text-secondary">Gestión de citas del taller.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-pago">
+            <div class="box p-4 text-secondary">Pagos, anticipos y facturación.</div>
+          </div>
+          <div class="tab-pane fade" id="tab-info">
+            <div class="box p-4">
+              <span class="status-badge">No. OT 1</span>
+              <p class="mb-0 text-secondary small mt-2">Información adicional de la orden.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
