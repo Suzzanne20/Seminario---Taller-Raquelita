@@ -7,59 +7,60 @@ use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $clientes = Cliente::all(); // simple por ahora
+        return view('clientes.index', compact('clientes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('clientes.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:45',
+            'nit' => 'nullable|string|max:20',
+            'telefono' => 'required|numeric',
+            'direccion' => 'nullable|string|max:60',
+        ]);
+
+        \App\Models\Cliente::create($request->only('nombre','nit','telefono','direccion'));
+
+        return redirect()->route('clientes.index')
+            ->with('success', 'Cliente registrado correctamente');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
+    public function edit($id)
     {
-        //
+        $cliente = Cliente::findOrFail($id);
+        return view('clientes.edit', compact('cliente'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cliente $cliente)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:45',
+            'nit' => 'nullable|string|max:20',
+            'telefono' => 'required|numeric',
+            'direccion' => 'nullable|string|max:60',
+        ]);
+
+        $cliente = \App\Models\Cliente::findOrFail($id);
+        $cliente->update($request->only('nombre','nit','telefono','direccion'));
+
+        return redirect()->route('clientes.index')
+            ->with('success', 'Cliente actualizado correctamente');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Cliente $cliente)
+    public function destroy($id)
     {
-        //
-    }
+        $cliente = Cliente::findOrFail($id);
+        $cliente->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cliente $cliente)
-    {
-        //
+        return redirect()->route('clientes.index')
+            ->with('success', 'Cliente eliminado correctamente');
     }
 }
