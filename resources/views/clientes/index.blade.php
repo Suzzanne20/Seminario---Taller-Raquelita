@@ -11,9 +11,7 @@
 @endpush
 
 @section('content')
-    <div class="container" style="padding:20px;">
-        <br>
-        <br>
+    <div class="container" style="padding:20px;"> <br><br>
 
         <h1 style="color:#C24242;">Gestión de Clientes</h1>
 
@@ -56,7 +54,7 @@
                         <div style="display:flex; gap:8px; justify-content:center;">
                             <a href="{{ route('clientes.edit', $cliente->id) }}"
                                style="background:#C24242; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
-                                Editar
+                                <i class="bi bi-pencil-square"></i>
                             </a>
                             <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST">
                                 @csrf
@@ -64,7 +62,7 @@
                                 <button type="submit"
                                         onclick="return confirm('¿Seguro que deseas eliminar este cliente?')"
                                         style="background:#9F3B3B; color:white; padding:6px 12px; border:none; border-radius:5px; cursor:pointer;">
-                                    Eliminar
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </form>
                         </div>
