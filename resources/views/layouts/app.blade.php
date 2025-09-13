@@ -1,95 +1,135 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@yield('title','Centro de Servicio Raquelita')</title>
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+  {{-- Bootstrap + Icons --}}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+  {{-- CSS propio --}}
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-            crossorigin="anonymous"></script>
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+  {{-- Estilos puntuales del header --}}
+  <style>
+    .topbar{background:#8e2f2f; height:72px; position:relative; overflow:visible;}
+    .logo-centered{
+      position:absolute; left:50%; top:100%; transform:translate(-50%, -50%);
+      height:88px; width:auto; z-index:2; background:#fff; padding:6px; border-radius:50%;
+      box-shadow:0 4px 14px rgba(0,0,0,.25);
+    }
+    .offcanvas-btn{
+      position:absolute; right:16px; top:50%; transform:translateY(-50%);
+      border:0; z-index:3; color:#fff;
+    }
+    .offcanvas .nav-link{ color:#222; }
+    .offcanvas .nav-link:hover{ color:#8e2f2f; }
+    .offcanvas .navbar-nav .nav-item + .nav-item{ border-top:1px solid #e9ecef; }
+    @media (max-width:576px){ .topbar{height:64px;} .logo-centered{height:72px; padding:5px;} .offcanvas-btn{right:12px;} }
+    html{ scroll-behavior:smooth; }
+    @stack('styles')
+  </style>
 </head>
-<body class="font-sans antialiased">
-<div class="min-h-screen bg-gray-100">
+<body>
 
-    <!-- ✅ Navbar personalizado -->
-    <nav class="navbar navbar-expand-lg" style="background:#1E1E1E;">
-        <div class="container-fluid">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('clientes.index') }}">
-                <img src="{{ asset('images/logo-raquelita.png') }}" alt="Taller Raquelita" style="height:40px; margin-right:10px;">
-                <span style="color:white; font-weight:bold;">Taller Raquelita</span>
-            </a>
+  {{-- HEADER reutilizable --}}
+  <header class="topbar">
+    {{-- Botón del menú (anclado a la derecha) --}}
+    <button class="navbar-toggler offcanvas-btn text-white"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar"
+            aria-label="Abrir menú">
+      <span class="d-inline-flex fs-3"><i class="bi bi-list"></i></span>
+    </button>
 
-            <!-- Botón responsive -->
-            <button class="navbar-toggler text-white" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+    {{-- Logo centrado y sobresaliente --}}
+    <img
+      src="{{ asset('img/logo_taller.jpg') }}"
+      alt="Logo Centro de Servicio Raquelita"
+      class="logo-centered">
+  </header>
 
-            <!-- Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" style="color:white;" href="{{ route('clientes.index') }}">Clientes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color:white;" href="#">Vehículos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" style="color:white;" href="#">Órdenes</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <!-- ✅ Fin Navbar -->
-
-    <!-- Page Heading -->
-    @if (isset($header))
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
-            </div>
-        </header>
-    @endif
-
-    <!-- Page Content -->
-    <main>
-        @yield('content')
-    </main>
-</div>
-<!-- Footer -->
-<footer style="background:#1E1E1E; color:white; padding:15px; text-align:center; position:fixed; bottom:0; left:0; width:100%;">
-    <div style="margin-bottom:5px; font-size:14px;">
-        📍 Dirección: Santo tomas de castilla, Izabal
+  {{-- OFFCANVAS (menú lateral derecho) --}}
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menú</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
-    <div style="margin-bottom:5px; font-size:14px;">
-        📞 Teléfono: +502 1234-5678
-    </div>
-    <div style="font-size:13px; color:#ccc;">
-        © {{ date('Y') }} Taller Raquelita — Todos los derechos reservados
-    </div>
-</footer>
 
+    <div class="offcanvas-body d-flex flex-column">
+      <ul class="navbar-nav flex-grow-1 pe-3">
+        <li class="nav-item my-2 text-center">
+          <img
+            src="https://raw.githubusercontent.com/Suzzanne20/ResourceNekoStation/refs/heads/main/1757173060470.png"
+            alt="logo" width="110" height="110" style="margin-top:-30px;">
+        </li>
+
+        <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
+        <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
+        <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-tools me-2"></i>Servicios</a></li>
+        <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
+        <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°</a></li>
+
+        <li class="nav-item dropdown pt-2">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-card-list me-2"></i>Órdenes de Trabajo
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ route('ordenes.index') }}"><i class="bi bi-ev-front me-2"></i>Listado de Órdenes</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown pt-2">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-box-seam me-2"></i>Bodega
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown pt-2">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-wallet2 me-2"></i>Cotizaciones
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
+            <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-person-rolodex me-2"></i>Técnicos</a></li>
+      </ul>
+
+      <hr class="mt-3 mb-2">
+      <div class="d-flex justify-content-center gap-3">
+        <a class="text-decoration-none" href="https://facebook.com/tu-pagina" target="_blank" aria-label="Facebook">
+          <i class="bi bi-facebook fs-4"></i>
+        </a>
+        <a class="text-decoration-none" href="https://wa.me/50200000000" target="_blank" aria-label="WhatsApp">
+          <i class="bi bi-whatsapp fs-4"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {{-- CONTENIDO de cada página --}}
+  <main class="page-body">
+    @yield('content')
+  </main>
+
+  {{-- Bootstrap JS --}}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  @stack('scripts')
 </body>
 </html>
+

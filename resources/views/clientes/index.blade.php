@@ -1,7 +1,20 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+  html, body { height: 100%; background: #f0f0f0 !important; }
+  .page-body { min-height: calc(100vh - 72px); background: #f0f0f0 !important; color: #212529; }
+  @media (max-width: 576px) {
+    .page-body { min-height: calc(100vh - 64px); }
+  }
+</style>
+@endpush
+
 @section('content')
     <div class="container" style="padding:20px;">
+        <br>
+        <br>
+
         <h1 style="color:#C24242;">Gestión de Clientes</h1>
 
         <!-- Mensaje de éxito -->
@@ -33,13 +46,13 @@
             </thead>
             <tbody>
             @forelse($clientes as $cliente)
-                <tr style="background:#F4EFEE; border-bottom:1px solid #ccc;">
-                    <td style="padding:10px;">{{ $cliente->id }}</td>
-                    <td style="padding:10px;">{{ $cliente->nombre }}</td>
-                    <td style="padding:10px;">{{ $cliente->nit }}</td>
-                    <td style="padding:10px;">{{ $cliente->telefono }}</td>
-                    <td style="padding:10px;">{{ $cliente->direccion }}</td>
-                    <td style="padding:10px; text-align:center;">
+                <tr style="background:#F4EFEE; border-bottom:1px solid #000;">
+                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->id }}</td>
+                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->nombre }}</td>
+                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->nit }}</td>
+                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->telefono }}</td>
+                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->direccion }}</td>
+                    <td style="padding:10px; text-align:center; border-bottom:1px solid #000;">
                         <div style="display:flex; gap:8px; justify-content:center;">
                             <a href="{{ route('clientes.edit', $cliente->id) }}"
                                style="background:#C24242; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
