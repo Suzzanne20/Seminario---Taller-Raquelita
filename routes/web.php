@@ -1,26 +1,33 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\OrdenTrabajoController;
+use App\Http\Controllers\UsersController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
-Route::get('/', function () {
-    return view('welcome');
+ //Landing pública
+Route::view('/', 'home')->name('home');
+
+//Ruta de acceso para login y recuperación
+Route::view('/acceso', 'auth.access')->name('acceso');
+
+//Ruta de autenticación Breeze
+require __DIR__.'/auth.php';
+
+//Rutas de autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'welcome')->name('dashboard');
+    Route::view('/welcome', 'welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::resource('users', App\Http\Controllers\UsersController::class)
+        ->only(['index','store','update','destroy']);
+});
+
+// Rutas de Perfil (sólo para autenticados)
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -28,4 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+//Rutas sensibles para acceso de usuarios autenticados
+Route::resource('clientes', ClienteController::class)->middleware('auth');
+Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
