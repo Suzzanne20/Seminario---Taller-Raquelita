@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
     @section('title','Home')
 
     @push('styles')
@@ -96,4 +97,3 @@
         <p>Todos los derechos reservados.</p>
     </footer>
     @endsection
-

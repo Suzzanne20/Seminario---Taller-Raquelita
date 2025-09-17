@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,11 +46,13 @@
             data-bs-target="#offcanvasNavbar"
             aria-controls="offcanvasNavbar"
             aria-label="Abrir menú">
+
         <span class="d-inline-flex fs-3"><i class="bi bi-list"></i></span>
     </button>
 
     {{-- Logo centrado y sobresaliente --}}
     <img
+
         src="{{ asset('img/logo_taller.jpg') }}"
         alt="Logo Centro de Servicio Raquelita"
         class="logo-centered">
@@ -167,5 +170,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
+
 </body>
 </html>
+
