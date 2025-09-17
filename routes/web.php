@@ -1,14 +1,38 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
-use App\Http\Controllers\CotizacionController;
 
-Route::get('/', function () {
-    return view('welcome');
+use App\Http\Controllers\UsersController;
+
+
+ //Landing pública
+Route::view('/', 'home')->name('home');
+
+//Ruta de acceso para login y recuperación
+Route::view('/acceso', 'auth.access')->name('acceso');
+
+//Ruta de autenticación Breeze
+require __DIR__.'/auth.php';
+
+
+//Rutas de autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'welcome')->name('dashboard');
+    Route::view('/welcome', 'welcome');
 });
+
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::resource('users', App\Http\Controllers\UsersController::class)
+        ->only(['index','store','update','destroy']);
+});
+
+
+//Rutas sensibles para acceso de usuarios autenticados
+Route::resource('clientes', ClienteController::class)->middleware('auth');
+Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
 
 // Perfil de usuario
 Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -26,7 +50,3 @@ Route::resource('cotizaciones', CotizacionController::class);
 Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
     ->name('cotizaciones.aprobar');
 
-// Autenticación
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

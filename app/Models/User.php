@@ -6,38 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    protected $table = 'usuario';   // ahora usa tu tabla
+    protected $table = 'users';
     protected $primaryKey = 'id';
-    public $timestamps = false;     // tu tabla no tiene created_at / updated_at
+    public $timestamps = false;
 
-    /**
-     * El campo que se usará para login (antes era email).
-     */
     public function getAuthIdentifierName()
     {
-        return 'nombre';
+        return 'name';
     }
 
-    /**
-     * Campo que usará Auth::attempt()
-     */
     public function username()
     {
-        return 'nombre';
+        return 'name';
     }
 
     protected $fillable = [
-        'nombre',
-        'password',
-        'role_id'
+        'name', 'email', 'password',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 }

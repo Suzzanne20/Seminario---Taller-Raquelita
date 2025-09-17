@@ -1,3 +1,73 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Paleta de marca */
+:root{
+    --brand-primary:#B23940;
+    --brand-accent:#D44A52;
+    --brand-bg:#F3EEEE;
+    --brand-muted:#B06B74;
+    --brand-dark:#000;
+}
+
+/* Sección hero */
+.hero{
+    position:relative;
+    width:100%;
+    min-height: 360px;
+    background-position:center;
+    background-size:cover;
+    border-bottom: 6px solid var(--brand-primary);
+}
+.hero .hero-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(135deg, rgba(0,0,0,.55), rgba(0,0,0,.15));
+}
+.hero .hero-content{
+    position:relative; z-index:2;
+    max-width: 960px; margin: 0 auto;
+    padding: 56px 16px; text-align:center; color:#fff;
+}
+.hero .btn{
+    display:inline-block; margin-top:14px;
+    padding:10px 18px; font-weight:800; color:#fff;
+    background: linear-gradient(180deg, var(--brand-primary), var(--brand-accent));
+    border-radius:10px; box-shadow:0 10px 20px rgba(178,57,64,.28);
+}
+
+/* CTA bar (píldoras) */
+.cta-bar{
+    background:#222; color:#fff; text-align:center; padding:18px 0;
+    border-top: 6px solid var(--brand-primary);
+}
+.cta-bar .pill{
+    display:inline-block; margin:6px; padding:8px 14px;
+    border-radius:999px; font-weight:700; background: var(--brand-primary); color:#fff;
+}
+.cta-bar .pill:nth-child(2){ background: var(--brand-accent); }
+
+/* Sección misión/visión */
+.mision-vision{
+    background:#2b2b2b; color:#EEEEEEFF; padding:30px 0; border-top: 6px solid var(--brand-primary);
+}
+.mision-vision .container{ max-width:960px; margin:0 auto; padding:0 16px; }
+
+.mision-vision .container p {
+    color: #CCCCCC;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+/* Galería/carrusel simple */
+.galeria{ background: var(--brand-bg); padding:30px 0; }
+.galeria h2{ max-width:960px; margin:0 auto 10px; padding:0 16px; }
+.carousel{ overflow:hidden; }
+.carousel-track{ display:flex; gap:0; animation:scrollX 20s linear infinite; }
+.carousel img{ width:360px; height:220px; object-fit:cover; flex:0 0 auto; }
+@keyframes scrollX{ from{ transform:translateX(0)} to{ transform:translateX(-50%)} }
+
+/* Footer */
+footer{ background:#111; color:#aaa; text-align:center; padding:18px 0; }
+
