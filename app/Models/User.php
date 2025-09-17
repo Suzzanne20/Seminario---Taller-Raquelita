@@ -12,33 +12,23 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    protected $table = 'users';   // ahora usa tu tabla
+    protected $table = 'users';
     protected $primaryKey = 'id';
     public $timestamps = false;
 
-    /**
-     * El campo que se usará para login (antes era email).
-     */
     public function getAuthIdentifierName()
     {
-        return 'nombre';
+        return 'name';
     }
 
-    /**
-     * Campo que usará Auth::attempt()
-     */
     public function username()
     {
-        return 'nombre';
+        return 'name';
     }
 
     protected $fillable = [
-        'nombre',
-        'password',
-        'role_id'
+        'name', 'email', 'password',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 }
