@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
+use App\Http\Controllers\InsumoController;
+use App\Http\Controllers\TipoInsumoController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +37,13 @@ Route::get('/', function () {
 
 
 //});
+
+//Rutas para Insumos
+    Route::resource('insumos', InsumoController::class);
+    Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
+
+//Rutas para TiposInsumo
+    Route::resource('tipo-insumos', TipoInsumoController::class);
 
 //require __DIR__.'/auth.php';//
 
