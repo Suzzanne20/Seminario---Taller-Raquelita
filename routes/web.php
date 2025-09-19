@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
-use App\Http\Controllers\InsumoController;
+
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 
@@ -50,56 +50,3 @@ Route::resource('cotizaciones', CotizacionController::class);
 Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
     ->name('cotizaciones.aprobar');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Rutas para Insumos
-Route::resource('insumos', InsumoController::class);
-Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
-
-//Rutas para TiposInsumo
-Route::resource('tipo-insumos', TipoInsumoController::class);

@@ -111,7 +111,7 @@
             <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
             <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
             <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-tools me-2"></i>Servicios</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('vehiculos.index') }}"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
             <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°</a></li>
 
             <li class="nav-item dropdown pt-2">
