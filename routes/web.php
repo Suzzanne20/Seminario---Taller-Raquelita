@@ -38,15 +38,68 @@ Route::get('/', function () {
 
 //});
 
-//Rutas para Insumos
-    Route::resource('insumos', InsumoController::class);
-    Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
 
-//Rutas para TiposInsumo
-    Route::resource('tipo-insumos', TipoInsumoController::class);
 
 //require __DIR__.'/auth.php';//
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Rutas para Insumos
+Route::resource('insumos', InsumoController::class);
+Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
+
+//Rutas para TiposInsumo
+Route::resource('tipo-insumos', TipoInsumoController::class);
