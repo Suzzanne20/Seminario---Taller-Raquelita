@@ -6,6 +6,13 @@
 
 import './bootstrap';
 import { createApp } from 'vue';
+import $ from 'jquery';
+window.$ = $;
+window.jQuery = $;
+
+import 'select2/dist/js/select2.min.js';
+import 'select2/dist/css/select2.min.css';
+
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin

@@ -27,4 +27,10 @@ class Insumo extends Model
     {
         return $this->belongsTo(TipoInsumo::class, 'type_insumo_id');
     }
+
+    public function cotizaciones()
+    {
+        return $this->belongsToMany(Cotizacion::class, 'cotizacion_insumo', 'insumo_id', 'cotizacion_id')
+            ->withPivot('cantidad');
+    }
 }
