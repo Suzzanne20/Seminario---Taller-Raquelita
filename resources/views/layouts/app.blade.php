@@ -80,7 +80,7 @@
                     </a>
                 </li>
             @endguest
-                @auth
+            @auth
                 @role('admin')
                 <li class="nav-item pt-2">
                     <a class="nav-link" href="{{ route('users.index') }}">
@@ -106,7 +106,7 @@
                         </li>
                     </ul>
                 </li>
-                @endauth
+            @endauth
 
             <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
             <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
@@ -129,9 +129,9 @@
                     <i class="bi bi-box-seam me-2"></i>Bodega
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
+                    <li><a class="dropdown-item" href="{{ route('insumos.index') }}"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
-                    
+                    <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestionar Tipos Insumos</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
                 </ul>
@@ -174,4 +174,3 @@
 
 </body>
 </html>
-

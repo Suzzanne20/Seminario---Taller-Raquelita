@@ -8,7 +8,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 
- //Landing pública
+//Landing pública
 Route::view('/', 'home')->name('home');
 
 //Ruta de acceso para login y recuperación
