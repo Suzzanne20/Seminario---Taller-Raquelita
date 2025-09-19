@@ -1,54 +1,54 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\InsumoController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 
+//Landing pública
+Route::view('/', 'home')->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+//Ruta de acceso para login y recuperación
+Route::view('/acceso', 'auth.access')->name('acceso');
+
+//Ruta de autenticación Breeze
+require __DIR__.'/auth.php';
 
 
-Route::get('/', function () {
-    return view('welcome');
+//Rutas de autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'welcome')->name('dashboard');
+    Route::view('/welcome', 'welcome');
 });
 
-//Route::get('/dashboard', function () {
-    //return view('dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
-
-//Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('clientes', ClienteController::class);
-    Route::get('/ordenes',  [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::resource('users', App\Http\Controllers\UsersController::class)
+        ->only(['index','store','update','destroy']);
+});
 
 
-//});
+//Rutas sensibles para acceso de usuarios autenticados
+Route::resource('clientes', ClienteController::class)->middleware('auth');
+Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
 
+// Perfil de usuario
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+// Clientes
+Route::resource('clientes', ClienteController::class);
 
-//require __DIR__.'/auth.php';//
+// Órdenes de trabajo
+Route::get('/ordenes',  [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
 
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-
-
-
+// Cotizaciones
+Route::resource('cotizaciones', CotizacionController::class);
+Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
+    ->name('cotizaciones.aprobar');
 
 
 
