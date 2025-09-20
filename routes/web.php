@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
+use App\Http\Controllers\VehiculoController;
 
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
@@ -16,6 +17,10 @@ Route::view('/acceso', 'auth.access')->name('acceso');
 
 //Ruta de autenticación Breeze
 require __DIR__.'/auth.php';
+
+Route::resource('vehiculos', VehiculoController::class);
+Route::resource('tipo-insumos', TipoInsumoController::class);
+Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
 
 
 //Rutas de autenticación
