@@ -96,4 +96,18 @@ class InsumoController extends Controller
         return redirect()->route('insumos.index')
         ->with('success', 'Insumo eliminado correctamente');
     }
+
+    public function destroyMultiple(Request $request)
+    {
+        $ids = $request->input('ids'); // array de IDs seleccionados
+
+         if ($ids && count($ids) > 0) {
+        Insumo::whereIn('id', $ids)->delete();
+        }
+
+        return redirect()->route('insumos.index')
+            ->with('success', 'Insumos eliminados correctamente.');
+    }
+
+
 }

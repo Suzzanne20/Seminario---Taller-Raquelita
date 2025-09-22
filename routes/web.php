@@ -5,7 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\VehiculoController;
-
+use App\Http\Controllers\InsumoController;
+use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 
@@ -19,7 +20,7 @@ Route::view('/acceso', 'auth.access')->name('acceso');
 require __DIR__.'/auth.php';
 
 Route::resource('vehiculos', VehiculoController::class);
-Route::resource('tipo-insumos', TipoInsumoController::class);
+Route::resource('tipo_insumos', TipoInsumoController::class);
 Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
 
 
@@ -55,3 +56,14 @@ Route::resource('cotizaciones', CotizacionController::class);
 Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
     ->name('cotizaciones.aprobar');
 
+
+
+//Rutas para Insumos
+Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
+Route::resource('insumos', InsumoController::class);
+
+//Rutas para TiposInsumo
+Route::resource('tipo-insumos', TipoInsumoController::class);
+
+Auth::routes();
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

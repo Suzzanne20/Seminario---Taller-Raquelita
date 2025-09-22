@@ -130,7 +130,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{ route('insumos.index') }}"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
+                    <li><a class="dropdown-item" href="{{ route('insumos.create') }}"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
                     <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestionar Tipos Insumos</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
@@ -142,8 +142,8 @@
                     <i class="bi bi-wallet2 me-2"></i>Cotizaciones
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
-                    <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
+                    <li><a class="dropdown-item" href="{{ route('cotizaciones.index') }}">Listado de Cotizaciones</a></li>
+                    <li><a class="dropdown-item" href="{{ route('cotizaciones.create') }}">Nueva Cotización</a></li>
                 </ul>
             </li>
 
@@ -167,8 +167,6 @@
     @yield('content')
 </main>
 
-{{-- Bootstrap JS --}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
 

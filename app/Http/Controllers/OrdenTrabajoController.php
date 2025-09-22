@@ -3,64 +3,82 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrdenTrabajo;
+use App\Models\Cotizacion;
+use App\Models\TypeService;
 use Illuminate\Http\Request;
 
 class OrdenTrabajoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
+    // 📌 Listar todas las órdenes
     public function index()
     {
-        return view('ordenes.ot_lista');
+        $ordenes = OrdenTrabajo::with(['cotizacion', 'servicio'])
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('ordenes.ot_lista', compact('ordenes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // 📌 Crear una orden (manual, aunque normalmente se genera desde cotización)
     public function create()
     {
-        //
+        $cotizaciones = Cotizacion::where('estado', 'aprobada')->get();
+        $servicios = TypeService::orderBy('descripcion')->get();
+
+        return view('ordenes.create', compact('cotizaciones', 'servicios'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // 📌 Guardar en BD
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'descripcion'     => 'required|string|max:255',
+            'costo_mo'        => 'nullable|numeric',
+            'total'           => 'nullable|numeric',
+            'type_service_id' => 'required|exists:type_service,id',
+            'empleado_id'     => 'nullable|integer',
+            'cotizacion_id'   => 'required|exists:cotizaciones,id',
+        ]);
+
+        $data['fecha_creacion'] = now();
+
+        OrdenTrabajo::create($data);
+
+        return redirect()->route('ordenes.index')
+            ->with('success', 'Orden de trabajo creada correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(OrdenTrabajo $ordenTrabajo)
+    // 📌 Mostrar detalle
+    public function show(OrdenTrabajo $orden)
     {
-        //
+        $orden->load(['cotizacion', 'servicio']);
+        return view('ordenes.show', compact('orden'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(OrdenTrabajo $ordenTrabajo)
+    // 📌 Editar
+    public function edit(OrdenTrabajo $orden)
     {
-        //
+        $cotizaciones = Cotizacion::where('estado', 'aprobada')->get();
+        $servicios = TypeService::orderBy('descripcion')->get();
+
+        return view('ordenes.edit', compact('orden', 'cotizaciones', 'servicios'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, OrdenTrabajo $ordenTrabajo)
+    // 📌 Actualizar
+    public function update(Request $request, OrdenTrabajo $orden)
     {
-        //
-    }
+        $data = $request->validate([
+            'descripcion'     => 'required|string|max:255',
+            'costo_mo'        => 'nullable|numeric',
+            'total'           => 'nullable|numeric',
+            'type_service_id' => 'required|exists:type_service,id',
+            'empleado_id'     => 'nullable|integer',
+            'cotizacion_id'   => 'required|exists:cotizaciones,id',
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrdenTrabajo $ordenTrabajo)
-    {
-        //
+        $orden->update($data);
+
+    return redirect()->route('ordenes.index')
+            ->with('success', 'Orden de trabajo eliminada correctamente.');
     }
 }
