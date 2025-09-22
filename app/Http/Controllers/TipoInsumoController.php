@@ -21,7 +21,7 @@ class TipoInsumoController extends Controller
      */
     public function create()
     {
-        return view('insumos.tipo-insumos.create');
+        return view('insumos.tipo_insumos.create');
     }
 
     /**
@@ -35,7 +35,7 @@ class TipoInsumoController extends Controller
 
         TipoInsumo::create($request->all());
 
-        return redirect()->route('tipo-insumos.index')->with('success', 'Tipo de insumo creado correctamente.');
+        return redirect()->route('tipo_insumos.index')->with('success', 'Tipo de insumo creado correctamente.');
     }
 
     /**
@@ -67,7 +67,7 @@ class TipoInsumoController extends Controller
         $tiposInsumo = \App\Models\TipoInsumo::findOrFail($id);
         $tiposInsumo->update($request->all());
 
-        return redirect()->route('tipo-insumos.index')->with('success', 'Tipo de insumo actualizado correctamente.');
+        return redirect()->route('tipo_insumos.index')->with('success', 'Tipo de insumo actualizado correctamente.');
     }
 
     /**
@@ -78,6 +78,6 @@ class TipoInsumoController extends Controller
         $tiposInsumo = TipoInsumo::findOrFail($id);
         $tiposInsumo->delete();
 
-        return redirect()->route('tipo-insumos.index')->with('success', 'Tipo de insumo eliminado correctamente.');
+        return redirect()->route('tipo_insumos.index')->with('success', 'Tipo de insumo eliminado correctamente.');
     }
 }
