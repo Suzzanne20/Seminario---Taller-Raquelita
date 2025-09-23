@@ -15,7 +15,8 @@ Route::view('/', 'home')->name('home');
 
 //Ruta de acceso para login y recuperación
 Route::view('/acceso', 'auth.access')->name('acceso');
-
+//Ruta de autenticación Breeze
+//Ruta de autenticación Breeze
 //Ruta de autenticación Breeze
 require __DIR__.'/auth.php';
 
