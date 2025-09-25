@@ -1,85 +1,70 @@
 <?php
-use Illuminate\Support\Facades\Route;
 
-// Controllers
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UsersController;           // Admin > gestión de usuarios
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\CotizacionController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
-// use App\Http\Controllers\InspeccionController; cuando se habilite
 
-// ────────────────────────────────────────────────────────────────
-//   PÚBLICO (sin autenticación)
+//Landing pública
+Route::view('/', 'home')->name('home');
 
-    Route::view('/', 'home')->name('home'); // Landing pública
-    Route::view('/acceso', 'auth.access')->name('acceso'); // Pantalla de acceso (login/recuperación)
-    require __DIR__.'/auth.php'; // Rutas de autenticación Breeze
+//Ruta de acceso para login y recuperación
+Route::view('/acceso', 'auth.access')->name('acceso');
+//Ruta de autenticación Breeze
+//Ruta de autenticación Breeze
+//Ruta de autenticación Breeze
+require __DIR__.'/auth.php';
 
-// ────────────────────────────────────────────────────────────────
-//   ZONA DE AUTENTICACIÓN (requiere login/verificación)
+Route::resource('vehiculos', VehiculoController::class);
+Route::resource('tipo_insumos', TipoInsumoController::class);
+Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
 
-    Route::middleware(['auth', 'verified'])->group(function () {
 
-        // ── Dashboard interna para usuarios autenticados
-        Route::view('/dashboard', 'welcome')->name('dashboard');
-        Route::view('/welcome', 'welcome')->name('welcome');
-
-        // ── Perfil (usuarios autenticados)
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    });
-// ────────────────────────────────────────────────────────────
-//   SECRETARIA (y ADMIN) – Clientes, Órdenes, Cotizaciones
-
-Route::middleware(['auth','role:admin|secretaria'])->group(function () {
-
-    // Clientes
-    Route::resource('clientes', ClienteController::class);
-
-    // Órdenes de trabajo
-    Route::resource('ordenes', OrdenTrabajoController::class);
-    // Si tu navbar también usa /ordenes => name('ordenes.index'):
-    Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
-
-    // Cotizaciones
-    Route::resource('cotizaciones', CotizacionController::class);
-    Route::post('cotizaciones/{cotizacion}/aprobar', [CotizacionController::class,'aprobar'])
-        ->name('cotizaciones.aprobar');
-
-    // Vehículos
-    Route::resource('vehiculos', VehiculoController::class);
-
+//Rutas de autenticación
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'welcome')->name('dashboard');
+    Route::view('/welcome', 'welcome');
 });
-// ────────────────────────────────────────────────────────────
-//   MECÁNICO > Cuando se habilite inspecciones
 
-// Route::middleware(['auth','role:mecanico'])->group(function () {
-//     Route::get('/inspecciones360', [InspeccionController::class, 'index'])->name('inspecciones.index');
-// });
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::resource('users', App\Http\Controllers\UsersController::class)
+        ->only(['index','store','update','destroy']);
+});
 
-// ────────────────────────────────────────────────────────────
-//   ADMINISTRADOR (acceso completo) - Usuarios, catalogos y bodega
 
-    Route::middleware(['auth','role:admin'])->group(function () {
+//Rutas sensibles para acceso de usuarios autenticados
+Route::resource('clientes', ClienteController::class)->middleware('auth');
+Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
 
-        // Usuarios (ABM)
-        Route::resource('users', UsersController::class)->only(['index','store','update','destroy']);
+// Perfil de usuario
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Vehículos
-        Route::resource('vehiculos', VehiculoController::class);
+// Clientes
+Route::resource('clientes', ClienteController::class);
 
-        // Bodega / Insumos
-        Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])
-            ->name('insumos.destroyMultiple');
-        Route::resource('insumos', InsumoController::class);
+// Órdenes de trabajo
+Route::get('/ordenes',  [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
 
-        // Tipos de insumo
-        Route::resource('tipo-insumos', TipoInsumoController::class);
-        //Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
-    });
+// Cotizaciones
+Route::resource('cotizaciones', CotizacionController::class);
+Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
+    ->name('cotizaciones.aprobar');
 
+
+
+//Rutas para Insumos
+Route::delete('insumos/eliminar-multiples', [InsumoController::class, 'destroyMultiple'])->name('insumos.destroyMultiple');
+Route::resource('insumos', InsumoController::class);
+
+//Rutas para TiposInsumo
+Route::resource('tipo-insumos', TipoInsumoController::class);
+
+Auth::routes();
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

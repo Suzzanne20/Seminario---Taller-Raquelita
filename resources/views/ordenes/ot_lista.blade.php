@@ -44,40 +44,31 @@
                 <th style="padding:10px; text-align:center;">Acciones</th>
             </tr>
             </thead>
-            <tbody>
-            @forelse($clientes as $cliente)
-                <tr style="background:#F4EFEE; border-bottom:1px solid #000;">
-                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->id }}</td>
-                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->nombre }}</td>
-                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->nit }}</td>
-                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->telefono }}</td>
-                    <td style="padding:10px; border-bottom:1px solid #000;">{{ $cliente->direccion }}</td>
-                    <td style="padding:10px; text-align:center; border-bottom:1px solid #000;">
-                        <div style="display:flex; gap:8px; justify-content:center;">
-                            <a href="{{ route('clientes.edit', $cliente->id) }}"
-                               style="background:#C24242; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
-                                Editar
-                            </a>
-                            <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        onclick="return confirm('¿Seguro que deseas eliminar este cliente?')"
-                                        style="background:#9F3B3B; color:white; padding:6px 12px; border:none; border-radius:5px; cursor:pointer;">
-                                    <!--   <i class="bi bi-eye"></i>             Icono Ver -->
-                                    <!--   <i class="bi bi-pencil-square"></i>   Icono editar -->
-                                    <!--   <i class="bi bi-trash"></i>         Icono Ver -->
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" style="padding:15px; text-align:center;">No hay clientes registrados.</td>
-                </tr>
-            @endforelse
-            </tbody>
+<tbody>
+@forelse($ordenes as $orden)
+    <tr>
+        <td>{{ $orden->id }}</td>
+        <td>{{ $orden->fecha_creacion->format('d/m/Y') }}</td>
+        <td>{{ $orden->descripcion }}</td>
+        <td>{{ $orden->costo_mo }}</td>
+        <td>{{ $orden->total }}</td>
+        <td>{{ $orden->servicio->descripcion ?? 'N/A' }}</td>
+        <td>{{ $orden->cotizacion->descripcion ?? 'N/A' }}</td>
+        <td>
+            <a href="{{ route('ordenes.edit', $orden->id) }}">Editar</a>
+            <form action="{{ route('ordenes.destroy', $orden->id) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" onclick="return confirm('¿Eliminar orden?')">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="8">No hay órdenes registradas.</td>
+    </tr>
+@endforelse
+</tbody>
         </table>
     </div>
 @endsection

@@ -96,3 +96,35 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.getElementById('formCrearInsumo').addEventListener('submit', function(e){
+            e.preventDefault(); // Evita que la página se recargue
+
+            let formData = new FormData(this);
+
+            fetch("{{ route('insumos.store') }}", {
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.message){
+                        alert(data.message); // Puedes cambiar esto por un mensaje bonito en pantalla
+                        // Opcional: cerrar modal y limpiar formulario
+                        var modal = bootstrap.Modal.getInstance(document.getElementById('crearInsumoModal'));
+                        modal.hide();
+                        this.reset();
+                        // Opcional: agregar fila nueva a la tabla sin recargar (más avanzado)
+                        location.reload(); // O eliminar y actualizar solo tabla si quieres SPA
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+@endpush
+
