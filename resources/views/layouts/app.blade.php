@@ -73,14 +73,117 @@
                     alt="logo" width="110" height="110" style="margin-top:-30px;">
             </li>
 
-            @guest
+            <li class="nav-item dropdown pt-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-badge me-2"></i>{{ $roleName ?? 'Usuario' }}
+                    </a>
+
                 <li class="nav-item pt-2">
-                    <a class="nav-link" href="{{ route('acceso') }}">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                    <a class="nav-link" href="{{ route('home') }}">
+                        <i class="bi bi-house me-2"></i>Inicio
                     </a>
                 </li>
-            @endguest
-                @auth
+                <li class="nav-item pt-2">
+                    <a class="nav-link" href="#">
+                        <i class="bi bi-tools me-2"></i>Servicios
+                    </a>
+                </li>
+                @guest
+                    <li class="nav-item pt-2">
+                        <a class="nav-link" href="{{ route('acceso') }}">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                        </a>
+                    </li>
+                @endguest
+
+            @auth
+                @php
+                    $roleName = Auth::user()->getRoleNames()->first();
+                @endphp
+                {{-- MENÚS COMPARTIDOS: ADMIN | SECRETARIA --}}
+                @hasanyrole('admin|secretaria')
+
+                {{-- Vehículos (solo index/show para secretaria si así lo definiste en las rutas) --}}
+                <li class="nav-item pt-2">
+                    <a class="nav-link" href="{{ route('vehiculos.index') }}">
+                        <i class="bi bi-car-front-fill me-2"></i>Vehículos
+                    </a>
+                </li>
+
+                {{-- Órdenes de trabajo --}}
+                <li class="nav-item dropdown pt-2">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-card-list me-2"></i>Órdenes de Trabajo
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('ordenes.index') }}">
+                                <i class="bi bi-ev-front me-2"></i>Listado de Órdenes
+                            </a>
+                        </li>
+                        {{-- Si secretaria también puede crear: deja este item, si no, quítalo --}}
+                        <li>
+                            <a class="dropdown-item" href="{{ route('ordenes.create') }}">
+                                <i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Bodega / Insumos --}}
+                <li class="nav-item dropdown pt-2">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-box-seam me-2"></i>Bodega
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('insumos.index') }}">
+                                <i class="bi bi-dropbox me-2"></i>Inventario
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('insumos.create') }}">
+                                <i class="bi bi-pencil-square me-2"></i>Registro de Insumos
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('tipo-insumos.index') }}">
+                                <i class="bi bi-sliders me-2"></i>Gestionar Tipos de Insumo
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                {{-- Cotizaciones --}}
+                <li class="nav-item dropdown pt-2">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-wallet2 me-2"></i>Cotizaciones
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('cotizaciones.index') }}">Listado de Cotizaciones</a></li>
+                        <li><a class="dropdown-item" href="{{ route('cotizaciones.create') }}">Nueva Cotización</a></li>
+                    </ul>
+                </li>
+
+                {{-- Clientes --}}
+                <li class="nav-item pt-2">
+                    <a class="nav-link" href="{{ route('clientes.index') }}">
+                        <i class="bi bi-people me-2"></i>Clientes
+                    </a>
+                </li>
+                @endhasanyrole
+
+                {{-- MECÁNICO (cuando lo habiliten) --}}
+                {{--
+                @role('mecanico')
+                <li class="nav-item pt-2">
+                    <a class="nav-link" href="{{ route('inspecciones.index') }}">
+                        <i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°
+                    </a>
+                </li>
+                @endrole
+                --}}
+                {{-- ADMIN: Gestión de usuarios --}}
                 @role('admin')
                 <li class="nav-item pt-2">
                     <a class="nav-link" href="{{ route('users.index') }}">
@@ -89,64 +192,39 @@
                 </li>
                 @endrole
 
-                <li class="nav-item dropdown pt-2">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-2"></i>{{ Auth::user()->name }}
+                <li class="nav-item dropdown pt-2 ms-auto">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-badge me-2"></i>{{ $roleName ?? 'Usuario' }}
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-gear me-2"></i>Perfil</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {{-- Perfil (opcional) --}}
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                <i class="bi bi-person-circle me-2"></i>Perfil
+                            </a>
+                        </li>
+
+                        @role('admin')
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <a class="dropdown-item" href="{{ route('users.index') }}">
+                                <i class="bi bi-people me-2"></i>Usuarios
+                            </a>
+                        </li>
+                        @endrole
+
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" class="px-2">
                                 @csrf
                                 <button type="submit" class="dropdown-item">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
                                 </button>
                             </form>
                         </li>
                     </ul>
                 </li>
-                @endauth
-
-            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-tools me-2"></i>Servicios</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°</a></li>
-
-            <li class="nav-item dropdown pt-2">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-card-list me-2"></i>Órdenes de Trabajo
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{ route('ordenes.index') }}"><i class="bi bi-ev-front me-2"></i>Listado de Órdenes</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
-                </ul>
-            </li>
-
-            <li class="nav-item dropdown pt-2">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-box-seam me-2"></i>Bodega
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
-                </ul>
-            </li>
-
-            <li class="nav-item dropdown pt-2">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-wallet2 me-2"></i>Cotizaciones
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
-                    <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
-                </ul>
-            </li>
-
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-person-rolodex me-2"></i>Técnicos</a></li>
+            @endauth
         </ul>
 
         <hr class="mt-3 mb-2">

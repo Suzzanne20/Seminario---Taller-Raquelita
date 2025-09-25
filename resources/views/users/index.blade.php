@@ -34,6 +34,24 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="m-0">Usuarios</h2>
+            <form method="GET" class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <input name="q" value="{{ $q }}" class="form-control" placeholder="Buscar por nombre o correo">
+                </div>
+                <div class="col-md-4">
+                    <select name="role" class="form-select">
+                        <option value="">— Todos los roles —</option>
+                        @foreach($roles as $id => $name)
+                            <option value="{{ $name }}" @selected($role===$name)>{{ ucfirst($name) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary">Filtrar</button>
+                </div>
+            </form>
+
+
             <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#modalCreate">
                 <i class="bi bi-person-plus me-1"></i> Nuevo usuario
             </button>
@@ -153,7 +171,7 @@
                                 <label class="form-label">Rol</label>
                                 <select name="role" class="form-select" required>
                                     @foreach($roles as $role)
-                                        <option value="{{ $role->name }}" @selected(old('role')===$role->name)>
+                                        <option value="{{ $role->name }}" @selected(request('role')===$role->name)>
                                             {{ ucfirst($role->name) }}
                                         </option>
                                     @endforeach

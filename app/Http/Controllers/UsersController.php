@@ -15,12 +15,24 @@ class UsersController extends Controller
         $this->middleware(['auth','role:admin']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Usuarios con su rol
-        $users = User::with('roles')->orderBy('name')->paginate(10);
+        $query = \App\Models\User::query()->with('roles');
 
-        // Roles disponibles para los selects
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function($qq) use ($q) {
+                $qq->where('name', 'like', "%$q%")
+                    ->orWhere('email', 'like', "%$q%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->whereHas('roles', fn($r) => $r->where('name', $request->role));
+        }
+
+        $users = $query->orderBy('name')->paginate(10)->withQueryString();
+
         $roles = Role::orderBy('name')->get();
 
         return view('users.index', compact('users','roles'));
