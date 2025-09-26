@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cotizacion extends Model
 {
-    protected $table = 'cotizacion';
+    protected $table = 'cotizaciones'; // 👈 plural
     public $timestamps = false;
 
     protected $fillable = [
@@ -15,37 +15,42 @@ class Cotizacion extends Model
         'costo_mo',
         'total',
         'type_service_id',
-        'estado'
+        'estado_id'
     ];
+
     protected $casts = [
         'fecha_creacion' => 'datetime',
         'costo_mo' => 'decimal:2',
         'total' => 'decimal:2',
     ];
 
+    // Relación con servicios
     public function servicio()
     {
         return $this->belongsTo(TypeService::class, 'type_service_id');
     }
 
+    // Relación con insumos (pivot cotizacion_insumo)
     public function insumos()
     {
-        return $this->belongsToMany(
-            Insumo::class,
-            'cotizacion_insumo',
-            'cotizacion_id',
-            'insumo_id'
-        )->withPivot('cantidad');
+        return $this->belongsToMany(Insumo::class, 'cotizacion_insumo')
+            ->withPivot('cantidad');
     }
 
-    public function recalcularTotal(): float
+    // Relación con estado
+    public function estado()
+    {
+        return $this->belongsTo(Estado::class, 'estado_id');
+    }
+
+
+    // 🔽 Método que faltaba
+    public function recalcularTotal()
     {
         $subtotalInsumos = $this->insumos->sum(function ($insumo) {
-            return (float)$insumo->precio * (float)$insumo->pivot->cantidad;
+            return $insumo->precio * $insumo->pivot->cantidad;
         });
 
-        $total = (float)$subtotalInsumos + (float)($this->costo_mo ?? 0);
-        $this->total = $total;
-        return $total;
+        $this->total = $subtotalInsumos + ($this->costo_mo ?? 0);
     }
 }
