@@ -9,6 +9,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
+use App\Http\Controllers\InventarioController;
 
 //Landing pública
 Route::view('/', 'home')->name('home');
@@ -68,3 +69,9 @@ Route::resource('tipo-insumos', TipoInsumoController::class);
 
 Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+//inventario
+
+Route::get('/inventario', [InventarioController::class, 'index'])
+    ->name('inventario.index')
+    ->middleware('auth');
