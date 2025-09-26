@@ -22,8 +22,8 @@ class UsersController extends Controller
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function($qq) use ($q) {
-                $qq->where('name', 'like', "%$q%")
-                    ->orWhere('email', 'like', "%$q%");
+                $qq->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
             });
         }
 
@@ -33,7 +33,8 @@ class UsersController extends Controller
 
         $users = $query->orderBy('name')->paginate(10)->withQueryString();
 
-        $roles = Role::orderBy('name')->get();
+        // ¡OJO! => get() devuelve objetos Role (lo que queremos)
+        $roles = \Spatie\Permission\Models\Role::orderBy('name')->get();
 
         return view('users.index', compact('users','roles'));
     }
