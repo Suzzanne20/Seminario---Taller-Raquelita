@@ -58,7 +58,7 @@
                 @endguest
 
                 @auth
-                    <a href="{{ route('dashboard') }}" class="btn btn-brand">Ir al panel</a>{{--Dirige al welcome donde se encuentra información interna del taller--}}
+                    <a href="{{ route('welcome') }}" class="btn btn-brand">Ir al panel</a>{{--Dirige al welcome donde se encuentra información interna del taller--}}
                 @endauth
             </div>
         </section>
