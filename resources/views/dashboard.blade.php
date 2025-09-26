@@ -1,32 +1,26 @@
 @extends('layouts.app')
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold">Panel</h2>
-    </x-slot>
+@section('title','Dashboard')
 
-    <div class="p-6 space-y-4">
-        @role('admin')
-        <div class="p-4 rounded" style="background:#F3EEEE;border:1px solid #eee">
-            <h3 class="font-bold">Administración</h3>
-            <ul class="list-disc ml-5">
-                <li><a class="underline" href="{{ route('admin.users.index') }}">Gestión de usuarios</a></li>
-                <!-- más accesos sensibles -->
-            </ul>
-        </div>
-        @elserole('employee')
-        <div class="p-4 rounded" style="background:#F3EEEE;border:1px solid #eee">
-            <h3 class="font-bold">Empleado</h3>
-            <p>Accesos a órdenes asignadas, tareas del día, etc.</p>
-        </div>
-        @elserole('secretary')
-        <div class="p-4 rounded" style="background:#F3EEEE;border:1px solid #eee">
-            <h3 class="font-bold">Secretaría</h3>
-            <p>Recepción, agenda, contacto con clientes…</p>
-        </div>
-        @else
-            <div class="p-4 rounded bg-yellow-50 border">
-                No tienes rol asignado. Contacta a la administradora.
+@section('content')
+    <div class="container py-4">
+        <h2 class="mb-3">Panel de control</h2>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-people fs-3 me-2"></i>
+                            <div>
+                                <div class="fw-bold">Usuarios</div>
+                                <small class="text-muted">Gestión de cuentas y roles</small>
+                            </div>
+                        </div>
+                        <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-primary mt-3">Ir a usuarios</a>
+                    </div>
+                </div>
             </div>
-            @endrole
+            {{-- DASHBOARD... --}}
+        </div>
     </div>
-</x-app-layout>
+@endsection
