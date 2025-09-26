@@ -31,22 +31,26 @@ Route::middleware(['auth','role:admin'])->group(function () {
 
 
 //Rutas sensibles para acceso de usuarios autenticados
-Route::resource('clientes', ClienteController::class)->middleware('auth');
-Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
+Route::resource('clientes',              ClienteController::class)->middleware('auth');
+Route::get('/ordenes',                  [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');
 
 // Perfil de usuario
-Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::get('/profile',                  [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile',                [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile',               [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 // Clientes
 Route::resource('clientes', ClienteController::class);
 
-// Órdenes de trabajo
-Route::get('/ordenes',  [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
 
 // Cotizaciones
-Route::resource('cotizaciones', CotizacionController::class);
-Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar'])
-    ->name('cotizaciones.aprobar');
+Route::resource('cotizaciones',                    CotizacionController::class);
+Route::post('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class,'aprobar']) ->name('cotizaciones.aprobar');
 
+//Ordenes de Trabajo <----------------
+Route::get('/ordenes',                 [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
+Route::get('/ordenes/crear',           [OrdenTrabajoController::class, 'create'])->name('ordenes.create');
+Route::post('/ordenes',                [OrdenTrabajoController::class, 'store'])->name('ordenes.store');
+Route::get('/ordenes/{orden}/editar',  [OrdenTrabajoController::class, 'edit'])->name('ordenes.edit');
+Route::put('/ordenes/{orden}',         [OrdenTrabajoController::class, 'update'])->name('ordenes.update');
+Route::delete('/ordenes/{orden}',      [OrdenTrabajoController::class, 'destroy'])->name('ordenes.destroy');
