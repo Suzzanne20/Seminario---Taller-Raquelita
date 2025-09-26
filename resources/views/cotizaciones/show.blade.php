@@ -27,8 +27,8 @@
             </div>
         </div>
 
-        {{-- Botón aprobar --}}
-        @if($cotizacion->estado === 'pendiente')
+        {{-- Botón aprobar (solo si está pendiente) --}}
+        @if($cotizacion->estado && strtolower($cotizacion->estado->nombre) === 'pendiente')
             <form action="{{ route('cotizaciones.aprobar',$cotizacion->id) }}" method="POST" class="mb-3">
                 @csrf
                 <button class="btn"
@@ -39,12 +39,15 @@
         @endif
 
         {{-- Estado --}}
-        @if($cotizacion->estado === 'aprobada')
-            <span class="badge bg-success">Aprobada</span>
-        @elseif($cotizacion->estado === 'rechazada')
-            <span class="badge bg-danger">Rechazada</span>
-        @elseif($cotizacion->estado === 'pendiente')
-            <span class="badge bg-warning text-dark">Pendiente</span>
+        @if($cotizacion->estado)
+            @php $estado = strtolower($cotizacion->estado->nombre); @endphp
+            @if($estado === 'aprobada')
+                <span class="badge bg-success">Aprobada</span>
+            @elseif($estado === 'rechazada')
+                <span class="badge bg-danger">Rechazada</span>
+            @elseif($estado === 'pendiente')
+                <span class="badge bg-warning text-dark">Pendiente</span>
+            @endif
         @endif
 
         {{-- Datos generales --}}
