@@ -12,7 +12,7 @@ class CotizacionController extends Controller
     // Listar todas las cotizaciones
     public function index()
     {
-        $cotizaciones = Cotizacion::with('servicio')
+        $cotizaciones = Cotizacion::with(['servicio', 'estado'])
             ->orderByDesc('id')
             ->paginate(10);
 
@@ -40,17 +40,17 @@ class CotizacionController extends Controller
             'insumos.*.cantidad' => 'nullable|integer|min:0',
         ]);
 
-        // 1. Crear la cotización primero
+        // 1. Crear la cotización con estado_id = 1 (pendiente)
         $cot = Cotizacion::create([
-            'fecha_creacion' => now(),
-            'descripcion'    => $data['descripcion'],
-            'costo_mo'       => $data['costo_mo'] ?? 0,
-            'total'          => 0,
-            'type_service_id'=> $data['type_service_id'],
-            'estado'         => 'pendiente'
+            'fecha_creacion'  => now(),
+            'descripcion'     => $data['descripcion'],
+            'costo_mo'        => $data['costo_mo'] ?? 0,
+            'total'           => 0,
+            'type_service_id' => $data['type_service_id'],
+            'estado_id'       => 1 // 1 = pendiente
         ]);
 
-        // 2. Preparar insumos válidos (solo los seleccionados con cantidad > 0)
+        // 2. Preparar insumos válidos
         if (!empty($data['insumos'])) {
             $syncData = [];
             foreach ($data['insumos'] as $item) {
@@ -74,7 +74,7 @@ class CotizacionController extends Controller
     // Ver detalle de una cotización
     public function show(Cotizacion $cotizacione)
     {
-        $cotizacione->load(['servicio', 'insumos']);
+        $cotizacione->load(['servicio', 'insumos', 'estado']);
         return view('cotizaciones.show', ['cotizacion' => $cotizacione]);
     }
 
@@ -100,9 +100,9 @@ class CotizacionController extends Controller
         ]);
 
         $cotizacione->update([
-            'descripcion'    => $data['descripcion'],
-            'costo_mo'       => $data['costo_mo'] ?? 0,
-            'type_service_id'=> $data['type_service_id'],
+            'descripcion'     => $data['descripcion'],
+            'costo_mo'        => $data['costo_mo'] ?? 0,
+            'type_service_id' => $data['type_service_id'],
         ]);
 
         if (!empty($data['insumos'])) {
@@ -133,14 +133,13 @@ class CotizacionController extends Controller
     // Aprobar cotización y generar orden de trabajo
     public function aprobar(Cotizacion $cotizacione)
     {
-        $cotizacione->estado = 'aprobada';
+        $cotizacione->estado_id = 2; // 2 = aprobada
         $cotizacione->save();
 
         // 🔽 Descontar stock de cada insumo
         foreach ($cotizacione->insumos as $insumo) {
             $cantidad = $insumo->pivot->cantidad;
 
-            // Solo si hay stock suficiente
             if ($insumo->stock >= $cantidad) {
                 $insumo->decrement('stock', $cantidad);
             } else {
