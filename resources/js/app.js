@@ -9,7 +9,7 @@ import { createApp } from 'vue';
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $;
-import 'bootstrap/dist/js/bootstrap.bundle.min.js' //Carga popper de bootstrap
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'select2/dist/js/select2.min.js';
 import 'select2/dist/css/select2.min.css';
 
