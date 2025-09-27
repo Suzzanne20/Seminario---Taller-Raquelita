@@ -11,7 +11,9 @@
 @endpush
 
 @section('content')
-    <div class="container" style="padding:20px;"> <br><br>
+    <div class="container" style="padding:20px;">
+        <br>
+        <br>
 
         <h1 style="color:#C24242;">Gestión de Clientes</h1>
 
