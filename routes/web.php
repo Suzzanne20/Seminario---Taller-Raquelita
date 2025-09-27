@@ -80,6 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('cotizaciones', CotizacionController::class);
         Route::post('cotizaciones/{cotizacion}/aprobar', [CotizacionController::class, 'aprobar'])
             ->name('cotizaciones.aprobar');
+        Route::post('cotizaciones/{cotizacione}/rechazar', [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
+
 
         // Vehículos
         Route::resource('vehiculos', VehiculoController::class)->only(['index','create','store','edit','update','show']);
