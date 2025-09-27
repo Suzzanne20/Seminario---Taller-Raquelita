@@ -9,6 +9,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
+use App\Http\Controllers\RecepcionController;
 
 //Landing pública
 Route::view('/', 'home')->name('home');
@@ -37,6 +38,20 @@ Route::middleware(['auth','role:admin'])->group(function () {
 });
 
 
+// Inpecccion xd
+Route::get('/inspecciones/inicio', [RecepcionController::class, 'start'])->name('inspecciones.start');
+
+// Registrar
+Route::get('/inspecciones/crear', [RecepcionController::class,'create'])->name('inspecciones.create');
+Route::post('/inspecciones',      [RecepcionController::class,'store'])->name('inspecciones.store');
+
+// **Listado (GET) -> necesario para el botón Modificar**
+Route::get('/inspecciones',       [RecepcionController::class,'index'])->name('inspecciones.index');
+
+Route::get('/inspecciones/{rec}',        [RecepcionController::class,'show'])->name('inspecciones.show');
+Route::get('/inspecciones/{rec}/editar', [RecepcionController::class,'edit'])->name('inspecciones.edit');
+Route::put('/inspecciones/{rec}',        [RecepcionController::class,'update'])->name('inspecciones.update');
+Route::delete('/inspecciones/{rec}',     [RecepcionController::class,'destroy'])->name('inspecciones.destroy');
 //Rutas sensibles para acceso de usuarios autenticados
 Route::resource('clientes', ClienteController::class)->middleware('auth');
 Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index')->middleware('auth');

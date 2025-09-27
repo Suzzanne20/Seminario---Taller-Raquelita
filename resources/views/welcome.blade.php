@@ -10,7 +10,14 @@
     <div class="hero-content">
       <h1>Centro de Servicio</h1>
       <p>Organiza tu taller, mejora tu servicio y controla todo desde un solo lugar</p>
+
       <a href="{{ route('clientes.index') }}" class="btn">Ir a Clientes</a>
+
+      @if (Route::has('inspecciones.start'))
+        <a href="{{ route('inspecciones.start') }}" class="btn btn-danger" style="margin-left:.5rem">
+          Inspección 360
+        </a>
+      @endif
     </div>
   </section>
 
@@ -18,12 +25,16 @@
   <section class="cta-bar">
     <a href="{{ route('clientes.index') }}" class="pill">Clientes</a>
     <a href="{{ route('ordenes.index') }}" class="pill">Órdenes de Trabajo</a>
+
+    @if (Route::has('inspecciones.start'))
+      <a href="{{ route('inspecciones.start') }}" class="pill">Inspección 360</a>
+    @endif
   </section>
 
   {{-- Misión y Visión --}}
   <section class="mision-vision" id="mision-vision">
     <div class="container">
-      <h2>Misión</h2>
+      <h2>Misiónnnnn</h2>
       <p>Brindar un servicio técnico automotriz integral, transparente y de calidad, optimizando cada proceso del taller mediante tecnología.</p>
       <h2>Visión</h2>
       <p>Ser el taller líder en la región en gestión administrativa y técnica, destacando por su innovación y digitalización de procesos.</p>
