@@ -47,7 +47,7 @@ class OrdenTrabajo extends Model
 
     public function estadoActual(): HasOne
     {
-        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latestOfMany('id');
+        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latest('id');
     }
 
     public function asignaciones(): HasMany

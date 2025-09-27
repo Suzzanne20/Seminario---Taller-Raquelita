@@ -25,7 +25,7 @@ class OrdenTrabajoController extends Controller
     {
         $vehiculos   = Vehiculo::orderBy('placa')->get(['placa','linea','modelo']);
         $servicios   = TypeService::orderBy('descripcion')->get(['id','descripcion']);
-        $estados     = Estado::orderBy('nombre')->get(['id','nombre']); // por si deseas elegirlo
+        $estados     = Estado::orderBy('nombre')->get(['id','nombre']); 
 
         return view('ordenes.ot_registro', compact('vehiculos','servicios','estados'));
     }

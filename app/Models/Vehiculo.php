@@ -15,7 +15,7 @@ class Vehiculo extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'placa', 'modelo', 'linea', 'motor', 'cilindraje', 'marca_id'
+        'placa','modelo','linea','motor','cilindraje','type_vehiculo_id','marca_id'
     ];
 
     public function setPlacaAttribute($value)

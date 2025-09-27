@@ -396,13 +396,7 @@ Tecnicos</a>
         <!-- Nav tabs -->
         <ul class="nav nav-tabs tab-lite mb-3 border-0">
           <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vehiculo">Vehículo</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fotos">Fotos</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-notas">Notas</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-informe">Informe</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tareas">Tareas</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-citas">Citas</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pago">Pago</button></li>
-          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-info">Info</button></li>
+
         </ul>
 
         <div class="tab-content">
@@ -429,21 +423,38 @@ Tecnicos</a>
                   <input type="text" class="form-control shape-input" value="51,141 Kms">
                 </div>
                 <div class="col-md-6">
-                  <div class="text-secondary small d-flex align-items-center justify-content-between">
-                    <span>Nivel de Combustible</span>
-                    <span class="fw-semibold">50%</span>
-                  </div>
-                  <div class="fuel mt-1">
-                    <div class="seg on"></div>
-                    <div class="seg on"></div>
-                    <div class="seg on"></div>
-                    <div class="seg"></div>
-                    <div class="seg"></div>
-                  </div>
-                  <div class="d-flex justify-content-between fuel-legend mt-1">
-                    <span>E</span><span>1/4</span><span>1/2</span><span>3/4</span><span>F</span>
-                  </div>
+				  <div class="text-secondary small">Proximo Servicio</div>
+                  <input type="text" class="form-control shape-input" value="51,141 Kms">
+
                 </div>
+				
+				
+				<div class="text-secondary small">Tecnico asignado</div>
+                 <select class="form-select shape-input" aria-label="Mecanico">
+					    <option selected>Mecanico</option>
+						<option value="1">One</option>
+						<option value="2">Two</option>
+						<option value="3">Three</option>
+				 </select>
+				<div class="text-secondary small">Estado de la Orden de Trabajo</div>
+				 <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+				  <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+				  <label class="btn btn-outline-dark" for="btnradio1">Nueva</label>
+
+				  <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+				  <label class="btn btn-outline-dark" for="btnradio2">Asignada</label>
+
+				  <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+				  <label class="btn btn-outline-dark" for="btnradio3">Pendiente</label>
+				  
+				  <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off">
+				  <label class="btn btn-outline-dark" for="btnradio4">En proceso</label>
+				  
+				  <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off">
+				  <label class="btn btn-outline-dark" for="btnradio5">Finalizada</label>
+				</div>
+				<br>
+				 				
               </div>
 
               <div class="d-flex flex-wrap gap-2 mt-4">
@@ -451,39 +462,11 @@ Tecnicos</a>
                   <i class="bi bi-car-front-fill"></i> Inspección de Ingreso a taller
                 </button>
                 <button class="action-pill secondary">
-                  <i class="bi bi-clipboard2-check-fill"></i> Otra Inspección
+                  <i class="bi bi-clipboard2-check-fill"></i> Cotizacion
                 </button>
               </div>
 
-              <div class="mt-4">
-                <div class="section-title mb-2">Estado General Del Vehículo</div>
-                <textarea class="form-control shape-input" rows="3" placeholder="Ej: Raya en la puerta del copiloto">Raya en la puerta del copiloto</textarea>
-              </div>
 
-              <div class="mt-4">
-                <div class="section-title mb-2">Inventario del vehículo</div>
-                <div class="inv-grid">
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i1"><label class="form-check-label" for="i1">Antenas</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i2" checked><label class="form-check-label" for="i2">Gata</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i3"><label class="form-check-label" for="i3">Pisos</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i4"><label class="form-check-label" for="i4">Gris</label></div>
-
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i5"><label class="form-check-label" for="i5">Botiquín</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i6" checked><label class="form-check-label" for="i6">Herramientas</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i7"><label class="form-check-label" for="i7">Rueda de repuesto</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i8"><label class="form-check-label" for="i8">Tag</label></div>
-
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i9"><label class="form-check-label" for="i9">Documentos</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i10"><label class="form-check-label" for="i10">Llave 1</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i11"><label class="form-check-label" for="i11">Tapas de ruedas</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i12"><label class="form-check-label" for="i12">Triángulos</label></div>
-
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i13"><label class="form-check-label" for="i13">Encendedor</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i14"><label class="form-check-label" for="i14">Llave 2</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i17"><label class="form-check-label" for="i17">Extintor</label></div>
-                  <div class="form-check"><input class="form-check-input" type="checkbox" id="i18"><label class="form-check-label" for="i18">Llave de rueda</label></div>
-                </div>
-              </div>
 
               <div class="mt-4 d-flex justify-content-end no-print">
                 <button class="btn btn-primary btn-pill" onclick="window.print()">

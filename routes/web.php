@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrdenTrabajoController;
+use App\Http\Controllers\CotizacionController;
 
 use App\Http\Controllers\UsersController;
 
@@ -20,7 +21,7 @@ require __DIR__.'/auth.php';
 
 //Rutas de autenticación
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('/dashboard', 'welcome')->name('dashboard');
+    Route::view('/dashboard', 'welcome')->name('welcome');
     Route::view('/welcome', 'welcome');
 });
 

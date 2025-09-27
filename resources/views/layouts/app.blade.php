@@ -13,8 +13,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     {{-- Estilos con Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-      <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
+
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
 
     {{-- Estilos puntuales del header --}}
     <style>
@@ -110,11 +110,11 @@
                 </li>
                 @endauth
 
-            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-tools me-2"></i>Servicios</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
-            <li class="nav-item pt-2"><a class="nav-link" href="#"><i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}"><i class="bi bi-house me-2"></i>Inicio</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}"><i class="bi bi-bar-chart me-2"></i>Dashboard</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}"><i class="bi bi-tools me-2"></i>Servicios</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}"><i class="bi bi-car-front-fill me-2"></i>Vehículos</a></li>
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}"><i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°</a></li>
 
             <li class="nav-item dropdown pt-2">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -122,7 +122,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{ route('ordenes.index') }}"><i class="bi bi-ev-front me-2"></i>Listado de Órdenes</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
+                    <li><a class="dropdown-item" href="{{ route('ordenes.create') }}"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
                 </ul>
             </li>
 
@@ -131,8 +131,8 @@
                     <i class="bi bi-box-seam me-2"></i>Bodega
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
+                    <li><a class="dropdown-item" href="{{ route('welcome') }}"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
+                    <li><a class="dropdown-item" href="{{ route('welcome') }}"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
                 </ul>
@@ -143,8 +143,8 @@
                     <i class="bi bi-wallet2 me-2"></i>Cotizaciones
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Listado de Cotizaciones</a></li>
-                    <li><a class="dropdown-item" href="#">Nueva Cotización</a></li>
+                    <li><a class="dropdown-item" href="{{ route('cotizaciones.index') }}">Listado de Cotizaciones</a></li>
+                    <li><a class="dropdown-item" href="{{ route('cotizaciones.create') }}>Nueva Cotización</a></li>
                 </ul>
             </li>
 
