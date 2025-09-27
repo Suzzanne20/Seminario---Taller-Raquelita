@@ -5,7 +5,7 @@
             <!-- Logo -->
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ Auth::check() ? route('dashboard') : route('home') }}">
+                    <a href="{{ Auth::check() ? route('welcome') : route('home') }}">
                         <img src="{{ asset('img/logo.svg') }}" alt="Logo Taller" class="h-10 w-auto">
                     </a>
                 </div>
@@ -14,8 +14,8 @@
             <!-- Navigation Links -->
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 @auth
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                    <x-nav-link :href="route('welcome')" :active="request()->routeIs('welcome')">
+                        {{ __('Welcome') }}
                     </x-nav-link>
 
                     @role('admin')
@@ -95,7 +95,7 @@
     <div :class="{'block': open, 'hidden': !open}" class="hidden sm:hidden">
         @auth
             <div class="pt-2 pb-3 space-y-1">
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                <x-responsive-nav-link :href="route('welcome')" :active="request()->routeIs('welcome')">
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
 

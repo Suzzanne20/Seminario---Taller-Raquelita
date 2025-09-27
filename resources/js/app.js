@@ -9,7 +9,7 @@ import { createApp } from 'vue';
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $;
-
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'select2/dist/js/select2.min.js';
 import 'select2/dist/css/select2.min.css';
 
@@ -22,15 +22,11 @@ import 'select2/dist/css/select2.min.css';
 
 const app = createApp({});
 
-import ExampleComponent from './components/ExampleComponent.vue';
-app.component('example-component', ExampleComponent);
-
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
  * components and automatically register them with their "basename".
  *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
 // Object.entries(import.meta.glob('./**/*.vue', { eager: true })).forEach(([path, definition]) => {
