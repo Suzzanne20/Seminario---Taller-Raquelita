@@ -44,6 +44,25 @@
   .btn.ghost{background:#fff}
   .actions{display:flex;gap:10px}
   .outputWrap{display:none!important}
+
+  /* __________ NUEVO: Forzar texto oscuro dentro del formulario __________ */
+  .isp-form,
+  .isp-form *{ color:#1b1b1b !important; }
+  .isp-form input,
+  .isp-form select,
+  .isp-form textarea{
+    color:#1b1b1b !important;
+    background:#fff !important;
+    border-color:var(--line);
+  }
+  .isp-form select option{ color:#1b1b1b; background:#fff; }
+  .isp-form input::placeholder,
+  .isp-form textarea::placeholder{ color:#9aa0a6 !important; }
+  /* Mantener barra superior con texto claro */
+  .isp-nav{ color:#fff !important; }
+  .isp-nav .tab{ color:#fff !important; }
+  .isp-nav .tab.is-active{ color:var(--brand) !important; }
+  /* --------------- FIN NUEVO --------------- */
 </style>
 
 <form class="isp-form" action="{{ route('inspecciones.store') }}" method="POST" enctype="multipart/form-data">
@@ -239,7 +258,7 @@
       const num = document.createElement('span'); num.className='num'; num.textContent = (i+1)+'.';
 
       const input = document.createElement('input');
-      input.type='text'; input.placeholder='Escribe el detalle'; input.value = it.text;
+      input.type='text'; input.placeholder='Escribe el detalle'; input.value = it.text || '';
       input.addEventListener('input', () => { it.text = input.value; });
 
       const btnImg = document.createElement('button');
