@@ -7,8 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Estado extends Model
 {
-    protected $table = 'estado';   
+    // Nombre de la tabla
+    protected $table = 'estado';
     public $timestamps = false;
 
-    protected $fillable = ['nombre'];
+    // Campos que se pueden llenar en masa
+    protected $fillable = [
+        'nombre'
+    ];
+
+    /**
+     * Relación: un estado puede pertenecer a muchas cotizaciones
+     */
+    public function cotizaciones()
+    {
+        return $this->hasMany(Cotizacion::class, 'estado_id');
+    }
 }
