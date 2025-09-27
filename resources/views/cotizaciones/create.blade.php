@@ -1,7 +1,17 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+  html, body { height: 100%; background: #f0f0f0 !important; }
+  .page-body { min-height: calc(100vh - 72px); background: #f0f0f0 !important; color: #212529; }
+  @media (max-width: 576px) {
+    .page-body { min-height: calc(100vh - 64px); }
+  }
+</style>
+@endpush
+
 @section('content')
-    <div class="container">
+    <div class="container"><br><br>
         <h3 class="fw-bold mb-4" style="color:#1E1E1E;">Nueva Cotización</h3>
 
         {{-- Errores --}}

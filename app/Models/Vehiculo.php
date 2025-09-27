@@ -36,16 +36,6 @@ class Vehiculo extends Model
     }
 
 
-    protected $table = 'vehiculo';
-    protected $primaryKey = 'placa';
-    public $incrementing = false;
-    protected $keyType = 'string';
-    public $timestamps = false;
-
-    protected $fillable = [
-        'placa', 'modelo', 'linea', 'motor', 'cilindraje'
-    ];
-
     
     public function marca()
     {

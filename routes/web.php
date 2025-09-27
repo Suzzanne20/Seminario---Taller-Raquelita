@@ -48,6 +48,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         //Dashboard de datos y metricas
         Route::view('/dashboard', 'dashboard')->name('dashboard');
 
+        //Vehiculos
+        Route::resource('vehiculos', VehiculoController::class);
+
         // Gestión de usuarios
         Route::resource('users', UsersController::class)
             ->only(['index','store','update','destroy']);
@@ -60,6 +63,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('insumos', InsumoController::class); //CRUD
         Route::resource('tipo-insumos', TipoInsumoController::class);
         Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
+
+        //Ordenes de Trabajo <----------------
+        Route::get('/ordenes',                 [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
+        Route::get('/ordenes/crear',           [OrdenTrabajoController::class, 'create'])->name('ordenes.create');
+        Route::post('/ordenes',                [OrdenTrabajoController::class, 'store'])->name('ordenes.store');
+        Route::get('/ordenes/{orden}/editar',  [OrdenTrabajoController::class, 'edit'])->name('ordenes.edit');
+        Route::put('/ordenes/{orden}',         [OrdenTrabajoController::class, 'update'])->name('ordenes.update');
+        Route::delete('/ordenes/{orden}',      [OrdenTrabajoController::class, 'destroy'])->name('ordenes.destroy');
+
+
+
     });
 
     /* ───────────────────────────────────────────────────────

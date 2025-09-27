@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     {{-- Estilos con Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
       <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
 
     {{-- Estilos puntuales del header --}}
@@ -122,7 +122,7 @@
             @endauth
 
             {{-- Enlaces públicos --}}
-            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}">
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}">
                     <i class="bi bi-house me-2"></i>Inicio</a></li>
 
             {{-- Servicios  --}}
@@ -154,14 +154,14 @@
             </li>
             @endhasanyrole
 
-            {{-- Inspecciones 360 (mecánico y admin)
+            {{-- Inspecciones 360 (mecánico y admin) --}}
             @hasanyrole('mecanico|admin')
             <li class="nav-item pt-2">
                 <a class="nav-link" href="{{ route('inspecciones.index', [], false) ?? '#' }}">
                     <i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°
                 </a>
             </li>
-            @endhasanyrole --}}
+            @endhasanyrole 
 
             {{-- Órdenes de Trabajo (admin y secretaria) --}}
             @hasanyrole('admin|secretaria')

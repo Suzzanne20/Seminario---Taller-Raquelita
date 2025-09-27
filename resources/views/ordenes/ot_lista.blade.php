@@ -84,47 +84,7 @@
     </tbody>
   </table>
 </div>
-=======
-        <!-- Tabla de clientes -->
-        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
-            <thead style="background:#1E1E1E; color:white;">
-            <tr>
-                <th style="padding:10px; text-align:left;">ID</th>
-                <th style="padding:10px; text-align:left;">Fecha</th>
-                <th style="padding:10px; text-align:left;">Placa</th>
-                <th style="padding:10px; text-align:left;">Tipo de Servicio</th>
-                <th style="padding:10px; text-align:left;">Kilometraje</th>
-                <th style="padding:10px; text-align:left;">Prox. Servicio</th>
-                <th style="padding:10px; text-align:left;">Estado</th>
-                <th style="padding:10px; text-align:center;">Acciones</th>
-            </tr>
-            </thead>
-<tbody>
-@forelse($ordenes as $orden)
-    <tr>
-        <td>{{ $orden->id }}</td>
-        <td>{{ $orden->fecha_creacion->format('d/m/Y') }}</td>
-        <td>{{ $orden->descripcion }}</td>
-        <td>{{ $orden->costo_mo }}</td>
-        <td>{{ $orden->total }}</td>
-        <td>{{ $orden->servicio->descripcion ?? 'N/A' }}</td>
-        <td>{{ $orden->cotizacion->descripcion ?? 'N/A' }}</td>
-        <td>
-            <a href="{{ route('ordenes.edit', $orden->id) }}">Editar</a>
-            <form action="{{ route('ordenes.destroy', $orden->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" onclick="return confirm('¿Eliminar orden?')">Eliminar</button>
-            </form>
-        </td>
-    </tr>
-@empty
-    <tr>
-        <td colspan="8">No hay órdenes registradas.</td>
-    </tr>
-@endforelse
-</tbody>
-        </table>
+
     </div>
 
 @endsection

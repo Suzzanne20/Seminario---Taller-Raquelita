@@ -20,6 +20,6 @@ class Estado extends Model
      */
     public function cotizaciones()
     {
-        return $this->hasMany(Cotizacion::class, 'estado_id');
+        return $this->hasMany(OrdenTrabajo::class, 'estado_id', 'id');
     }
 }
