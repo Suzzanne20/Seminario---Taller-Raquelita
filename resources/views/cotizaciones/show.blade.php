@@ -22,9 +22,9 @@
 
         {{-- Encabezado --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold" style="color:#1E1E1E;">Cotización #{{ $cotizacion->id }}</h3>
+            <h3 class="fw-bold" style="color:#1E1E1E;">Cotización #{{ $cotizacione->id }}</h3>
             <div class="d-flex gap-2">
-                <a href="{{ route('cotizaciones.edit',$cotizacion->id) }}"
+                <a href="{{ route('cotizaciones.edit',$cotizacione->id) }}"
                    class="btn"
                    style="background-color:#B5747D; color:#fff; border-radius:10px;">
                     Editar
@@ -37,25 +37,31 @@
             </div>
         </div>
 
-        {{-- Botón aprobar (solo si está pendiente) --}}
-        @if($cotizacion->estado && strtolower($cotizacion->estado->nombre) === 'pendiente')
-            <form action="{{ route('cotizaciones.aprobar',$cotizacion->id) }}" method="POST" class="mb-3">
+        {{-- Botones de acción (solo si está pendiente) --}}
+        @if($cotizacione->estado_id == 4)
+            <form action="{{ route('cotizaciones.aprobar',$cotizacione->id) }}" method="POST" class="d-inline">
                 @csrf
-                <button class="btn"
-                        style="background-color:#C24242; color:#fff; border-radius:20px; padding:8px 18px;">
+                <button class="btn btn-success mb-3" style="border-radius:20px; padding:8px 18px;">
                     Aprobar y generar OT
+                </button>
+            </form>
+
+            <form action="{{ route('cotizaciones.rechazar',$cotizacione->id) }}" method="POST" class="d-inline">
+                @csrf
+                <button class="btn btn-danger mb-3" style="border-radius:20px; padding:8px 18px;">
+                    Rechazar
                 </button>
             </form>
         @endif
 
         {{-- Estado --}}
-        @if($cotizacion->estado)
-            @php $estado = strtolower($cotizacion->estado->nombre); @endphp
-            @if($estado === 'aprobada')
+        @if($cotizacione->estado)
+            @php $estado = strtolower($cotizacione->estado->nombre); @endphp
+            @if($cotizacione->estado_id == 6)
                 <span class="badge bg-success">Aprobada</span>
-            @elseif($estado === 'rechazada')
+            @elseif($cotizacione->estado_id == 7)
                 <span class="badge bg-danger">Rechazada</span>
-            @elseif($estado === 'pendiente')
+            @elseif($cotizacione->estado_id == 4)
                 <span class="badge bg-warning text-dark">Pendiente</span>
             @endif
         @endif
@@ -63,9 +69,9 @@
         {{-- Datos generales --}}
         <div class="card shadow-sm mb-4" style="border-radius:12px;">
             <div class="card-body">
-                <p><strong>Fecha:</strong> {{ $cotizacion->fecha_creacion?->format('Y-m-d H:i') }}</p>
-                <p><strong>Servicio:</strong> {{ $cotizacion->servicio?->descripcion }}</p>
-                <p><strong>Descripción:</strong> {{ $cotizacion->descripcion }}</p>
+                <p><strong>Fecha:</strong> {{ $cotizacione->fecha_creacion?->format('Y-m-d H:i') }}</p>
+                <p><strong>Servicio:</strong> {{ $cotizacione->servicio?->descripcion }}</p>
+                <p><strong>Descripción:</strong> {{ $cotizacione->descripcion }}</p>
             </div>
         </div>
 
@@ -83,7 +89,7 @@
                 </thead>
                 <tbody>
                 @php $sub=0; @endphp
-                @foreach($cotizacion->insumos as $insumo)
+                @foreach($cotizacione->insumos as $insumo)
                     @php
                         $line = (float)$insumo->precio * (float)$insumo->pivot->cantidad;
                         $sub += $line;
@@ -103,11 +109,11 @@
                 </tr>
                 <tr style="background:#F4EFEE;">
                     <th colspan="3" class="text-end">Mano de Obra</th>
-                    <th>Q {{ number_format($cotizacion->costo_mo ?? 0,2) }}</th>
+                    <th>Q {{ number_format($cotizacione->costo_mo ?? 0,2) }}</th>
                 </tr>
                 <tr style="background:#9F3B3B; color:#fff;">
                     <th colspan="3" class="text-end">TOTAL</th>
-                    <th>Q {{ number_format($cotizacion->total,2) }}</th>
+                    <th>Q {{ number_format($cotizacione->total,2) }}</th>
                 </tr>
                 </tfoot>
             </table>

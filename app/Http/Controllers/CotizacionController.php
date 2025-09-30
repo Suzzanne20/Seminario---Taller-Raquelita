@@ -23,7 +23,7 @@ class CotizacionController extends Controller
     public function create()
     {
         $servicios = TypeService::orderBy('descripcion')->get();
-        $insumos = Insumo::orderBy('nombre')->get();
+        $insumos   = Insumo::orderBy('nombre')->get();
 
         return view('cotizaciones.create', compact('servicios', 'insumos'));
     }
@@ -33,38 +33,39 @@ class CotizacionController extends Controller
     {
         $data = $request->validate([
             'descripcion' => 'required|string|max:255',
-            'costo_mo' => 'nullable|numeric',
+            'costo_mo'    => 'nullable|numeric',
             'type_service_id' => 'required|exists:type_service,id',
-            'insumos' => 'array',
+            'insumos'     => 'array',
             'insumos.*.id' => 'exists:insumo,id',
             'insumos.*.cantidad' => 'nullable|integer|min:0',
+            'insumos.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
 
-        // 1. Crear la cotización con estado_id = 1 (pendiente)
-        $cot = Cotizacion::create([
+        $cotizacione = Cotizacion::create([
             'fecha_creacion'  => now(),
             'descripcion'     => $data['descripcion'],
             'costo_mo'        => $data['costo_mo'] ?? 0,
             'total'           => 0,
             'type_service_id' => $data['type_service_id'],
-            'estado_id'       => 1 // 1 = pendiente
+            'estado_id'       => 4 // pendiente según tu tabla
         ]);
 
-        // 2. Preparar insumos válidos
         if (!empty($data['insumos'])) {
             $syncData = [];
             foreach ($data['insumos'] as $item) {
                 if (!empty($item['id']) && isset($item['cantidad']) && $item['cantidad'] > 0) {
-                    $syncData[$item['id']] = ['cantidad' => $item['cantidad']];
+                    $syncData[$item['id']] = [
+                        'cantidad'        => $item['cantidad'],
+                        'precio_unitario' => $item['precio_unitario'] ?? 0
+                    ];
                 }
             }
-            $cot->insumos()->sync($syncData);
+            $cotizacione->insumos()->sync($syncData);
         }
 
-        // 3. Recalcular total
-        $cot->load('insumos');
-        $cot->recalcularTotal();
-        $cot->save();
+        $cotizacione->load('insumos');
+        $cotizacione->recalcularTotal();
+        $cotizacione->save();
 
         return redirect()
             ->route('cotizaciones.index')
@@ -75,14 +76,14 @@ class CotizacionController extends Controller
     public function show(Cotizacion $cotizacione)
     {
         $cotizacione->load(['servicio', 'insumos', 'estado']);
-        return view('cotizaciones.show', ['cotizacion' => $cotizacione]);
+        return view('cotizaciones.show', compact('cotizacione'));
     }
 
     // Editar cotización
     public function edit(Cotizacion $cotizacione)
     {
         $servicios = TypeService::orderBy('descripcion')->get();
-        $insumos = Insumo::orderBy('nombre')->get();
+        $insumos   = Insumo::orderBy('nombre')->get();
 
         return view('cotizaciones.edit', compact('cotizacione', 'servicios', 'insumos'));
     }
@@ -92,11 +93,12 @@ class CotizacionController extends Controller
     {
         $data = $request->validate([
             'descripcion' => 'required|string|max:255',
-            'costo_mo' => 'nullable|numeric',
+            'costo_mo'    => 'nullable|numeric',
             'type_service_id' => 'required|exists:type_service,id',
-            'insumos' => 'array',
+            'insumos'     => 'array',
             'insumos.*.id' => 'exists:insumo,id',
-            'insumos.*.cantidad' => 'integer|min:0',
+            'insumos.*.cantidad' => 'nullable|integer|min:0',
+            'insumos.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
 
         $cotizacione->update([
@@ -108,7 +110,14 @@ class CotizacionController extends Controller
         if (!empty($data['insumos'])) {
             $syncData = [];
             foreach ($data['insumos'] as $item) {
-                $syncData[$item['id']] = ['cantidad' => $item['cantidad']];
+                if (!empty($item['id'])) {
+                    $cantidad = $item['cantidad'] ?? 0;
+                    $precio   = $item['precio_unitario'] ?? 0;
+                    $syncData[$item['id']] = [
+                        'cantidad'        => $cantidad,
+                        'precio_unitario' => $precio
+                    ];
+                }
             }
             $cotizacione->insumos()->sync($syncData);
         }
@@ -130,13 +139,15 @@ class CotizacionController extends Controller
             ->with('ok', 'Cotización eliminada correctamente.');
     }
 
-    // Aprobar cotización y generar orden de trabajo
+    // Aprobar cotización
     public function aprobar(Cotizacion $cotizacione)
     {
-        $cotizacione->estado_id = 2; // 2 = aprobada
-        $cotizacione->save();
+        // Actualizamos el estado a "aprobada" (id=6 según tu tabla)
+        $cotizacione->update([
+            'estado_id' => 6
+        ]);
 
-        // 🔽 Descontar stock de cada insumo
+        // Descontar insumos del stock
         foreach ($cotizacione->insumos as $insumo) {
             $cantidad = $insumo->pivot->cantidad;
 
@@ -152,5 +163,17 @@ class CotizacionController extends Controller
         return redirect()
             ->route('cotizaciones.index')
             ->with('ok', 'Cotización aprobada, insumos descontados y orden de trabajo generada.');
+    }
+
+    // Rechazar cotización
+    public function rechazar(Cotizacion $cotizacione)
+    {
+        $cotizacione->update([
+            'estado_id' => 7 // rechazada
+        ]);
+
+        return redirect()
+            ->route('cotizaciones.index')
+            ->with('ok', 'Cotización rechazada correctamente.');
     }
 }
