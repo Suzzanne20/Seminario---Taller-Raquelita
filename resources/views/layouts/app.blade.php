@@ -13,8 +13,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     {{-- Estilos con Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+<<<<<<< HEAD
       <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
+=======
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
+>>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
 
     {{-- Estilos puntuales del header --}}
     <style>
@@ -122,7 +126,7 @@
             @endauth
 
             {{-- Enlaces públicos --}}
-            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('home') }}">
+            <li class="nav-item pt-2"><a class="nav-link" href="{{ route('welcome') }}">
                     <i class="bi bi-house me-2"></i>Inicio</a></li>
 
             {{-- Servicios  --}}
@@ -154,14 +158,14 @@
             </li>
             @endhasanyrole
 
-            {{-- Inspecciones 360 (mecánico y admin)
+            {{-- Inspecciones 360 (mecánico y admin) --}}
             @hasanyrole('mecanico|admin')
             <li class="nav-item pt-2">
                 <a class="nav-link" href="{{ route('inspecciones.index', [], false) ?? '#' }}">
                     <i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°
                 </a>
             </li>
-            @endhasanyrole --}}
+            @endhasanyrole 
 
             {{-- Órdenes de Trabajo (admin y secretaria) --}}
             @hasanyrole('admin|secretaria')
@@ -171,7 +175,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{ route('ordenes.index') }}"><i class="bi bi-ev-front me-2"></i>Listado de Órdenes</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
+                    <li><a class="dropdown-item" href="{{ route('ordenes.create') }}"><i class="bi bi-pencil-square me-2"></i>Nueva Orden de Trabajo</a></li>
                 </ul>
             </li>
             @endhasanyrole
@@ -183,9 +187,17 @@
                     <i class="bi bi-box-seam me-2"></i>Bodega
                 </a>
                 <ul class="dropdown-menu">
+
                     <li><a class="dropdown-item" href="{{ route('insumos.index') }}"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
                     <li><a class="dropdown-item" href="{{ route('insumos.create') }}"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
+<<<<<<< HEAD
                     <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-sliders me-2"></i>Tipos de Insumo</a></li>
+=======
+                    <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestionar Tipos Insumos</a></li>
+
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
+>>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
                 </ul>
             </li>
             @endrole

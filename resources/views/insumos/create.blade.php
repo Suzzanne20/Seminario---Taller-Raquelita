@@ -1,11 +1,13 @@
 @extends('layouts.app')
 
 @push('styles')
-    <style>
-        .container { max-width: 800px; }
-        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
-        .card-header { background-color: #C24242; color: white; }
-    </style>
+<style>
+  html, body { height: 100%; background: #f0f0f0 !important; }
+  .page-body { min-height: calc(100vh - 72px); background: #f0f0f0 !important; color: #212529; }
+  @media (max-width: 576px) {
+    .page-body { min-height: calc(100vh - 64px); }
+  }
+</style>
 @endpush
 
 @section('content')
