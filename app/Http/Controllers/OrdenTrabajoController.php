@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion};
+use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion, User};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 
 class OrdenTrabajoController extends Controller
 {
@@ -34,56 +35,64 @@ class OrdenTrabajoController extends Controller
         return view($view, compact('vehiculos','servicios','estados','cotizaciones'));
     }
 
-    public function store(Request $request)
-    {
-        if ($request->filled('vehiculo_placa')) {
-            $request->merge(['vehiculo_placa' => strtoupper(trim($request->vehiculo_placa))]);
-        }
-
-        $rules = [
-            'descripcion'      => 'nullable|string|max:255',
-            'costo_mo'         => 'nullable|numeric|min:0',
-            'total'            => 'nullable|numeric|min:0',
-            'type_service_id'  => 'required|integer|exists:type_service,id',
-            'kilometraje'      => 'nullable|integer|min:0',
-            'proximo_servicio' => 'nullable|integer|min:0',
-            'empleado_id'      => 'nullable|integer',
-            'cotizacion_id'    => 'nullable|integer|exists:cotizaciones,id',
-            'estado_id'        => 'nullable|integer|exists:estado,id',
-        ];
-
-        // Si NO viene de cotización, exige la placa
-        if (!$request->filled('cotizacion_id')) {
-            $rules['vehiculo_placa'] = 'required|string|exists:vehiculo,placa';
-        } else {
-            $rules['vehiculo_placa'] = 'nullable|string|exists:vehiculo,placa';
-        }
-
-        $data = $request->validate($rules);
-
-        DB::transaction(function () use (&$data) {
-
-            // Si quisieras inferir placa desde la cotización, necesitarías una FK
-            // vehiculo_placa en cotizaciones y una relación en el modelo Cotizacion.
-            // Como no existe, NO hacemos esa inferencia.
-
-            $data['fecha_creacion'] = now();
-            $data['costo_mo']       = $data['costo_mo'] ?? 0;
-            $data['total']          = $data['total'] ?? 0;
-            $data['id_creador']     = auth()->id() ?? 1;
-
-            // Estado por defecto: 'Pendiente' o id=1
-            if (empty($data['estado_id'])) {
-                $estadoPend = Estado::where('nombre', 'Pendiente')->value('id') ?? 1;
-                $data['estado_id'] = $estadoPend;
-            }
-
-            // crear OT con estado_id directo
-            OrdenTrabajo::create($data);
-        });
-
-        return redirect()->route('ordenes.index')->with('success', 'Orden de trabajo creada correctamente.');
+public function store(Request $request)
+{
+    if ($request->filled('vehiculo_placa')) {
+        $request->merge([
+            'vehiculo_placa' => strtoupper(trim($request->vehiculo_placa))
+        ]);
     }
+
+    $rules = [
+        'descripcion'      => 'nullable|string|max:255',
+        'costo_mo'         => 'nullable|numeric|min:0',
+        'total'            => 'nullable|numeric|min:0',
+        'type_service_id'  => 'required|integer|exists:type_service,id',
+        'kilometraje'      => 'nullable|integer|min:0',
+        'proximo_servicio' => 'nullable|integer|min:0',
+        'empleado_id'      => 'nullable|integer',
+        'cotizacion_id'    => 'nullable|integer|exists:cotizaciones,id',
+        'estado_id'        => 'nullable|integer|exists:estado,id',
+    ];
+
+    // Si NO viene de cotización, exige placa
+    $rules['vehiculo_placa'] = $request->filled('cotizacion_id')
+        ? 'nullable|string|exists:vehiculo,placa'
+        : 'required|string|exists:vehiculo,placa';
+
+    $data = $request->validate($rules);
+
+    DB::transaction(function () use ($data) {
+
+        // ---- Resolver id_creador como ENTERO SEGURO ----
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        if (!is_numeric($userId)) {
+            // si devolvió el nombre de usuario, intenta resolver su ID en tabla usuario
+            $userId = Usuario::where('nombre', $userId)->value('id');
+        }
+        if (!is_numeric($userId)) {
+            // último fallback (asegúrate de que exista ese usuario)
+            $userId = 1;
+        }
+
+        $payload = $data; // no mutamos $data original
+        $payload['fecha_creacion'] = now();
+        $payload['costo_mo']       = $payload['costo_mo'] ?? 0;
+        $payload['total']          = $payload['total'] ?? 0;
+        $payload['id_creador']     = (int) $userId;
+
+        // Estado por defecto: 'Pendiente' o id=1
+        if (empty($payload['estado_id'])) {
+            $payload['estado_id'] = Estado::where('nombre', 'Pendiente')->value('id') ?? 1;
+        }
+
+        OrdenTrabajo::create($payload);
+    });
+
+    return redirect()
+        ->route('ordenes.index')
+        ->with('success', 'Orden de trabajo creada correctamente.');
+}
 
     public function show(OrdenTrabajo $orden)
     {
