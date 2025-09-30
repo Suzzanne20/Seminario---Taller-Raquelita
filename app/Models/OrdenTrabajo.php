@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, HasOne};
 
 class OrdenTrabajo extends Model
 {
@@ -43,6 +43,11 @@ class OrdenTrabajo extends Model
     public function insumos(): HasMany
     {
         return $this->hasMany(InsumoOt::class, 'orden_trabajo_id');
+    }
+
+    public function estadoActual(): HasOne
+    {
+        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latest('id');
     }
 
     public function asignaciones(): HasMany

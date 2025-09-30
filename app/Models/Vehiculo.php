@@ -8,23 +8,23 @@ use App\Models\Marca;
 
 class Vehiculo extends Model
 {
-    use HasFactory;
 
     protected $table = 'vehiculo';
     protected $primaryKey = 'placa';
-    public $incrementing = false;
+    public $incrementing = false; 
     protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
-        'placa', 'modelo', 'linea', 'motor', 'cilindraje', 'marca_id'
+        'placa','modelo','linea','motor','cilindraje','type_vehiculo_id','marca_id'
     ];
 
-    // Setter para convertir la placa en mayúsculas
     public function setPlacaAttribute($value)
     {
         $this->attributes['placa'] = strtoupper(trim($value));
     }
+
+    use HasFactory;
 
     // Relación con órdenes de trabajo
     public function ordenes()

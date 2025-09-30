@@ -32,6 +32,9 @@ require __DIR__.'/auth.php';
  | ZONA AUTENTICADA (login + email verificado)
  *────────────────────────────────────────────────────────────────*/
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'welcome')->name('welcome');
+    Route::view('/welcome', 'welcome');
+
 
     // Home con autenticacion
     Route::view('/welcome', 'welcome')->name('welcome');

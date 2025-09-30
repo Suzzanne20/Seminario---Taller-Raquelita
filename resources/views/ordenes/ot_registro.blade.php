@@ -16,7 +16,7 @@
 @endpush
 
 @section('content')
-<div class="container py-4">
+<div class="container py-4"><br><br>
   <h1 class="text-center mb-4" style="color:#C24242;">Nueva Orden de Trabajo</h1>
 
   <div class="d-flex justify-content-center">
@@ -115,6 +115,16 @@
                         class="form-control @error('descripcion') is-invalid @enderror">{{ old('descripcion') }}</textarea>
               @error('descripcion') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
+          </div>
+
+          <div class="mb-3">
+                <label class="form-label fw-bold">Insumos</label>
+
+                <div id="insumos-container"></div>
+
+                <button type="button" id="add-insumo" class="btn btn-outline-primary mt-2">
+                    + Agregar Insumo
+                </button>
           </div>
 
           <div class="d-flex gap-2 mt-4">
