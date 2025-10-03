@@ -34,7 +34,7 @@
   {{-- Misión y Visión --}}
   <section class="mision-vision" id="mision-vision">
     <div class="container">
-      <h2>Misiónnnnn</h2>
+      <h2>Misión</h2>
       <p>Brindar un servicio técnico automotriz integral, transparente y de calidad, optimizando cada proceso del taller mediante tecnología.</p>
       <h2>Visión</h2>
       <p>Ser el taller líder en la región en gestión administrativa y técnica, destacando por su innovación y digitalización de procesos.</p>

@@ -10,39 +10,35 @@ class VehiculoController extends Controller
 {
     public function index()
     {
-        // Cargamos vehículos con sus marcas
-        $vehiculos = Vehiculo::with('marca')->get(); // <-- corregido 'marcas' a 'marca'
+        // Se cargan los vehiculo con las marcas seleccionadas
+        $vehiculos = Vehiculo::with('marca')->get(); 
         return view('vehiculos.index', compact('vehiculos'));
     }
 
     public function create()
     {
         // Paso las marcas existentes para que aparezcan en el select
-        $marcas = Marca::select('nombre')->distinct()->get();
+        $marcas = Marca::orderBy('nombre')->get(['id', 'nombre']);
         return view('vehiculos.create', compact('marcas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'placa' => 'required|unique:vehiculo,placa|max:7',
-            'modelo' => 'required|integer',
-            'linea' => 'required|string|max:45',
-            'motor' => 'required|string|max:45',
-            'cilindraje' => 'required|numeric',
-            'marca' => 'required|string|max:45',
+            'placa'       => 'required|unique:vehiculo,placa|max:7',
+            'modelo'      => 'required|integer',
+            'linea'       => 'required|string|max:45',
+            'motor'       => 'required|string|max:45',
+            'cilindraje'  => 'required|numeric',
+            'marca_id'    => 'required|integer|exists:marca,id',
         ]);
 
-        // 1. Crear el vehículo
-        $vehiculo = Vehiculo::create($request->only(['placa','modelo','linea','motor','cilindraje']));
+        $vehiculo = Vehiculo::create($request->only(['placa','modelo','linea','motor','cilindraje', 'marca_id']));
 
-        // 2. Crear o vincular la marca
-        Marca::create([
-            'nombre' => $request->marca,
-            'vehiculo_placa' => $vehiculo->placa
-        ]);
 
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo y marca registrados correctamente.');
+        return redirect()
+            ->route('vehiculos.index')
+            ->with('success', 'Vehículo registrado correctamente.');
     }
 
     public function edit($placa)
