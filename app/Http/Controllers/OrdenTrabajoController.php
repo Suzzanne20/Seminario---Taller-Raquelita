@@ -166,16 +166,14 @@ class OrdenTrabajoController extends Controller
 
     public function edit(OrdenTrabajo $orden)
     {
-        $orden->load(['vehiculo','servicio','estado']);
-
+        $orden->load(['vehiculo','servicio','estado','insumos']); // <= incluye insumos
         $vehiculos = Vehiculo::orderBy('placa')->get(['placa','linea','modelo']);
         $servicios = TypeService::orderBy('descripcion')->get(['id','descripcion']);
-        $tecnicos  = User::whereHas('roles', fn($q)=>$q->whereRaw('LOWER(name)=?',['mecanico']))
-                        ->orderBy('name')->get(['id','name']);
-
-        $view = view()->exists('ordenes.ot_editar') ? 'ordenes.ot_editar' : 'ordenes.edit';
-        return view($view, compact('orden','vehiculos','servicios','tecnicos'));
+        $tecnicos  = User::role('Mecanico')->orderBy('name')->get(['id','name']);
+        $insumos   = Insumo::orderBy('nombre')->get(['id','nombre','precio']);
+        return view('ordenes.ot_editar', compact('orden','vehiculos','servicios','tecnicos','insumos'));
     }
+
 
     public function update(Request $request, OrdenTrabajo $orden)
     {
