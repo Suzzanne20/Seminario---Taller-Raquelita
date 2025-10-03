@@ -20,6 +20,7 @@ class OrdenTrabajo extends Model
         'id_creador',
         'vehiculo_placa',
         'type_service_id',
+        'estado_id', // 👈 NECESARIO si la relación es directa
     ];
 
     protected $casts = [
@@ -29,13 +30,12 @@ class OrdenTrabajo extends Model
         'vehiculo_placa' => 'string',
     ];
 
-    // ------ Relaciones -------
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class, 'vehiculo_placa', 'placa');
     }
 
-    public function tipoServicio(): BelongsTo
+    public function servicio(): BelongsTo
     {
         return $this->belongsTo(TypeService::class, 'type_service_id');
     }
@@ -47,11 +47,17 @@ class OrdenTrabajo extends Model
 
     public function estadoActual(): HasOne
     {
-        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latestOfMany('id');
+        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latest('id');
     }
 
     public function asignaciones(): HasMany
     {
         return $this->hasMany(AsignacionOrden::class, 'orden_trabajo_id');
+    }
+
+    // Relación directa al estado actual
+    public function estado(): BelongsTo
+    {
+        return $this->belongsTo(Estado::class, 'estado_id', 'id');
     }
 }

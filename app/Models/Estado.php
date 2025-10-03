@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Estado extends Model
@@ -20,6 +21,6 @@ class Estado extends Model
      */
     public function cotizaciones()
     {
-        return $this->hasMany(Cotizacion::class, 'estado_id');
+        return $this->hasMany(OrdenTrabajo::class, 'estado_id', 'id');
     }
 }

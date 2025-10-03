@@ -1,7 +1,23 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+<<<<<<< HEAD
+  html, body { height: 100%; background: #f0f0f0 !important; }
+  .page-body { min-height: calc(100vh - 72px); background: #f0f0f0 !important; color: #212529; }
+  @media (max-width: 576px) {
+    .page-body { min-height: calc(100vh - 64px); }
+  }
+=======
+  html, body { height:100%; background:#f0f0f0 !important; }
+  .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
+  @media (max-width:576px){ .page-body { min-height:calc(100vh - 64px); } }
+>>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
+</style>
+@endpush
+
 @section('content')
-    <div class="container">
+    <div class="container"><br><br>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold" style="color:#1E1E1E;">Cotizaciones</h3>
             <a href="{{ route('cotizaciones.create') }}"

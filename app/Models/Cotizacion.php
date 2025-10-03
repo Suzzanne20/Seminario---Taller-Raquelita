@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cotizacion extends Model
 {
-    protected $table = 'cotizaciones'; // 👈 plural
+    protected $table = 'cotizaciones';
     public $timestamps = false;
 
     protected $fillable = [
@@ -15,7 +15,8 @@ class Cotizacion extends Model
         'costo_mo',
         'total',
         'type_service_id',
-        'estado_id'
+        'estado_id',
+        // si más adelante agregas 'vehiculo_placa' o 'orden_trabajo_id', añádelos aquí
     ];
 
     protected $casts = [
@@ -24,33 +25,25 @@ class Cotizacion extends Model
         'total' => 'decimal:2',
     ];
 
-    // Relación con servicios
     public function servicio()
     {
         return $this->belongsTo(TypeService::class, 'type_service_id');
     }
 
-    // Relación con insumos (pivot cotizacion_insumo)
     public function insumos()
     {
         return $this->belongsToMany(Insumo::class, 'cotizacion_insumo')
-            ->withPivot('cantidad');
+                    ->withPivot('cantidad');
     }
 
-    // Relación con estado
     public function estado()
     {
         return $this->belongsTo(Estado::class, 'estado_id');
     }
 
-
-    // 🔽 Método que faltaba
     public function recalcularTotal()
     {
-        $subtotalInsumos = $this->insumos->sum(function ($insumo) {
-            return $insumo->precio * $insumo->pivot->cantidad;
-        });
-
-        $this->total = $subtotalInsumos + ($this->costo_mo ?? 0);
+        $subtotalInsumos = $this->insumos->sum(fn($i) => $i->precio * $i->pivot->cantidad);
+        $this->total = ($this->costo_mo ?? 0) + $subtotalInsumos;
     }
 }

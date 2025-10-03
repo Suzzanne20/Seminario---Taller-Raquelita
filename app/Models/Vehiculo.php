@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Marca; 
+use App\Models\Marca;
 
 class Vehiculo extends Model
 {
@@ -16,7 +16,7 @@ class Vehiculo extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'placa', 'modelo', 'linea', 'motor', 'cilindraje', 'marca_id'
+        'placa','modelo','linea','motor','cilindraje','type_vehiculo_id','marca_id'
     ];
 
     public function setPlacaAttribute($value)
@@ -26,18 +26,21 @@ class Vehiculo extends Model
 
     use HasFactory;
 
-        public function ordenes()
+    // Relación con órdenes de trabajo
+    public function ordenes()
     {
         return $this->hasMany(OrdenTrabajo::class, 'vehiculo_placa', 'placa');
     }
-    
-    public function clientes() {
+
+    // Relación muchos a muchos con clientes
+    public function clientes()
+    {
         return $this->belongsToMany(Cliente::class, 'cliente_vehiculo', 'vehiculo_placa', 'cliente_id');
     }
 
-    
+    // Relación con la marca
     public function marca()
     {
-        return $this->hasOne(Marca::class, 'vehiculo_placa', 'placa');
+        return $this->belongsTo(Marca::class, 'marca_id');
     }
 }
