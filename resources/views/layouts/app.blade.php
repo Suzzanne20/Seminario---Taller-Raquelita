@@ -14,11 +14,7 @@
 
     {{-- Estilos con Vite --}}
 
-<<<<<<< HEAD
       <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
-=======
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=1" />
->>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
 
     {{-- Estilos puntuales del header --}}
     <style>
@@ -190,14 +186,10 @@
 
                     <li><a class="dropdown-item" href="{{ route('insumos.index') }}"><i class="bi bi-dropbox me-2"></i>Inventario</a></li>
                     <li><a class="dropdown-item" href="{{ route('insumos.create') }}"><i class="bi bi-pencil-square me-2"></i>Registro de Insumos</a></li>
-<<<<<<< HEAD
-                    <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-sliders me-2"></i>Tipos de Insumo</a></li>
-=======
                     <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestionar Tipos Insumos</a></li>
 
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
->>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
                 </ul>
             </li>
             @endrole

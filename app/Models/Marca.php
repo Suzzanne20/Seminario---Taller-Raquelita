@@ -8,18 +8,11 @@ use App\Models\Vehiculo;
 
 class Marca extends Model
 {
-    use HasFactory;
-
     protected $table = 'marca';
-    public $timestamps = false;
+    protected $fillable = ['nombre'];
 
-    protected $fillable = [
-        'nombre', 'vehiculo_placa'
-    ];
-
-   
-    public function vehiculo()
+    public function vehiculos()
     {
-        return $this->belongsTo(Vehiculo::class, 'vehiculo_placa', 'placa');
+        return $this->hasMany(Vehiculo::class, 'marca_id', 'id');
     }
 }
