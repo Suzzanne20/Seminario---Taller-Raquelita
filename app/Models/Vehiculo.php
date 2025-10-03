@@ -35,17 +35,6 @@ class Vehiculo extends Model
         return $this->belongsToMany(Cliente::class, 'cliente_vehiculo', 'vehiculo_placa', 'cliente_id');
     }
 
-
-    protected $table = 'vehiculo';
-    protected $primaryKey = 'placa';
-    public $incrementing = false;
-    protected $keyType = 'string';
-    public $timestamps = false;
-
-    protected $fillable = [
-        'placa', 'modelo', 'linea', 'motor', 'cilindraje'
-    ];
-
     
     public function marca()
     {
