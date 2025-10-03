@@ -16,6 +16,8 @@
   *{box-sizing:border-box}
   :root{--brand:#8f2f2f;--brand2:#b43b3b;--ink:#1b1b1b;--muted:#6b6b6b;--bg:#f7f7f8;--panel:#fff;--line:#e6e6e6}
   body{background:var(--bg)}
+
+  /* Barra de secciones */
   .isp-nav{background:var(--brand);color:#fff;padding:18px 16px 12px;border-radius:12px 12px 0 0;margin-bottom:10px}
   .isp-nav .wrap{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:22px}
   .isp-nav .sections{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px;margin-left:28px}
@@ -23,15 +25,18 @@
   .isp-nav .tab.is-active{background:#fff;color:var(--brand);box-shadow:0 3px 10px rgba(0,0,0,.12)}
   @media (max-width:900px){.isp-nav .wrap{flex-direction:column;align-items:flex-start;gap:10px}.isp-nav .sections{margin-left:0;padding-top:6px}}
 
+  /* Layout */
   .container{max-width:1200px;margin:0 auto 16px;padding:0 16px;display:grid;grid-template-columns:1.25fr .95fr;gap:18px}
   @media (max-width:1000px){.container{grid-template-columns:1fr}}
 
+  /* Lienzo */
   .canvas{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:12px}
   .hint{color:var(--muted);font-size:12px;margin:4px 6px 10px}
   .vehicle-area{position:relative;background:#fff;border:1px dashed var(--line);border-radius:12px;min-height:420px;padding:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}
   .vehicle-area img{max-width:100%;height:auto;display:block}
   .marker{position:absolute;width:18px;height:18px;border-radius:50%;background:#e95d5d;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transform:translate(-50%,-50%)}
 
+  /* Panel derecho */
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:12px}
   .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media (max-width:600px){.meta{grid-template-columns:1fr}}
@@ -54,12 +59,23 @@
   .btn.ghost{background:#fff}
   .actions{display:flex;gap:10px}
   .outputWrap{display:none!important}
+
+  /* Forzar texto oscuro en el formulario (para layouts oscuros) */
+  .isp-form, .isp-form *{ color:#1b1b1b !important; }
+  .isp-form input,.isp-form select,.isp-form textarea{
+    color:#1b1b1b !important;background:#fff !important;border-color:var(--line);
+  }
+  .isp-form select option{ color:#1b1b1b;background:#fff; }
+  .isp-form input::placeholder,.isp-form textarea::placeholder{ color:#9aa0a6 !important; }
+  .isp-nav{ color:#fff !important; }
+  .isp-nav .tab{ color:#fff !important; }
+  .isp-nav .tab.is-active{ color:var(--brand) !important; }
 </style>
 
 <form class="isp-form" action="{{ route('inspecciones.store') }}" method="POST" enctype="multipart/form-data">
   @csrf
 
-  {{-- MENSAJES --}}
+  {{-- mensajes --}}
   @if (session('ok'))
     <div style="background:#e9f7ef;border:1px solid #2ecc71;color:#1e8449;padding:10px 12px;border-radius:8px;margin:10px 0;">
       {{ session('ok') }}
@@ -80,20 +96,21 @@
     </div>
   @endif
 
-  {{-- NAVBAR --}}
+  {{-- NAV --}}
   <header class="isp-nav">
-    <div class="wrap"></div>
-    <nav class="sections" role="tablist">
-      <button class="tab is-active" type="button" data-panel="front">Parte delantera</button>
-      <button class="tab" type="button" data-panel="top">Superior</button>
-      <button class="tab" type="button" data-panel="right">Lado derecho</button>
-      <button class="tab" type="button" data-panel="left">Lado izquierdo</button>
-      <button class="tab" type="button" data-panel="back">Parte trasera</button>
-    </nav>
+    <div class="wrap">
+      <nav class="sections" role="tablist">
+        <button class="tab is-active" type="button" data-panel="front">Parte delantera</button>
+        <button class="tab" type="button" data-panel="top">Superior</button>
+        <button class="tab" type="button" data-panel="right">Lado derecho</button>
+        <button class="tab" type="button" data-panel="left">Lado izquierdo</button>
+        <button class="tab" type="button" data-panel="back">Parte trasera</button>
+      </nav>
+    </div>
   </header>
 
   <main class="container">
-    {{-- Lienzo --}}
+    {{-- Lienzo para marcar --}}
     <section class="canvas">
       <div class="hint">Click en la carrocería para añadir un punto. Escribe la descripción y, si quieres, adjunta foto.</div>
       <div class="vehicle-area" id="vehicleArea">
@@ -168,14 +185,14 @@
   </main>
 
   {{-- visor de imagen --}}
-  <dialog id="viewer">
-    <img id="viewerImg" alt="Detalle">
+  <dialog id="viewer" style="border:none;border-radius:12px;padding:12px">
+    <img id="viewerImg" alt="Detalle" style="max-width:80vw;max-height:70vh;display:block;margin-bottom:10px">
     <button id="viewerClose" class="btn" type="button">Cerrar</button>
   </dialog>
 </form>
 
 <script>
-  // Rutas de imágenes por sección
+  // Rutas de imágenes por sección (ajusta si tus archivos están en otra carpeta)
   const sectionImages = {
     front: @json(Vite::asset('resources/otros/assets/sections/front.jpg')),
     top:   @json(Vite::asset('resources/otros/assets/sections/top.jpg')),
@@ -183,25 +200,31 @@
     left:  @json(Vite::asset('resources/otros/assets/sections/left.jpg')),
     back:  @json(Vite::asset('resources/otros/assets/sections/back.jpg')),
   };
+
+  // Iconos
   const ICONS = {
     img: @json(Vite::asset('resources/otros/assets/icon-img.png')),
     eye: @json(Vite::asset('resources/otros/assets/icon-eye.png')),
   };
 
+  // Estado por sección: cada item = { x, y, text, image(base64), _fileInput }
   let current = 'front';
   const state = { front:[], top:[], right:[], left:[], back:[] };
 
-  const tabs       = document.querySelectorAll('.isp-nav .tab');
-  const vehicleArea= document.getElementById('vehicleArea');
-  const sectionImg = document.getElementById('sectionImage');
-  const issuesList = document.getElementById('issuesList');
-  const clearBtn   = document.getElementById('clearBtn');
-  const output     = document.getElementById('output');
-  const viewer     = document.getElementById('viewer');
-  const viewerImg  = document.getElementById('viewerImg');
-  const viewerClose= document.getElementById('viewerClose');
+  // Elementos
+  const tabs         = document.querySelectorAll('.isp-nav .tab');
+  const vehicleArea  = document.getElementById('vehicleArea');
+  const sectionImg   = document.getElementById('sectionImage');
+  const issuesList   = document.getElementById('issuesList');
+  const clearBtn     = document.getElementById('clearBtn');
+  const output       = document.getElementById('output');
+  const viewer       = document.getElementById('viewer');
+  const viewerImg    = document.getElementById('viewerImg');
+  const viewerClose  = document.getElementById('viewerClose');
   const detallesJson = document.getElementById('detalles_json');
+  const form         = document.querySelector('form.isp-form');
 
+  // Tabs
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('is-active'));
@@ -216,22 +239,31 @@
     render();
   }
 
+  // Click en el lienzo (añadir punto)
   vehicleArea.addEventListener('click', (e) => {
+    // evitar que un click en un botón existente dispare nuevos puntos
+    if (e.target.closest('.marker') || e.target.closest('button')) return;
+
     const rect = vehicleArea.getBoundingClientRect();
     const isIn = (e.target === vehicleArea || e.target === sectionImg);
     if(!isIn) return;
+
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+
     const item = { x, y, text:'', image:null };
     state[current].push(item);
     render();
+
     setTimeout(() => {
       const last = issuesList.querySelector('li:last-child input[type="text"]');
       if(last) last.focus();
     }, 0);
   });
 
+  // Pintar marcadores y lista
   function render(){
+    // Marcadores
     [...vehicleArea.querySelectorAll('.marker')].forEach(m => m.remove());
     state[current].forEach((it, i) => {
       const m = document.createElement('div');
@@ -242,6 +274,7 @@
       vehicleArea.appendChild(m);
     });
 
+    // Lista de issues
     issuesList.innerHTML='';
     state[current].forEach((it, i) => {
       const li = document.createElement('li'); li.className='issue';
@@ -249,7 +282,7 @@
       const num = document.createElement('span'); num.className='num'; num.textContent = (i+1)+'.';
 
       const input = document.createElement('input');
-      input.type='text'; input.placeholder='Escribe el detalle'; input.value = it.text;
+      input.type='text'; input.placeholder='Escribe el detalle'; input.value = it.text || '';
       input.addEventListener('input', () => { it.text = input.value; });
 
       const btnImg = document.createElement('button');
@@ -270,6 +303,7 @@
       btnDel.textContent = '—';
       btnDel.addEventListener('click', () => { state[current].splice(i,1); render(); });
 
+      // Crear input file oculto si no existe
       if(!it._fileInput){
         const file = document.createElement('input');
         file.type = 'file';
@@ -284,7 +318,7 @@
           reader.readAsDataURL(f);
         });
         it._fileInput = file;
-        document.querySelector('form.isp-form').appendChild(file);
+        form.appendChild(file);
       }
 
       if (it.image) ok.textContent = '✓';
@@ -296,18 +330,25 @@
     if (output) output.textContent = JSON.stringify(state, null, 2);
   }
 
+  // Abrir selector de imagen
   function pickImageFor(item){ if(item._fileInput){ item._fileInput.click(); } }
+
+  // Cerrar visor
   viewerClose.addEventListener('click', ()=> viewer.close());
 
-  document.querySelector('form.isp-form').addEventListener('submit', ()=>{
+  // Enviar: serializar puntos a hidden
+  form.addEventListener('submit', ()=>{
+    // limpiamos la propiedad _fileInput porque no es serializable
     const clean = JSON.parse(JSON.stringify(state, (k,v)=> k === '_fileInput' ? undefined : v));
     detallesJson.value = JSON.stringify(clean);
   });
 
+  // Limpiar sección
   clearBtn.addEventListener('click', () => {
     state[current] = []; render(); if (output) output.textContent='';
   });
 
+  // Inicial
   setSection('front');
 </script>
 @endsection

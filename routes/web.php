@@ -123,6 +123,9 @@ Route::get('/inspecciones/inicio', [RecepcionController::class, 'start'])->name(
 Route::get('/inspecciones/crear', [RecepcionController::class,'create'])->name('inspecciones.create');
 Route::post('/inspecciones',      [RecepcionController::class,'store'])->name('inspecciones.store');
 
+Route::get('/fotos/{foto}', [RecepcionController::class, 'streamFoto'])
+     ->name('fotos.stream');
+     
 // **Listado (GET) -> necesario para el botón Modificar**
 Route::get('/inspecciones',       [RecepcionController::class,'index'])->name('inspecciones.index');
 
