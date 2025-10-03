@@ -51,6 +51,94 @@
 </style>
 @endpush
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const INSUMOS = @json($insumos ?? []);
+  const q = n => 'Q ' + (parseFloat(n||0)).toFixed(2);
+
+  let idx = 0;
+  function insumoOptions(){
+    let html = '<option value="">Seleccione insumo…</option>';
+    if (Array.isArray(INSUMOS) && INSUMOS.length) {
+      INSUMOS.forEach(i => {
+        const precio = Number(i.precio || 0).toFixed(2);
+        html += `<option value="${i.id}" data-precio="${precio}">${i.nombre} (Q${precio})</option>`;
+      });
+    }
+    return html;
+  }
+  function renderRow(i){
+    return `
+      <div class="row align-items-center i-row" data-i="${i}">
+        <div class="col-md-6 mb-2 mb-md-0">
+          <select name="insumos[${i}][id]" class="form-select insumo-select" required>
+            ${insumoOptions()}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input type="number" min="1" value="1" name="insumos[${i}][cantidad]" class="form-control cantidad-input" required>
+        </div>
+        <div class="col-md-2 text-end">
+          <span class="precio-unit">Q 0.00</span>
+        </div>
+        <div class="col-md-2 text-end">
+          <button type="button" class="i-remove">X</button>
+        </div>
+      </div>`;
+  }
+
+  function recalc(){
+    let sub = 0;
+    document.querySelectorAll('#insumos-container .i-row').forEach(row=>{
+      const sel = row.querySelector('.insumo-select');
+      const qty = parseFloat(row.querySelector('.cantidad-input').value) || 0;
+      const price = parseFloat(sel?.selectedOptions[0]?.getAttribute('data-precio') || 0);
+      row.querySelector('.precio-unit').textContent = q(price);
+      if (qty>0) sub += price * qty;
+    });
+    const mo = parseFloat(document.getElementById('costo_mo').value || 0);
+    document.getElementById('sub_insumos').textContent = q(sub);
+    document.getElementById('mo_view').textContent  = q(mo);
+    document.getElementById('total_view').textContent= q(sub + mo);
+  }
+
+  const addBtn = document.getElementById('add-insumo');
+  const cont   = document.getElementById('insumos-container');
+
+  if (addBtn && cont) {
+    addBtn.addEventListener('click', ()=>{
+      cont.insertAdjacentHTML('beforeend', renderRow(idx));
+      idx++; recalc();
+    });
+  }
+
+  document.addEventListener('change', e=>{
+    if (e.target.classList.contains('insumo-select')) recalc();
+  });
+  document.addEventListener('input', e=>{
+    if (e.target.classList.contains('cantidad-input') || e.target.id==='costo_mo') recalc();
+  });
+  document.addEventListener('click', e=>{
+    if (e.target.classList.contains('i-remove')) {
+      e.target.closest('.i-row').remove(); recalc();
+    }
+  });
+
+  // crea una fila por defecto para que se vea algo
+  if (cont && !cont.children.length) {
+    cont.insertAdjacentHTML('beforeend', renderRow(idx));
+    idx++; recalc();
+  }
+
+  // Placa siempre requerida
+  const placa = document.getElementById('vehiculo_placa');
+  if (placa) placa.required = true;
+});
+</script>
+@endpush
+
+
 @section('content')
 <div class="container">
   <div class="md-card">
@@ -100,17 +188,29 @@
 
         <div class="col-md-6">
           <label class="form-label fw-semibold">Vehículo (placa)</label>
-          <select name="vehiculo_placa" id="vehiculo_placa"
-                  class="form-select @error('vehiculo_placa') is-invalid @enderror">
-            <option value="">Seleccione…</option>
+          <input name="vehiculo_placa" id="vehiculo_placa"
+                list="lista_placas"
+                class="form-control @error('vehiculo_placa') is-invalid @enderror"
+                value="{{ old('vehiculo_placa') }}" maxlength="7" style="text-transform:uppercase" required>
+          <datalist id="lista_placas">
             @foreach($vehiculos as $v)
-              <option value="{{ $v->placa }}" @selected(old('vehiculo_placa')==$v->placa)>
-                {{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}
-              </option>
+              <option value="{{ $v->placa }}">{{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}</option>
             @endforeach
-          </select>
+          </datalist>
           @error('vehiculo_placa') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+          <small class="text-muted">Escribe para buscar por placa</small>
         </div>
+
+        @push('scripts')
+          <script>
+          document.addEventListener('DOMContentLoaded', function(){
+            const placa = document.getElementById('vehiculo_placa');
+            if (!placa) return;
+            placa.addEventListener('input', ()=> placa.value = placa.value.toUpperCase());
+          });
+          </script>
+        @endpush
+
 
         <div class="col-md-6">
           <label class="form-label fw-semibold">Tipo de servicio</label>
