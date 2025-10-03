@@ -1,151 +1,242 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Cotización')
+@push('styles')
+<style>
+  html, body { height:100%; background:#f0f0f0 !important; }
+  .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
+  @media (max-width:576px){ .page-body{ min-height:calc(100vh - 64px);} }
+
+  .md-card{
+    max-width: 880px;
+    margin: 32px auto 64px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    padding:28px;
+  }
+  .md-title{
+    font-weight:700; color:#C24242; text-align:center; margin-bottom:18px;
+  }
+
+  .form-control, .form-select{
+    border:none; border-bottom:2px solid #e6e6e6;
+    border-radius:0; background:transparent; padding-left:0;
+  }
+  .form-control:focus, .form-select:focus{
+    box-shadow:none; border-color:#3f51b5;
+  }
+  .form-label{ font-size:.9rem; color:#6b7280; }
+  .help{ font-size:.8rem; color:#9CA3AF; }
+
+  .btn-theme{ background:#9F3B3B; border:none; color:#fff; }
+  .btn-theme:hover{ background:#873131; color:#fff; }
+  .btn-muted{ background:#e5e7eb; color:#111827; border:none; }
+
+  .insumo-row{
+    border-bottom:1px dashed #e5e7eb;
+    padding-bottom:10px; margin-bottom:10px;
+  }
+  .insumo-subtotal{
+    min-width: 110px; text-align:right; font-weight:600;
+  }
+  .badge-precio{
+    font-size:.8rem; background:#eef2ff; color:#3730a3; border-radius:999px; padding:2px 8px;
+  }
+</style>
+@endpush
 
 @section('content')
-    <div class="container mx-auto px-4 py-6">
-        <h1 class="text-2xl font-bold mb-4">Editar Cotización</h1>
+<div class="container">
+  <div class="md-card">
+    <h2 class="md-title">Editar Cotización #{{ $cotizacione->id }}</h2>
 
-        <form action="{{ route('cotizaciones.update', $cotizacione->id) }}" method="POST">
-            @csrf
-            @method('PUT')
+    {{-- Errores --}}
+    @if ($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
 
-            <!-- Descripción -->
-            <div class="mb-4">
-                <label class="block font-semibold">Descripción</label>
-                <input type="text" name="descripcion"
-                       value="{{ old('descripcion', $cotizacione->descripcion) }}"
-                       class="w-full border rounded px-3 py-2 text-black">
-                @error('descripcion')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <form action="{{ route('cotizaciones.update', $cotizacione->id) }}" method="POST" novalidate>
+      @csrf
+      @method('PUT')
 
-            <!-- Costo mano de obra -->
-            <div class="mb-4">
-                <label class="block font-semibold">Costo de Mano de Obra (Q)</label>
-                <input type="number" step="0.01" name="costo_mo"
-                       value="{{ old('costo_mo', $cotizacione->costo_mo) }}"
-                       class="w-full border rounded px-3 py-2 text-black">
-                @error('costo_mo')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+      <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <input type="text" name="descripcion"
+               class="form-control @error('descripcion') is-invalid @enderror"
+               value="{{ old('descripcion', $cotizacione->descripcion) }}"
+               required placeholder="Breve detalle de la cotización">
+      </div>
 
-            <!-- Servicio -->
-            <div class="mb-4">
-                <label class="block font-semibold">Servicio</label>
-                <select name="type_service_id" class="w-full border rounded px-3 py-2 text-black">
-                    <option value="">-- Seleccione un servicio --</option>
-                    @foreach($servicios as $servicio)
-                        <option value="{{ $servicio->id }}"
-                            {{ old('type_service_id', $cotizacione->type_service_id) == $servicio->id ? 'selected' : '' }}>
-                            {{ $servicio->descripcion }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('type_service_id')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Insumos dinámicos con precio y cantidad -->
-            <div class="mb-4">
-                <label class="block font-semibold">Insumos</label>
-                <div id="insumos-container">
-                    @foreach($cotizacione->insumos as $i => $insumoSeleccionado)
-                        <div class="flex items-center gap-2 mb-2">
-                            <select name="insumos[{{ $i }}][id]"
-                                    class="border rounded px-3 py-2 text-black insumo-select"
-                                    onchange="actualizarPrecio(this)">
-                                <option value="">-- Seleccione insumo --</option>
-                                @foreach($insumos as $insumo)
-                                    <option value="{{ $insumo->id }}"
-                                            data-precio="{{ $insumo->precio }}"
-                                        {{ $insumoSeleccionado->id == $insumo->id ? 'selected' : '' }}>
-                                        {{ $insumo->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-
-                            <!-- precio unitario -->
-                            <span class="precio">Q{{ $insumoSeleccionado->precio ?? 0 }}</span>
-
-                            <!-- cantidad -->
-                            <input type="number" name="insumos[{{ $i }}][cantidad]"
-                                   value="{{ $insumoSeleccionado->pivot->cantidad }}"
-                                   class="cantidad border rounded px-2 py-1 w-24 text-black"
-                                   min="0" oninput="calcularTotal()">
-
-                            <button type="button" onclick="this.parentElement.remove(); calcularTotal();"
-                                    class="bg-red-500 text-white px-2 py-1 rounded">X</button>
-                        </div>
-                    @endforeach
-                </div>
-
-                <button type="button" onclick="agregarInsumo()"
-                        class="bg-red-600 text-white px-3 py-1 rounded mt-2">+ Agregar Insumo</button>
-            </div>
-
-            <!-- Total estimado -->
-            <div class="mt-4 font-bold">
-                Total estimado: <span id="total">Q{{ $cotizacione->total }}</span>
-            </div>
-
-            <!-- Botón -->
-            <div class="flex justify-end mt-4">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
-                    Guardar Cambios
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        function agregarInsumo() {
-            let index = document.querySelectorAll('#insumos-container > div').length;
-            let html = `
-        <div class="flex items-center gap-2 mb-2">
-            <select name="insumos[${index}][id]"
-                    class="border rounded px-3 py-2 text-black insumo-select"
-                    onchange="actualizarPrecio(this)">
-                <option value="">-- Seleccione insumo --</option>
-                @foreach($insumos as $insumo)
-            <option value="{{ $insumo->id }}" data-precio="{{ $insumo->precio }}">
-                        {{ $insumo->nombre }}
-            </option>
-@endforeach
-            </select>
-
-            <span class="precio">Q0.00</span>
-
-            <input type="number" name="insumos[${index}][cantidad]"
-                   value="0"
-                   class="cantidad border rounded px-2 py-1 w-24 text-black"
-                   min="0" oninput="calcularTotal()">
-
-            <button type="button" onclick="this.parentElement.remove(); calcularTotal();"
-                    class="bg-red-500 text-white px-2 py-1 rounded">X</button>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Servicio</label>
+          <select name="type_service_id"
+                  class="form-select @error('type_service_id') is-invalid @enderror" required>
+            <option value="">— Seleccione… —</option>
+            @foreach($servicios as $servicio)
+              <option value="{{ $servicio->id }}"
+                @selected(old('type_service_id', $cotizacione->type_service_id) == $servicio->id)>
+                {{ $servicio->descripcion }}
+              </option>
+            @endforeach
+          </select>
+          <div class="help">Tipo/paquete principal</div>
         </div>
-    `;
-            document.getElementById('insumos-container').insertAdjacentHTML('beforeend', html);
-        }
 
-        function actualizarPrecio(select) {
-            let precio = select.options[select.selectedIndex].getAttribute('data-precio') || 0;
-            select.parentElement.querySelector('.precio').textContent = "Q" + precio;
-            calcularTotal();
-        }
+        <div class="col-md-6">
+          <label class="form-label">Costo mano de obra (Q)</label>
+          <input type="number" step="0.01" min="0"
+                 name="costo_mo" id="costo_mo"
+                 class="form-control @error('costo_mo') is-invalid @enderror"
+                 value="{{ old('costo_mo', $cotizacione->costo_mo) }}" placeholder="0.00">
+        </div>
+      </div>
 
-        function calcularTotal() {
-            let total = parseFloat(document.querySelector('input[name="costo_mo"]').value) || 0;
-            document.querySelectorAll('#insumos-container > div').forEach(div => {
-                let select = div.querySelector('.insumo-select');
-                let precio = select.options[select.selectedIndex]?.getAttribute('data-precio') || 0;
-                let cantidad = div.querySelector('.cantidad').value || 0;
-                total += parseFloat(precio) * parseFloat(cantidad);
-            });
-            document.getElementById('total').textContent = "Q" + total.toFixed(2);
-        }
-    </script>
+      {{-- Insumos dinámicos --}}
+      <div class="mt-4">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <label class="form-label m-0 fw-bold">Insumos</label>
+          <button type="button" id="add-insumo" class="btn btn-sm btn-outline-secondary">
+            + Agregar Insumo
+          </button>
+        </div>
+        <div id="insumos-container"></div>
+      </div>
+
+      {{-- Total dinámico --}}
+      <div class="card p-3 mt-3" style="background:#f8f9fa; border-radius:12px; border:none;">
+        <div class="d-flex align-items-center justify-content-between">
+          <h5 class="fw-bold m-0">Total estimado</h5>
+          <span id="total-cotizacion" style="color:#C24242; font-weight:800;">Q 0.00</span>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-theme px-4">Guardar cambios</button>
+        <a href="{{ route('cotizaciones.index') }}" class="btn btn-muted px-4">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+  // Catálogo de insumos desde backend
+  const INSUMOS = @json($insumos); // [{id, nombre, precio}, ...]
+
+  // Pre-selección (insumos ya asociados a la cotización con su cantidad en el pivot)
+  const PRESELECTED = @json(
+    $cotizacione->insumos->map(fn($i)=>[
+      'id' => $i->id,
+      'cantidad' => $i->pivot->cantidad ?? 1
+    ])
+  );
+
+  const container = document.getElementById('insumos-container');
+  const addBtn = document.getElementById('add-insumo');
+  const costoMoEl = document.getElementById('costo_mo');
+  const totalEl = document.getElementById('total-cotizacion');
+  let idx = 0;
+
+  function fmtQ(n){
+    const val = isNaN(n) ? 0 : Number(n);
+    return 'Q ' + val.toFixed(2);
+  }
+
+  function insumoOptionsHtml(selectedId = ''){
+    let html = '<option value="">Seleccione insumo…</option>';
+    for (const i of INSUMOS){
+      html += `<option value="${i.id}" data-precio="${i.precio}" ${String(selectedId)===String(i.id)?'selected':''}>
+                 ${i.nombre} — Q${Number(i.precio).toFixed(2)}
+               </option>`;
+    }
+    return html;
+  }
+
+  function renderRow(index, selectedId = '', cantidad = 1){
+    const row = document.createElement('div');
+    row.className = 'row align-items-end insumo-row';
+    row.dataset.index = index;
+
+    row.innerHTML = `
+      <div class="col-md-6">
+        <label class="form-label">Insumo</label>
+        <select name="insumos[${index}][id]" class="form-select insumo-select" required>
+          ${insumoOptionsHtml(selectedId)}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" name="insumos[${index}][cantidad]" class="form-control cantidad-input" min="1" value="${cantidad}" required>
+      </div>
+      <div class="col-md-3 d-flex justify-content-end gap-2">
+        <div class="insumo-subtotal align-self-center text-nowrap">Q 0.00</div>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-insumo" title="Quitar">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    `;
+    container.appendChild(row);
+    updateRowSubtotal(row);
+    calcTotal();
+  }
+
+  function updateRowSubtotal(row){
+    const select = row.querySelector('.insumo-select');
+    const qty = parseFloat(row.querySelector('.cantidad-input').value) || 0;
+    const opt = select.options[select.selectedIndex];
+    const precio = opt ? parseFloat(opt.getAttribute('data-precio') || '0') : 0;
+    const sub = precio * qty;
+    row.querySelector('.insumo-subtotal').textContent = fmtQ(sub);
+  }
+
+  function calcTotal(){
+    let total = parseFloat(costoMoEl.value) || 0;
+    container.querySelectorAll('.insumo-row').forEach(row=>{
+      const text = row.querySelector('.insumo-subtotal').textContent.replace('Q','').trim();
+      total += parseFloat(text) || 0;
+    });
+    totalEl.textContent = fmtQ(total);
+  }
+
+  // Eventos
+  addBtn.addEventListener('click', ()=> renderRow(idx++));
+  container.addEventListener('click', (e)=>{
+    if(e.target.closest('.remove-insumo')){
+      e.target.closest('.insumo-row').remove();
+      calcTotal();
+    }
+  });
+  container.addEventListener('input', (e)=>{
+    if(e.target.classList.contains('cantidad-input')){
+      updateRowSubtotal(e.target.closest('.insumo-row'));
+      calcTotal();
+    }
+  });
+  container.addEventListener('change', (e)=>{
+    if(e.target.classList.contains('insumo-select')){
+      updateRowSubtotal(e.target.closest('.insumo-row'));
+      calcTotal();
+    }
+  });
+  costoMoEl.addEventListener('input', calcTotal);
+
+  // Inicializar filas:
+  if (PRESELECTED && PRESELECTED.length){
+    PRESELECTED.forEach(p => renderRow(idx++, p.id, p.cantidad ?? 1));
+  } else {
+    // Si no trae insumos, deja una fila por defecto
+    renderRow(idx++);
+  }
+
+  // Calcular total inicial con datos existentes
+  calcTotal();
+</script>
+@endpush

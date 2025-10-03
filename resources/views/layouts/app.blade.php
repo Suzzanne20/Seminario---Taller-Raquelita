@@ -223,12 +223,40 @@
     </div>
 </div>
 
-<main class="page-body">
-    @yield('content')
-</main>
+    <main class="page-body">
+        @yield('content')
+    </main>
 
-@stack('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if(session('success'))
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Hecho!',
+            text: @json(session('Registro realizado con éxito')),
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#9F3B3B',
+        });
+        });
+    </script>
+    @endif
+    @if(session('error'))
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Ups…',
+            text: @json(session('Error en el registro')),
+            confirmButtonText: 'OK'
+        });
+        });
+    </script>
+    @endif
 
 </body>
 </html>
