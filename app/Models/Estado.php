@@ -29,7 +29,7 @@ class Estado extends Model
             'Finalizada' => 'success',
             'Aprobada'   => 'success',
             'Rechazada'  => 'danger',
-            default      => 'dark',
+            default      => 'secondary',
         };
     }
 }
