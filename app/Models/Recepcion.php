@@ -17,16 +17,16 @@ class Recepcion extends Model
         'vehiculo_placa',
         'observaciones',
         'type_vehiculo_id',
+        'detalles_json',        // 👈 añadir
     ];
 
     protected $casts = [
         'fecha_creacion' => 'datetime',
+        'detalles_json'  => 'array',   // 👈 se lee/escribe como array
     ];
 
-    // Relaciones útiles
     public function vehiculo()
     {
-        // FK: recepcion.vehiculo_placa -> vehiculo.placa (owner key)
         return $this->belongsTo(Vehiculo::class, 'vehiculo_placa', 'placa');
     }
 

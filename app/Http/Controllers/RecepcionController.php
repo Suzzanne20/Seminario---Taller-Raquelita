@@ -7,8 +7,6 @@ use App\Models\Vehiculo;
 use App\Models\Foto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Schema; // para verificar columnas opcionales
 use Throwable;
 
 class RecepcionController extends Controller
@@ -19,14 +17,25 @@ class RecepcionController extends Controller
         return view('Inspeccion.inicio');
     }
 
-    /** Listado (opcional) */
-    public function index()
+    /** Listado + filtro por placa (?q=) */
+    public function index(Request $request)
     {
-        $items = Recepcion::orderByDesc('id')->paginate(12);
+        $q = trim((string) $request->get('q'));
+
+        $items = Recepcion::query()
+            ->when($q, fn($query) =>
+                $query->where('vehiculo_placa', 'LIKE', "%{$q}%")
+            )
+            ->orderByDesc('id')
+            ->paginate(12);
+
+        // Mantén el término de búsqueda en la paginación (si lo usas en la vista)
+        $items->appends(['q' => $q]);
+
         return view('Inspeccion.tabla_isp', compact('items'));
     }
 
-    /** Formulario: carga tipos desde BD y si está vacío usa fallback */
+    /** Formulario crear */
     public function create()
     {
         $tipos = DB::table('type_vehiculo')
@@ -35,7 +44,6 @@ class RecepcionController extends Controller
             ->get();
 
         if ($tipos->isEmpty()) {
-            // Fallback temporal por si la tabla está vacía
             $tipos = collect([
                 (object)['id'=>1,'descripcion'=>'Carro estándar'],
                 (object)['id'=>2,'descripcion'=>'Pick-up'],
@@ -46,14 +54,14 @@ class RecepcionController extends Controller
         return view('Inspeccion.registrar_isp', compact('tipos'));
     }
 
-    /** GUARDAR con verificación + mensajes */
+    /** Guardar recepción + FOTOS (BLOB) + DETALLES (puntos) */
     public function store(Request $request)
     {
-        // Normaliza la placa: mayúsculas, solo A-Z0-9
+        // Normaliza placa
         $placa = strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $request->input('vehiculo_placa')));
         $request->merge(['vehiculo_placa' => $placa]);
 
-        // Validación estricta
+        // Validación
         $data = $request->validate(
             [
                 'vehiculo_placa'   => ['required','string','size:7','regex:/^[A-Z0-9]{7}$/','exists:vehiculo,placa'],
@@ -61,7 +69,13 @@ class RecepcionController extends Controller
                 'observaciones'    => ['nullable','string','max:255'],
                 'tecnico'          => ['nullable','string','max:120'],
                 'fecha'            => ['nullable','date'],
+
+                // fotos puede venir agrupado por secciones (fotos[front][]) o simple
+                'fotos'            => ['nullable'],
+                'fotos.*'          => ['nullable'],
                 'fotos.*.*'        => ['nullable','image','max:4096'],
+
+                // JSON con puntos {front:[{x,y,text}], top:[], right:[], left:[], back:[]}
                 'detalles_json'    => ['nullable','string'],
             ],
             [
@@ -72,27 +86,30 @@ class RecepcionController extends Controller
             ]
         );
 
-        // Observaciones (técnico / fecha + texto libre)
+        // Observaciones visibles
         $metaObs = '';
         if ($request->filled('tecnico')) $metaObs .= 'Tec: '.$request->tecnico.'. ';
         if ($request->filled('fecha'))   $metaObs .= 'Fecha: '.$request->fecha.'. ';
         if (!empty($data['observaciones'])) $metaObs .= $data['observaciones'];
 
-        // Mapear textos para fotos (desde el JSON de la vista)
-        $mapText = [];
+        // Puntos por sección
+        $sections = ['front','top','right','left','back'];
+        $detalles = [];
         if ($request->filled('detalles_json')) {
-            $json = json_decode($request->input('detalles_json'), true);
-            foreach (['front','top','right','left','back'] as $sec) {
-                if (isset($json[$sec]) && is_array($json[$sec])) {
-                    $mapText[$sec] = array_map(fn($it) => $it['text'] ?? null, $json[$sec]);
-                }
+            $tmp = json_decode($request->input('detalles_json'), true) ?: [];
+            foreach ($sections as $sec) {
+                $arr = $tmp[$sec] ?? [];
+                $detalles[$sec] = array_values(array_filter($arr, fn($it) =>
+                    is_array($it) && isset($it['x'],$it['y'])
+                ));
             }
+        } else {
+            foreach ($sections as $sec) $detalles[$sec] = [];
         }
 
         try {
             DB::beginTransaction();
 
-            // Revalida existencia del vehículo (coherente con FK)
             if (!Vehiculo::where('placa', $placa)->exists()) {
                 throw new \RuntimeException('Vehículo no existe');
             }
@@ -107,64 +124,84 @@ class RecepcionController extends Controller
                 'vehiculo_placa'   => $placa,
                 'type_vehiculo_id' => (int) $data['type_vehiculo_id'],
                 'observaciones'    => $metaObs,
+                'detalles_json'    => null, // se setea más abajo con enlaces de fotos
             ]);
 
-            // Verificación explícita en BD
-            $ok = $rec && Recepcion::whereKey($rec->id)->exists();
-            if (!$ok) throw new \RuntimeException('No se pudo verificar la inserción.');
+            // Guardar fotos (BLOB) y enlazar a puntos por índice
+            $fotos = $request->file('fotos', null);
 
-            /* ==================== GUARDAR FOTOS (ROBUSTO + VARCHAR(45)) ==================== */
-            // Requiere: php artisan storage:link
-            $filesBySection = $request->file('fotos', []);   // <- si no hay, queda []
+            if ($fotos) {
+                $isSeccionado = is_array($fotos) && (
+                    isset($fotos['front']) || isset($fotos['top']) ||
+                    isset($fotos['right']) || isset($fotos['left']) ||
+                    isset($fotos['back'])
+                );
 
-            if (!empty($filesBySection)) {
-                $disk = 'public';
-                $dir  = "inspecciones/{$placa}/{$rec->id}"; // carpeta real en storage
+                if ($isSeccionado) {
+                    foreach ($fotos as $seccion => $files) {
+                        if (!is_array($files)) $files = [$files];
+                        foreach ($files as $idx => $file) {
+                            if (!$file || !$file->isValid()) continue;
 
-                foreach ($filesBySection as $seccion => $files) {
-                    if (!is_array($files)) continue;
+                            $binary = file_get_contents($file->getRealPath());
+                            $foto = Foto::create([
+                                'path_foto'    => $binary,   // MEDIUMBLOB
+                                'descripcion'  => $detalles[$seccion][$idx]['text'] ?? '',
+                                'recepcion_id' => $rec->id,
+                            ]);
 
-                    foreach ($files as $idx => $file) {
+                            if (isset($detalles[$seccion][$idx])) {
+                                $detalles[$seccion][$idx]['foto_id']    = $foto->id;
+                                $detalles[$seccion][$idx]['stream_url'] = route('fotos.stream', $foto);
+                            }
+                        }
+                    }
+                } else {
+                    // Caso simple: asigna en orden a los primeros puntos libres
+                    $files = is_array($fotos) ? $fotos : [$fotos];
+                    foreach ($files as $file) {
                         if (!$file || !$file->isValid()) continue;
 
-                        // Generar nombre corto y único (cabe en VARCHAR(45))
-                        $ext      = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-                        $short    = substr(bin2hex(random_bytes(12)), 0, 20); // 20 chars
-                        $filename = $short . '.' . $ext;
-
-                        // Guardar archivo: storage/app/public/inspecciones/PLACA/ID/NOMBRE.ext
-                        $file->storeAs($dir, $filename, $disk);
-
-                        // Descripción alineada al índice del punto marcado
-                        $desc = $mapText[$seccion][$idx] ?? '';
-
-                        // Insertar fila en BD: SOLO el nombre (no la ruta completa)
-                        Foto::create([
-                            'path_foto'    => $filename,  // <= 45 chars
-                            'descripcion'  => $desc,
+                        $binary = file_get_contents($file->getRealPath());
+                        $foto = Foto::create([
+                            'path_foto'    => $binary,
+                            'descripcion'  => '',
                             'recepcion_id' => $rec->id,
                         ]);
+
+                        foreach ($sections as $sec) {
+                            foreach ($detalles[$sec] as $i => $p) {
+                                if (!isset($p['foto_id'])) {
+                                    $detalles[$sec][$i]['foto_id']    = $foto->id;
+                                    $detalles[$sec][$i]['stream_url'] = route('fotos.stream', $foto);
+                                    continue 3;
+                                }
+                            }
+                        }
                     }
                 }
             }
-            /* ============================================================================ */
+
+            // Guardar puntos enriquecidos
+            $rec->detalles_json = $detalles;
+            $rec->save();
 
             DB::commit();
-            return back()->with('ok', 'Se guardó correctamente.');
+            return redirect()->route('inspecciones.show', $rec)->with('ok', 'Se guardó correctamente.');
         } catch (Throwable $e) {
             DB::rollBack();
             report($e);
-            return back()->withInput()->with('error', 'No se pudo guardar.');
+            return back()->withInput()->with('error', 'No se pudo guardar: '.$e->getMessage());
         }
     }
 
-    /** ======================= NUEVO: VER (solo lectura) ======================= */
+    /** Mostrar recepción */
     public function show(Recepcion $rec)
     {
         return view('Inspeccion.ver_isp', compact('rec'));
     }
 
-    /** ======================= NUEVO: EDITAR (carga tipos) ===================== */
+    /** Editar */
     public function edit(Recepcion $rec)
     {
         $tipos = DB::table('type_vehiculo')
@@ -175,14 +212,12 @@ class RecepcionController extends Controller
         return view('Inspeccion.editar_isp', compact('rec','tipos'));
     }
 
-    /** ======================= NUEVO: ACTUALIZAR =============================== */
+    /** Actualizar + nuevas fotos (BLOB) + detalles_json */
     public function update(Request $request, Recepcion $rec)
     {
-        // Normaliza placa
         $placa = strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $request->input('vehiculo_placa')));
         $request->merge(['vehiculo_placa' => $placa]);
 
-        // Validación
         $data = $request->validate(
             [
                 'vehiculo_placa'   => ['required','string','size:7','regex:/^[A-Z0-9]{7}$/','exists:vehiculo,placa'],
@@ -190,24 +225,42 @@ class RecepcionController extends Controller
                 'observaciones'    => ['nullable','string','max:255'],
                 'tecnico'          => ['nullable','string','max:120'],
                 'fecha'            => ['nullable','date'],
+                'fotos'            => ['nullable'],
+                'fotos.*'          => ['nullable'],
                 'fotos.*.*'        => ['nullable','image','max:4096'],
                 'detalles_json'    => ['nullable','string'],
             ]
         );
 
-        // Observaciones
         $metaObs = '';
         if ($request->filled('tecnico')) $metaObs .= 'Tec: '.$request->tecnico.'. ';
         if ($request->filled('fecha'))   $metaObs .= 'Fecha: '.$request->fecha.'. ';
         if (!empty($data['observaciones'])) $metaObs .= $data['observaciones'];
 
-        // Mapear textos para fotos nuevas
-        $mapText = [];
+        $sections = ['front','top','right','left','back'];
+
+        // Puntos entrantes
+        $incoming = [];
         if ($request->filled('detalles_json')) {
-            $json = json_decode($request->input('detalles_json'), true);
-            foreach (['front','top','right','left','back'] as $sec) {
-                if (isset($json[$sec]) && is_array($json[$sec])) {
-                    $mapText[$sec] = array_map(fn($it) => $it['text'] ?? null, $json[$sec]);
+            $tmp = json_decode($request->input('detalles_json'), true) ?: [];
+            foreach ($sections as $sec) {
+                $arr = $tmp[$sec] ?? [];
+                $incoming[$sec] = array_values(array_filter($arr, fn($it) =>
+                    is_array($it) && isset($it['x'],$it['y'])
+                ));
+            }
+        } else {
+            foreach ($sections as $sec) $incoming[$sec] = [];
+        }
+
+        // Puntos actuales (para preservar foto_id si no cambia)
+        $current = (array) ($rec->detalles_json ?? []);
+        foreach ($sections as $sec) {
+            $curr = $current[$sec] ?? [];
+            foreach ($incoming[$sec] as $i => $p) {
+                if (isset($curr[$i]['foto_id']) && !isset($incoming[$sec][$i]['foto_id'])) {
+                    $incoming[$sec][$i]['foto_id']    = $curr[$i]['foto_id'];
+                    $incoming[$sec][$i]['stream_url'] = $curr[$i]['stream_url'] ?? null;
                 }
             }
         }
@@ -215,73 +268,83 @@ class RecepcionController extends Controller
         try {
             DB::beginTransaction();
 
-            // Actualizar cabecera
+            // Cabecera
             $rec->vehiculo_placa   = $placa;
             $rec->type_vehiculo_id = (int) $data['type_vehiculo_id'];
             $rec->observaciones    = $metaObs;
-
-            // Si existe la columna detalles_json, la actualizamos
-            if ($request->filled('detalles_json') && Schema::hasColumn('recepcion','detalles_json')) {
-                $rec->detalles_json = $request->input('detalles_json');
-            }
-
             $rec->save();
 
-            // Guardar NUEVAS fotos (no borra las existentes)
-            $filesBySection = $request->file('fotos', []);
-            if (!empty($filesBySection)) {
-                $disk = 'public';
-                $dir  = "inspecciones/{$placa}/{$rec->id}";
+            // Nuevas fotos
+            $fotos = $request->file('fotos', null);
 
-                foreach ($filesBySection as $seccion => $files) {
-                    if (!is_array($files)) continue;
+            if ($fotos) {
+                $isSeccionado = is_array($fotos) && (
+                    isset($fotos['front']) || isset($fotos['top']) ||
+                    isset($fotos['right']) || isset($fotos['left']) ||
+                    isset($fotos['back'])
+                );
 
-                    foreach ($files as $idx => $file) {
+                if ($isSeccionado) {
+                    foreach ($fotos as $seccion => $files) {
+                        if (!is_array($files)) $files = [$files];
+                        foreach ($files as $idx => $file) {
+                            if (!$file || !$file->isValid()) continue;
+
+                            $binary = file_get_contents($file->getRealPath());
+                            $foto = Foto::create([
+                                'path_foto'    => $binary,
+                                'descripcion'  => $incoming[$seccion][$idx]['text'] ?? '',
+                                'recepcion_id' => $rec->id,
+                            ]);
+
+                            if (isset($incoming[$seccion][$idx])) {
+                                $incoming[$seccion][$idx]['foto_id']    = $foto->id;
+                                $incoming[$seccion][$idx]['stream_url'] = route('fotos.stream', $foto);
+                            }
+                        }
+                    }
+                } else {
+                    $files = is_array($fotos) ? $fotos : [$fotos];
+                    foreach ($files as $file) {
                         if (!$file || !$file->isValid()) continue;
 
-                        $ext      = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-                        $short    = substr(bin2hex(random_bytes(12)), 0, 20);
-                        $filename = $short . '.' . $ext;
-
-                        $file->storeAs($dir, $filename, $disk);
-
-                        $desc = $mapText[$seccion][$idx] ?? '';
-
-                        Foto::create([
-                            'path_foto'    => $filename,
-                            'descripcion'  => $desc,
+                        $binary = file_get_contents($file->getRealPath());
+                        $foto = Foto::create([
+                            'path_foto'    => $binary,
+                            'descripcion'  => '',
                             'recepcion_id' => $rec->id,
                         ]);
+
+                        foreach ($sections as $sec) {
+                            foreach ($incoming[$sec] as $i => $p) {
+                                if (!isset($p['foto_id'])) {
+                                    $incoming[$sec][$i]['foto_id']    = $foto->id;
+                                    $incoming[$sec][$i]['stream_url'] = route('fotos.stream', $foto);
+                                    continue 3;
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+            $rec->detalles_json = $incoming; // array -> cast/JSON
+            $rec->save();
 
             DB::commit();
             return redirect()->route('inspecciones.show', $rec)->with('ok','Cambios guardados.');
         } catch (Throwable $e) {
             DB::rollBack();
             report($e);
-            return back()->withInput()->with('error','No se pudo actualizar.');
+            return back()->withInput()->with('error','No se pudo actualizar: '.$e->getMessage());
         }
     }
 
-    /** ======================= NUEVO: ELIMINAR ================================ */
+    /** Eliminar (BD y fotos BLOB relacionadas) */
     public function destroy(Recepcion $rec)
     {
-        $baseDir = "inspecciones/{$rec->vehiculo_placa}/{$rec->id}";
-
         DB::beginTransaction();
         try {
-            // Eliminar archivos físicos ligados a la recepción
-            foreach ($rec->fotos as $foto) {
-                if ($foto->path_foto) {
-                    Storage::disk('public')->delete($baseDir . '/' . $foto->path_foto);
-                }
-            }
-            // Borrar carpeta por si quedaron residuos
-            Storage::disk('public')->deleteDirectory($baseDir);
-
-            // Borrar registros dependientes y la recepción
             Foto::where('recepcion_id', $rec->id)->delete();
             $rec->delete();
 
@@ -290,7 +353,18 @@ class RecepcionController extends Controller
         } catch (Throwable $e) {
             DB::rollBack();
             report($e);
-            return back()->with('error','No se pudo eliminar la inspección.');
+            return back()->with('error','No se pudo eliminar la inspección: '.$e->getMessage());
         }
+    }
+
+    /** Servir la imagen desde BLOB */
+    public function streamFoto(Foto $foto)
+    {
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->buffer($foto->path_foto) ?: 'image/jpeg';
+
+        return response($foto->path_foto, 200)
+            ->header('Content-Type', $mime)
+            ->header('Cache-Control', 'public, max-age=31536000');
     }
 }
