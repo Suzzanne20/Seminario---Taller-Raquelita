@@ -167,7 +167,7 @@
         </div>
       </div>
 
-      <h3>Detalles marcados</h3>
+      <h5>Detalles marcados</h5>
       <ol class="issues" id="issuesList"></ol>
 
       {{-- JSON con puntos (coordenadas y textos) --}}

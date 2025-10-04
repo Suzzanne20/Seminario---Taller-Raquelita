@@ -10,6 +10,7 @@ use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
+use App\Http\Controllers\DashboardController;
 
 
 /* ────────────────────────────────────────────────────────────────
@@ -50,6 +51,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:admin')->group(function () {
         //Dashboard de datos y metricas
         Route::view('/dashboard', 'dashboard')->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->middleware(['auth','verified'])
+            ->name('dashboard');
 
         //Vehiculos
         Route::resource('vehiculos', VehiculoController::class);
