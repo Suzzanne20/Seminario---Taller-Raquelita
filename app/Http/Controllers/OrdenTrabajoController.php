@@ -2,146 +2,304 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion, User};
+use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion, User, Insumo};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-
 
 class OrdenTrabajoController extends Controller
 {
     public function index()
-    {
-        $ordenes = OrdenTrabajo::with([
-                'vehiculo',
-                'servicio',   // 👈 estandarizamos el nombre
-                'estado',     // 👈 relación directa
-            ])
-            ->orderByDesc('id')
-            ->paginate(10);
+{
+    $q = request('q'); // búsqueda por placa
 
-        $view = view()->exists('ordenes.ot_lista') ? 'ordenes.ot_lista' : 'ordenes.index';
-        return view($view, compact('ordenes'));
-    }
+    $ordenes = OrdenTrabajo::with(['vehiculo','servicio','estado'])
+        ->when($q, function ($query, $q) {
+            $query->whereHas('vehiculo', fn($qq) =>
+                $qq->where('placa', 'like', "%{$q}%")
+            );
+        })
+        ->orderByDesc('id')
+        ->paginate(10)
+        ->withQueryString(); 
 
+    $view = view()->exists('ordenes.ot_lista') ? 'ordenes.ot_lista' : 'ordenes.index';
+    return view($view, compact('ordenes','q'));
+}
     public function create()
     {
         $vehiculos    = Vehiculo::orderBy('placa')->get(['placa','linea','modelo']);
         $servicios    = TypeService::orderBy('descripcion')->get(['id','descripcion']);
-        $estados      = Estado::orderBy('nombre')->get(['id','nombre']);
-        // Si quieres listar cotizaciones aprobadas para “vincular” una OT:
-        $cotizaciones = Cotizacion::where('estado_id', 2)->orderByDesc('id')->get(); // 2 = aprobada
+        $insumos      = Insumo::orderBy('nombre')->get(['id','nombre','precio']);
+        $cotizaciones = Cotizacion::with('insumos')
+                           ->where('estado_id', 6) // aprobadas
+                           ->latest()
+                           ->get(['id','descripcion','type_service_id','costo_mo','total']);
+        $tecnicos     = User::whereHas('roles', fn($q)=>$q->whereRaw('LOWER(name)=?',['mecanico']))
+                           ->orderBy('name')->get(['id','name']);
 
-        $view = view()->exists('ordenes.ot_registro') ? 'ordenes.ot_registro' : 'ordenes.create';
-        return view($view, compact('vehiculos','servicios','estados','cotizaciones'));
+        return view('ordenes.ot_registro', compact(
+            'vehiculos','servicios','insumos','cotizaciones','tecnicos'
+        ));
     }
 
-public function store(Request $request)
-{
-    if ($request->filled('vehiculo_placa')) {
-        $request->merge([
-            'vehiculo_placa' => strtoupper(trim($request->vehiculo_placa))
-        ]);
-    }
-
-    $rules = [
-        'descripcion'      => 'nullable|string|max:255',
-        'costo_mo'         => 'nullable|numeric|min:0',
-        'total'            => 'nullable|numeric|min:0',
-        'type_service_id'  => 'required|integer|exists:type_service,id',
-        'kilometraje'      => 'nullable|integer|min:0',
-        'proximo_servicio' => 'nullable|integer|min:0',
-        'empleado_id'      => 'nullable|integer',
-        'cotizacion_id'    => 'nullable|integer|exists:cotizaciones,id',
-        'estado_id'        => 'nullable|integer|exists:estado,id',
-    ];
-
-    // Si NO viene de cotización, exige placa
-    $rules['vehiculo_placa'] = $request->filled('cotizacion_id')
-        ? 'nullable|string|exists:vehiculo,placa'
-        : 'required|string|exists:vehiculo,placa';
-
-    $data = $request->validate($rules);
-
-    DB::transaction(function () use ($data) {
-
-        // ---- Resolver id_creador como ENTERO SEGURO ----
-        $userId = \Illuminate\Support\Facades\Auth::id();
-        if (!is_numeric($userId)) {
-            // si devolvió el nombre de usuario, intenta resolver su ID en tabla usuario
-            $userId = Usuario::where('nombre', $userId)->value('id');
-        }
-        if (!is_numeric($userId)) {
-            // último fallback (asegúrate de que exista ese usuario)
-            $userId = 1;
-        }
-
-        $payload = $data; // no mutamos $data original
-        $payload['fecha_creacion'] = now();
-        $payload['costo_mo']       = $payload['costo_mo'] ?? 0;
-        $payload['total']          = $payload['total'] ?? 0;
-        $payload['id_creador']     = (int) $userId;
-
-        // Estado por defecto: 'Pendiente' o id=1
-        if (empty($payload['estado_id'])) {
-            $payload['estado_id'] = Estado::where('nombre', 'Pendiente')->value('id') ?? 1;
-        }
-
-        OrdenTrabajo::create($payload);
-    });
-
-    return redirect()
-        ->route('ordenes.index')
-        ->with('success', 'Orden de trabajo creada correctamente.');
-}
-
-    public function show(OrdenTrabajo $orden)
-    {
-        $orden->load(['vehiculo','servicio','estado']); // 👈 limpio
-
-        $view = view()->exists('ordenes.ot_show') ? 'ordenes.ot_show'
-               : (view()->exists('ordenes.show') ? 'ordenes.show' : 'ordenes.ot_editar');
-        return view($view, compact('orden'));
-    }
-
-    public function edit(OrdenTrabajo $orden)
-    {
-        $orden->load(['vehiculo','servicio','estado']); // 👈 quita 'cotizaciones' si no existe relación
-
-        $vehiculos    = Vehiculo::orderBy('placa')->get(['placa','linea','modelo']);
-        $servicios    = TypeService::orderBy('descripcion')->get(['id','descripcion']);
-        $cotizaciones = Cotizacion::where('estado_id', 2)->orderByDesc('id')->get();
-
-        $view = view()->exists('ordenes.ot_editar') ? 'ordenes.ot_editar' : 'ordenes.edit';
-        return view($view, compact('orden','vehiculos','servicios','cotizaciones'));
-    }
-
-    public function update(Request $request, OrdenTrabajo $orden)
+    public function store(Request $request)
     {
         if ($request->filled('vehiculo_placa')) {
             $request->merge(['vehiculo_placa' => strtoupper(trim($request->vehiculo_placa))]);
         }
 
         $data = $request->validate([
-            'descripcion'      => 'nullable|string|max:255',
-            'costo_mo'         => 'nullable|numeric|min:0',
-            'total'            => 'nullable|numeric|min:0',
+            'vehiculo_placa'   => 'required|string|exists:vehiculo,placa',
             'type_service_id'  => 'required|integer|exists:type_service,id',
+            'descripcion'      => 'nullable|string|max:100',
             'kilometraje'      => 'nullable|integer|min:0',
             'proximo_servicio' => 'nullable|integer|min:0',
-            'empleado_id'      => 'nullable|integer',
+            'costo_mo'         => 'nullable|numeric|min:0',
             'cotizacion_id'    => 'nullable|integer|exists:cotizaciones,id',
-            'vehiculo_placa'   => 'nullable|string|exists:vehiculo,placa',
-            'estado_id'        => 'nullable|integer|exists:estado,id',
+            'tecnico_id'       => [
+                'nullable','integer','exists:users,id',
+                function ($attr, $value, $fail) {
+                    if ($value) {
+                        $ok = User::where('id',$value)
+                                 ->whereHas('roles', fn($q)=>$q->whereRaw('LOWER(name)=?',['mecanico']))
+                                 ->exists();
+                        if (!$ok) $fail('El usuario seleccionado no tiene el rol de Mecánico.');
+                    }
+                },
+            ],
+            'insumos'            => 'nullable|array',
+            'insumos.*.id'       => 'required_with:insumos|integer|exists:insumo,id',
+            'insumos.*.cantidad' => 'required_with:insumos|numeric|min:0.01',
         ]);
 
-        $orden->update($data);
+        DB::transaction(function () use ($data) {
 
-        return redirect()->route('ordenes.index')->with('success', 'Orden de trabajo actualizada correctamente.');
+            // === ID del creador (entero seguro) ===
+            $userId = (int) (Auth::id() ?? 0);
+            if ($userId <= 0) {
+                $userId = (int) User::where('email', optional(Auth::user())->email)->value('id');
+            }
+            if ($userId <= 0) {
+                abort(401, 'No autenticado');
+            }
+
+            // === Cargar cotización si viene ===
+            $cotizacion = null;
+            if (!empty($data['cotizacion_id'])) {
+                $cotizacion = Cotizacion::with('insumos')->find($data['cotizacion_id']);
+            }
+
+            if ($cotizacion) {
+                $type_service_id = $cotizacion->type_service_id;
+                $descripcion     = $cotizacion->descripcion;
+                $costo_mo        = (float) ($cotizacion->costo_mo ?? 0);
+                $insumosOT       = $cotizacion->insumos->map(fn($i)=>[
+                    'id'       => $i->id,
+                    'cantidad' => (float) $i->pivot->cantidad,
+                ])->values()->all();
+            } else {
+                $type_service_id = $data['type_service_id'];
+                $descripcion     = $data['descripcion'] ?? null;
+                $costo_mo        = (float) ($data['costo_mo'] ?? 0);
+                $insumosOT       = $data['insumos'] ?? [];
+            }
+
+            // === Calcular total de insumos ===
+            $totalInsumos = 0.0;
+            if (!empty($insumosOT)) {
+                $ids     = collect($insumosOT)->pluck('id')->all();
+                $precios = Insumo::whereIn('id', $ids)->pluck('precio', 'id');
+                foreach ($insumosOT as $row) {
+                    $precio   = (float) ($precios[$row['id']] ?? 0);
+                    $cantidad = (float) $row['cantidad'];
+                    $totalInsumos += $precio * $cantidad;
+                }
+            }
+
+            // === Crear OT con estado por defecto “Nueva” (id 1) ===
+            $orden = OrdenTrabajo::create([
+                'fecha_creacion'   => now(),
+                'descripcion'      => $descripcion,
+                'kilometraje'      => $data['kilometraje'] ?? null,
+                'proximo_servicio' => $data['proximo_servicio'] ?? null,
+                'costo_mo'         => $costo_mo,
+                'total'            => $costo_mo + $totalInsumos,
+                'id_creador'       => $userId,
+                'vehiculo_placa'   => $data['vehiculo_placa'],
+                'type_service_id'  => $type_service_id,
+                'estado_id'        => 1, // NUEVA
+            ]);
+
+            // === Guardar insumos de la OT ===
+            if (!empty($insumosOT)) {
+                foreach ($insumosOT as $row) {
+                    DB::table('insumo_ot')->insert([
+                        'orden_trabajo_id' => $orden->id,
+                        'insumo_id'        => $row['id'],
+                        'cantidad'         => $row['cantidad'],
+                    ]);
+                }
+            }
+
+            // === Asignación del técnico (si viene) ===
+            if (!empty($data['tecnico_id'])) {
+                DB::table('asignacion_orden')->insert([
+                    'orden_trabajo_id' => $orden->id,
+                    'usuario_id'       => $data['tecnico_id'],
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('ordenes.index')
+            ->with('success', '¡Orden de trabajo creada correctamente!');
     }
+
+    public function show(OrdenTrabajo $orden)
+    {
+        $orden->load(['vehiculo','servicio','estado']);
+        $view = view()->exists('ordenes.ot_show') ? 'ordenes.ot_show'
+               : (view()->exists('ordenes.show') ? 'ordenes.show' : 'ordenes.ot_editar');
+        return view($view, compact('orden'));
+    }
+
+public function edit(OrdenTrabajo $orden)
+{
+    $orden->load([
+        'vehiculo.clientes',   
+        'servicio',
+        'estado',
+        'items.insumo',   
+        'creador',        
+    ]);
+
+    $vehiculos = Vehiculo::orderBy('placa')->get(['placa','linea','modelo']);
+    $servicios = TypeService::orderBy('descripcion')->get(['id','descripcion']);
+    $tecnicos  = User::role('Mecanico')->orderBy('name')->get(['id','name']);
+    $insumos   = Insumo::orderBy('nombre')->get(['id','nombre','precio']);
+
+    $estadosFlow = Estado::whereIn('nombre', ['Nueva','Asignada','Pendiente','En proceso','Finalizada'])
+        ->orderByRaw("FIELD(nombre,'Nueva','Asignada','Pendiente','En proceso','Finalizada')")
+        ->get(['id','nombre']);
+
+    // En caso de haber cotizaciones
+    $cotizacion = null;
+    if (Schema::hasTable('cotizaciones')) {
+        $q = Cotizacion::where('estado_id', 6); // aprobada
+        if (Schema::hasColumn('cotizaciones', 'vehiculo_placa')) {
+            $q->where('vehiculo_placa', $orden->vehiculo_placa ?? '');
+        } else {
+            $q->where('type_service_id', $orden->type_service_id);
+        }
+        $cotizacion = $q->latest()->first();
+    }
+
+    // Para las inspecciones se basa en la placa y en tiempo estimado 
+    $inspeccion = null;
+    if (Schema::hasTable('inspecciones') && Schema::hasColumn('inspecciones','vehiculo_placa')) {
+        $desde = optional($orden->fecha_creacion)->copy()->subDays(3);
+        $hasta = optional($orden->fecha_creacion)->copy()->addDays(3);
+        $inspeccion = DB::table('inspecciones')
+            ->where('vehiculo_placa', $orden->vehiculo_placa ?? '')
+            ->when($desde && $hasta, fn($qq)=>$qq->whereBetween('created_at', [$desde, $hasta]))
+            ->latest()->first();
+    }
+
+    return view('ordenes.ot_editar', compact(
+        'orden','vehiculos','servicios','tecnicos','insumos','estadosFlow','cotizacion','inspeccion'
+    ));
+}
+
+
+public function update(Request $request, OrdenTrabajo $orden)
+{
+    if ($request->filled('vehiculo_placa')) {
+        $request->merge(['vehiculo_placa' => strtoupper(trim($request->vehiculo_placa))]);
+    }
+
+    $data = $request->validate([
+        'vehiculo_placa'   => 'required|string|exists:vehiculo,placa',
+        'type_service_id'  => 'required|integer|exists:type_service,id',
+        'descripcion'      => 'nullable|string|max:100',
+        'kilometraje'      => 'nullable|integer|min:0',
+        'proximo_servicio' => 'nullable|integer|min:0',
+        'costo_mo'         => 'nullable|numeric|min:0',
+        'estado_id'        => 'required|integer|exists:estado,id',
+        'tecnico_id'       => [
+            'nullable','integer','exists:users,id',
+            function ($attr, $value, $fail) {
+                if ($value) {
+                    $ok = User::where('id',$value)
+                              ->whereHas('roles', fn($q)=>$q->whereRaw('LOWER(name)=?',['mecanico']))
+                              ->exists();
+                    if (!$ok) $fail('El usuario seleccionado no tiene el rol de Mecánico.');
+                }
+            },
+        ],
+        // insumos
+        'insumos'             => 'nullable|array',
+        'insumos.*.id'        => 'required_with:insumos|integer|exists:insumo,id',
+        'insumos.*.cantidad'  => 'required_with:insumos|numeric|min:0.01',
+    ]);
+
+    DB::transaction(function () use ($orden, $data) {
+        // recalcular total de insumos
+        $totalInsumos = 0.0;
+        $items = $data['insumos'] ?? [];
+        if (!empty($items)) {
+            $ids     = collect($items)->pluck('id')->all();
+            $precios = Insumo::whereIn('id', $ids)->pluck('precio', 'id');
+            foreach ($items as $row) {
+                $totalInsumos += (float) ($precios[$row['id']] ?? 0) * (float) $row['cantidad'];
+            }
+        }
+
+        $orden->update([
+            'vehiculo_placa'   => $data['vehiculo_placa'],
+            'type_service_id'  => $data['type_service_id'],
+            'descripcion'      => $data['descripcion'] ?? null,
+            'kilometraje'      => $data['kilometraje'] ?? null,
+            'proximo_servicio' => $data['proximo_servicio'] ?? null,
+            'costo_mo'         => (float)($data['costo_mo'] ?? 0),
+            'total'            => (float)($data['costo_mo'] ?? 0) + $totalInsumos,
+            'estado_id'        => (int) $data['estado_id'],
+        ]);
+
+        // técnico (tabla asignacion_orden)
+        DB::table('asignacion_orden')->where('orden_trabajo_id', $orden->id)->delete();
+        if (!empty($data['tecnico_id'])) {
+            DB::table('asignacion_orden')->insert([
+                'orden_trabajo_id' => $orden->id,
+                'usuario_id'       => $data['tecnico_id'],
+            ]);
+        }
+
+        // items (insumo_ot)
+        DB::table('insumo_ot')->where('orden_trabajo_id', $orden->id)->delete();
+        if (!empty($items)) {
+            foreach ($items as $row) {
+                DB::table('insumo_ot')->insert([
+                    'orden_trabajo_id' => $orden->id,
+                    'insumo_id'        => $row['id'],
+                    'cantidad'         => $row['cantidad'],
+                ]);
+            }
+        }
+    });
+
+    return back()->with('success', 'Cambios guardados correctamente.');
+}
 
     public function destroy(OrdenTrabajo $orden)
     {
-        $orden->delete();
+        DB::transaction(function () use ($orden) {
+            DB::table('asignacion_orden')->where('orden_trabajo_id', $orden->id)->delete();
+            $orden->delete();
+        });
+
         return back()->with('success', 'Orden de trabajo eliminada correctamente.');
     }
 }
+

@@ -16,7 +16,7 @@ class Vehiculo extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'placa','modelo','linea','motor','cilindraje','type_vehiculo_id','marca_id'
+        'placa', 'marca_id', 'modelo', 'linea', 'motor', 'cilindraje', 'type_vehiculo_id'
     ];
 
     public function setPlacaAttribute($value)
@@ -35,7 +35,7 @@ class Vehiculo extends Model
     // Relación muchos a muchos con clientes
     public function clientes()
     {
-        return $this->belongsToMany(Cliente::class, 'cliente_vehiculo', 'vehiculo_placa', 'cliente_id');
+        return $this->belongsToMany(Cliente::class, 'cliente_vehiculo', 'vehiculo_placa', 'cliente_id', 'placa', 'id');
     }
 
     // Relación con la marca
