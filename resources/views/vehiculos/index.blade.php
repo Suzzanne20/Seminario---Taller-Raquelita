@@ -8,6 +8,12 @@
 
   .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
   .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
+  
+  .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
+  .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
+  .pagination .page-item.active .page-link{ background:#535353; border-color:#1d1d1d;  color:#fff; }
+  .pagination .page-item.disabled .page-link{ color:#adb5bd; background:#f8f9fa; border-color:#e9ecef; }
+  .pagination .page-link:focus{ box-shadow:0 0 0 .15rem rgba(159,59,59,.15); }
 </style>
 @endpush
 
@@ -90,8 +96,7 @@
       </tbody>
     </table>
   </div>
-
-  {{-- Paginación --}}
+    {{-- Paginación --}}
   <div class="mt-3">
     {{ $vehiculos->links() }}
   </div>

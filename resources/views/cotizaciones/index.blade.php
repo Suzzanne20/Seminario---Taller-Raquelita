@@ -2,95 +2,114 @@
 
 @push('styles')
 <style>
-<<<<<<< HEAD
-  html, body { height: 100%; background: #f0f0f0 !important; }
-  .page-body { min-height: calc(100vh - 72px); background: #f0f0f0 !important; color: #212529; }
-  @media (max-width: 576px) {
-    .page-body { min-height: calc(100vh - 64px); }
-  }
-=======
   html, body { height:100%; background:#f0f0f0 !important; }
   .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
   @media (max-width:576px){ .page-body { min-height:calc(100vh - 64px); } }
->>>>>>> 84d704f517b0af64c0f8e9bf76d0897bd1bf3f96
+
+  .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
+  .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
+
+  .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
+  .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
+  .pagination .page-item.active .page-link{ background:#535353; border-color:#1d1d1d; color:#fff; }
+  .pagination .page-item.disabled .page-link{ color:#adb5bd; background:#f8f9fa; border-color:#e9ecef; }
+  .pagination .page-link:focus{ box-shadow:0 0 0 .15rem rgba(159,59,59,.15); }
 </style>
 @endpush
 
 @section('content')
-    <div class="container"><br><br>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold" style="color:#1E1E1E;">Cotizaciones</h3>
-            <a href="{{ route('cotizaciones.create') }}"
-               class="btn"
-               style="background-color:#C24242; color:#fff; border-radius:20px; padding:8px 18px;">
-                Nueva cotización
-            </a>
-        </div>
+<div class="container py-4">
 
-        @if(session('ok'))
-            <div class="alert alert-success shadow-sm" style="border-radius:12px;">
-                {{ session('ok') }}
-            </div>
-        @endif
+  {{-- Título --}}
+  <div class="container"><br><br>
+    <h1 class="text-center mb-4" style="color:#C24242;">Cotizaciones</h1>
+  </div>
 
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table align-middle text-center">
-                <thead style="background-color:#9F3B3B; color:#fff;">
-                <tr>
-                    <th>#</th>
-                    <th>Fecha</th>
-                    <th>Descripción</th>
-                    <th>Servicio</th>
-                    <th>Total (Q)</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                @forelse($cotizaciones as $c)
-                    <tr>
-                        <td>{{ $c->id }}</td>
-                        <td>
-                            {{ $c->fecha_creacion
-                                ? \Carbon\Carbon::parse($c->fecha_creacion)->format('Y-m-d H:i')
-                                : '' }}
-                        </td>
-                        <td>{{ $c->descripcion }}</td>
-                        <td>{{ $c->servicio?->descripcion }}</td>
-                        <td><strong>Q{{ number_format($c->total, 2) }}</strong></td>
-                        <td class="text-end">
-                            <a href="{{ route('cotizaciones.show',$c->id) }}"
-                               class="btn btn-sm"
-                               style="background-color:#1E1E1E; color:#fff; border-radius:10px; margin-right:4px;">
-                                Ver
-                            </a>
-                            <a href="{{ route('cotizaciones.edit',$c->id) }}"
-                               class="btn btn-sm"
-                               style="background-color:#B5747D; color:#fff; border-radius:10px; margin-right:4px;">
-                                Editar
-                            </a>
-                            <form action="{{ route('cotizaciones.destroy',$c->id) }}"
-                                  method="POST"
-                                  class="d-inline"
-                                  onsubmit="return confirm('¿Eliminar cotización #{{ $c->id }}?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm"
-                                        style="background-color:#C24242; color:#fff; border-radius:10px;">
-                                    Eliminar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">Sin cotizaciones registradas</td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
+  {{-- Toolbar: botón + buscador --}}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <a href="{{ route('cotizaciones.create') }}"
+       class="btn btn-theme"
+       style="border-radius:12px; padding:.55rem 1rem;">
+      <i class="bi bi-plus-lg me-1"></i> Nueva cotización
+    </a>
 
-        <div class="mt-3">
-            {{ $cotizaciones->links() }}
-        </div>
+    <form action="{{ route('cotizaciones.index') }}" method="GET" class="d-flex align-items-center gap-2">
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" class="form-control"
+               placeholder="Buscar por descripción o # de cotización…"
+               value="{{ request('q') }}">
+      </div>
+      <button class="btn btn-dark" type="submit" style="border-radius:12px;">Buscar</button>
+    </form>
+  </div>
+
+  {{-- Mensaje --}}
+  @if(session('ok'))
+    <div class="alert alert-success shadow-sm rounded-3">
+      {{ session('ok') }}
     </div>
+  @endif
+
+  {{-- Tabla --}}
+  <div class="table-responsive shadow-sm rounded-3">
+    <table class="table table-hover align-middle mb-0 text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th class="text-start">Descripción</th>
+          <th>Servicio</th>
+          <th>Total (Q)</th>
+          <th>Estado</th>   {{-- ⬅ NUEVO --}}
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @forelse($cotizaciones as $c)
+          <tr>
+            <td class="fw-semibold">{{ $c->id }}</td>
+            <td>{{ $c->fecha_creacion ? \Illuminate\Support\Carbon::parse($c->fecha_creacion)->format('d/m/Y H:i') : '—' }}</td>
+            <td class="text-start">{{ $c->descripcion ?? '—' }}</td>
+            <td>{{ $c->servicio?->descripcion ?? '—' }}</td>
+            <td><strong>Q {{ number_format($c->total ?? 0, 2) }}</strong></td>
+            <td>
+              <span class="badge bg-{{ $c->estado?->badge_class ?? 'secondary' }}">
+                {{ $c->estado?->nombre ?? '—' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <div class="d-inline-flex gap-2">
+                <a href="{{ route('cotizaciones.show', $c->id) }}" class="btn btn-sm btn-outline-secondary" title="Ver">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ route('cotizaciones.edit', $c->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                <form action="{{ route('cotizaciones.destroy', $c->id) }}" method="POST"
+                      onsubmit="return confirm('¿Eliminar la cotización #{{ $c->id }}?')">
+                  @csrf @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">Sin cotizaciones registradas.</td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
+
+  {{-- Paginación --}}
+  <div class="mt-3 ">
+    {{ $cotizaciones->links() }}
+  </div>
+</div>
+{{-- Íconos Bootstrap --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 @endsection

@@ -9,15 +9,21 @@ use Illuminate\Http\Request;
 
 class CotizacionController extends Controller
 {
-    // Listar todas las cotizaciones
-    public function index()
-    {
-        $cotizaciones = Cotizacion::with(['servicio', 'estado'])
-            ->orderByDesc('id')
-            ->paginate(10);
+    public function index(Request $request)
+{
+    $q = trim($request->get('q', ''));
 
-        return view('cotizaciones.index', compact('cotizaciones'));
-    }
+    $cotizaciones = Cotizacion::with(['servicio', 'estado'])
+        ->when($q, function ($query) use ($q) {
+            $query->where('descripcion', 'like', "%{$q}%")
+                  ->orWhere('id', $q); // permite buscar por # exacto
+        })
+        ->orderByDesc('id')
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('cotizaciones.index', compact('cotizaciones', 'q'));
+}
 
     // Formulario para crear cotización
     public function create()

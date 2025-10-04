@@ -8,19 +8,21 @@ use Illuminate\Http\Request;
 
 class InsumoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $insumo = Insumo::all();
-        $tiposInsumo = TipoInsumo::all();
-        return view('insumos.index', compact('insumo', 'tiposInsumo'));
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function index(Request $request)
+{
+    $q = trim($request->get('q', ''));
+
+    $insumos = \App\Models\Insumo::with('tipoInsumo')
+        ->when($q, fn($query) =>
+            $query->where('nombre', 'like', "%{$q}%")
+        )
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('insumos.index', compact('insumos', 'q'));
+}
+
     public function create()
     {
         $tiposInsumo = TipoInsumo::all();
