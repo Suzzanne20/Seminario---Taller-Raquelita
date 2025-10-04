@@ -8,11 +8,23 @@ use Illuminate\Http\Request;
 
 class VehiculoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Se cargan los vehiculo con las marcas seleccionadas
-        $vehiculos = Vehiculo::with('marca')->get();
-        return view('vehiculos.index', compact('vehiculos'));
+        $q = trim($request->get('q', ''));
+
+        $vehiculos = Vehiculo::with('marca')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($qq) use ($q) {
+                    $qq->where('placa', 'like', "%{$q}%")
+                    ->orWhere('linea', 'like', "%{$q}%")
+                    ->orWhereHas('marca', fn($m) => $m->where('nombre', 'like', "%{$q}%"));
+                });
+            })
+            ->orderBy('placa')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('vehiculos.index', compact('vehiculos', 'q'));
     }
 
     public function create()

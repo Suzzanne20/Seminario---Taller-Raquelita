@@ -60,8 +60,6 @@
       @forelse ($ordenes as $ot)
         <tr>
           <td>{{ $ot->id }}</td>
-
-          {{-- fecha_creacion puede venir como string: la formateamos seguro --}}
           <td>
             @php
               $fc = $ot->fecha_creacion ? \Illuminate\Support\Carbon::parse($ot->fecha_creacion)->format('d/m/Y H:i') : '—';

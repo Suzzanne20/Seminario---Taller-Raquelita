@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, HasOne};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class OrdenTrabajo extends Model
 {
@@ -20,7 +21,7 @@ class OrdenTrabajo extends Model
         'id_creador',
         'vehiculo_placa',
         'type_service_id',
-        'estado_id', // 👈 NECESARIO si la relación es directa
+        'estado_id',
     ];
 
     protected $casts = [
@@ -29,6 +30,8 @@ class OrdenTrabajo extends Model
         'total'          => 'decimal:2',
         'vehiculo_placa' => 'string',
     ];
+
+    // --- Relaciones principales ---
 
     public function vehiculo(): BelongsTo
     {
@@ -40,24 +43,29 @@ class OrdenTrabajo extends Model
         return $this->belongsTo(TypeService::class, 'type_service_id');
     }
 
-    public function insumos(): HasMany
-    {
-        return $this->hasMany(InsumoOt::class, 'orden_trabajo_id');
-    }
-
-    public function estadoActual(): HasOne
-    {
-        return $this->hasOne(EstadoOrden::class, 'orden_trabajo_id')->latest('id');
-    }
-
-    public function asignaciones(): HasMany
-    {
-        return $this->hasMany(AsignacionOrden::class, 'orden_trabajo_id');
-    }
-
-    // Relación directa al estado actual
     public function estado(): BelongsTo
     {
         return $this->belongsTo(Estado::class, 'estado_id', 'id');
+    }
+
+    public function insumos(): BelongsToMany
+    {
+        return $this->belongsToMany(Insumo::class, 'insumo_ot', 'orden_trabajo_id', 'insumo_id')
+                    ->withPivot('cantidad');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(\App\Models\InsumoOt::class, 'orden_trabajo_id');
+    }
+
+    public function tecnicos(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'asignacion_orden', 'orden_trabajo_id', 'usuario_id');
+    }
+
+    public function creador(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'id_creador');
     }
 }

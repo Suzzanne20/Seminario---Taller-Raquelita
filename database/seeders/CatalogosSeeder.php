@@ -35,7 +35,7 @@ class CatalogosSeeder extends Seeder
         DB::table('type_service')->insertOrIgnore([
             ['id'=>1,'descripcion'=>'Preventivo'],
             ['id'=>2,'descripcion'=>'Correctivo'],
-            ['id'=>3,'descripcion'=>'Frenos'],
+            ['id'=>3,'descripcion'=>'Otro'],
         ]);
     }
 }
