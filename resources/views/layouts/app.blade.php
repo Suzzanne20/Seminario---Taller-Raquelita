@@ -129,17 +129,20 @@
             <li class="nav-item pt-2"><a class="nav-link" href="#">
                     <i class="bi bi-tools me-2"></i>Servicios</a></li>
 
+            {{-- Costos y Ganancias --}}
             <li class="nav-item pt-2">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-info-circle me-2"></i>Quiénes somos
+                <a class="nav-link" href="{{ url('/inventario') }}">
+                    <i class="bi bi-graph-up me-2"></i>Costos y Ganancias
                 </a>
             </li>
+
             <li class="nav-item pt-2">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="https://maps.app.goo.gl/XkQEZ9WoPrQmyKx37" target="_blank">
                     <i class="bi bi-geo-alt me-2"></i>Ubicaciones
                 </a>
             </li>
-            <li class="nav-item pt-2">
+
+            {{--}}<li class="nav-item pt-2">
                 <a class="nav-link" href="#">
                     <i class="bi bi-envelope-paper me-2"></i>Contacto
                 </a>
@@ -161,7 +164,7 @@
                     <i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°
                 </a>
             </li>
-            @endhasanyrole 
+            @endhasanyrole
 
             {{-- Órdenes de Trabajo (admin y secretaria) --}}
             @hasanyrole('admin|secretaria')
@@ -213,7 +216,7 @@
 
         <hr class="mt-3 mb-2">
         <div class="d-flex justify-content-center gap-3">
-            <a class="text-decoration-none" href="https://facebook.com/tu-pagina" target="_blank" aria-label="Facebook">
+            <a class="text-decoration-none" href="https://www.facebook.com/share/1CiUS3TA9y/?mibextid=wwXIfr" target="_blank" aria-label="Facebook">
                 <i class="bi bi-facebook fs-4"></i>
             </a>
             <a class="text-decoration-none" href="https://wa.me/50200000000" target="_blank" aria-label="WhatsApp">
