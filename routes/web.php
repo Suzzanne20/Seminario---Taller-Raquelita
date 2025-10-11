@@ -57,7 +57,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         //Vehiculos
         Route::resource('vehiculos', VehiculoController::class);
-
+        
+        // RUTAS COMPLETAS PARA GESTIÓN DE MARCAS (ADMIN)
+        Route::get('/marcas', [VehiculoController::class, 'indexMarcas'])->name('marcas.index');
+        Route::post('/marcas/{id}/desactivar', [VehiculoController::class, 'desactivarMarca'])->name('marcas.desactivar');
+        Route::post('/marcas/{id}/activar', [VehiculoController::class, 'activarMarca'])->name('marcas.activar');
+        Route::delete('/marcas/{id}', [VehiculoController::class, 'destroyMarca'])->name('marcas.destroy');
+        Route::post('/marcas', [VehiculoController::class, 'storeMarca'])->name('marcas.store');
+        Route::post('/marcas/{id}/toggle-registro', [VehiculoController::class, 'toggleMostrarEnRegistro'])->name('marcas.toggle-registro');
         // Gestión de usuarios
         Route::resource('users', UsersController::class)
             ->only(['index','store','update','destroy']);
@@ -104,6 +111,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Vehículos
         Route::resource('vehiculos', VehiculoController::class)->only(['index','create','store','edit','update','show']);
+
+        // RUTAS PARA GESTIÓN DE MARCAS (SECRETARIA - SOLO LECTURA)
+        Route::get('/marcas', [VehiculoController::class, 'indexMarcas'])->name('marcas.index');
+        Route::post('/marcas', [VehiculoController::class, 'storeMarca'])->name('marcas.store');
+        // Secretaria puede ver marcas y agregar nuevas, pero no activar/desactivar/eliminar
     });
 
     /* ───────────────────────────────────────────────────────
@@ -173,4 +185,3 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/inventario', [InventarioController::class, 'index'])
     ->name('inventario.index')
     ->middleware('auth');
-
