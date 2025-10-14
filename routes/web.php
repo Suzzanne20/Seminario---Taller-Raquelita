@@ -11,6 +11,7 @@ use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
 
 
 /* ────────────────────────────────────────────────────────────────
@@ -24,7 +25,11 @@ use App\Http\Controllers\InventarioController;
 
 //Landing pública
 
-Route::view('/', 'home')->name('home');
+Route::get('/', [LandingController::class, 'home'])->name('home');
+// Para el tracking de la orden de Trabajo
+Route::get('/track', [LandingController::class, 'home'])->name('track');
+
+
 Route::view('/acceso', 'auth.access')->name('acceso'); //login y registro
 //Ruta de autenticación Breeze
 require __DIR__.'/auth.php';
