@@ -136,13 +136,10 @@
       <p>Organiza tu taller, mejora tu servicio y controla todo desde un solo lugar</p>
       <a href="tel:+50200000000" class="text-white fw-semibold" style="text-decoration: none;">
         <i class="bi bi-telephone me-1"></i> +502 79453982
-      </a>
+      </a><br>
 
-      @guest
-        <a href="{{ route('acceso') }}" class="btn-brand">Iniciar sesión</a>
-      @endguest
       @auth
-        <a href="{{ route('welcome') }}" class="btn-brand">Ir al panel</a>
+        <a href="{{ route('dashboard') }}" class="btn-brand">Ir al panel</a>
       @endauth
     </div>
   </section><br><br><br>
@@ -191,11 +188,11 @@
           </div>
 
           <div class="mt-2 row g-3">
-            <div class="col-6 col-md-4">
+            <div class="col-6 col-12">
               <div class="text-muted small">Placa</div>
               <div class="fw-semibold">{{ $orden->vehiculo->placa ?? '—' }}</div>
             </div>
-            <div class="col-6 col-md-4">
+            <div class="col-6 col-12">
               <div class="text-muted small">Servicio</div>
               <div class="fw-semibold">{{ $orden->servicio->descripcion ?? '—' }}</div>
             </div>

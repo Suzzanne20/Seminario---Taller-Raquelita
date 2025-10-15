@@ -123,7 +123,7 @@
     </div>
 
     <div class="right-actions">
-        <a class="btn-home" href="{{ route('welcome') }}"><i class="bi bi-house"></i><span class="d-none d-sm-inline">Inicio</span></a>
+        <a class="btn-home" href="{{ route('home') }}"><i class="bi bi-house"></i><span class="d-none d-sm-inline">Inicio</span></a>
         <a class="text-white" href="https://www.facebook.com/share/1CiUS3TA9y/?mibextid=wwXIfr" target="_blank" aria-label="Facebook"><i class="bi bi-facebook fs-5"></i></a>
         <a class="text-white" href="https://wa.me/50200000000" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp fs-5"></i></a>
     </div>
@@ -199,7 +199,7 @@
 
       {{-- Inspecciones 360 (mecánico|admin) --}}
       @hasanyrole('mecanico|admin')
-        <a class="side-link" href="{{ route('inspecciones.index', [], false) ?? '#' }}" data-title="Inspecciones 360°">
+        <a class="side-link" href="{{ route('inspecciones.start', [], false) ?? '#' }}" data-title="Inspecciones 360°">
           <i class="bi bi-ev-front-fill"></i><span class="text">Inspecciones 360°</span>
         </a>
       @endhasanyrole
