@@ -267,69 +267,142 @@
 
   {{-- Scripts --}}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  {{-- SweetAlert2 --}}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Hecho!',
+            text: @json(session('success')),
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#9F3B3B',
+            customClass: {
+                popup: 'rounded-3'
+            }
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: @json(session('error')),
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#9F3B3B',
+            customClass: {
+                popup: 'rounded-3'
+            }
+        });
+    });
+</script>
+@endif
+
+@if(session('warning'))
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Advertencia',
+            text: @json(session('warning')),
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#9F3B3B',
+            customClass: {
+                popup: 'rounded-3'
+            }
+        });
+    });
+</script>
+  @endif
+  
+  @if(session('warning') && !request()->is('marcas*'))
+  <script>
+      window.addEventListener('DOMContentLoaded', () => {
+          Swal.fire({
+              icon: 'warning',
+              title: 'Advertencia',
+              text: @json(session('warning')),
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#9F3B3B',
+              customClass: {
+                  popup: 'rounded-3'
+              }
+          });
+      });
+  </script>
+  @endif
+
   @stack('scripts')
 
+  <script>
+      (function(){
+      const sidebar = document.getElementById('sidebar');
+      const btn = document.getElementById('sbToggle');
+      const mq = window.matchMedia('(max-width: 992px)');
 
-    
-    <script>
-        (function(){
-        const sidebar = document.getElementById('sidebar');
-        const btn = document.getElementById('sbToggle');
-        const mq = window.matchMedia('(max-width: 992px)');
+      const saved = localStorage.getItem('sb_state');
+      if (saved === 'expanded') sidebar.classList.add('expanded');
+      else sidebar.classList.remove('expanded');
 
-        const saved = localStorage.getItem('sb_state');
-        if (saved === 'expanded') sidebar.classList.add('expanded');
-        else sidebar.classList.remove('expanded');
+      btn?.addEventListener('click', ()=>{
+          sidebar.classList.toggle('expanded');
+          localStorage.setItem('sb_state', sidebar.classList.contains('expanded') ? 'expanded' : 'collapsed');
+      });
 
-        btn?.addEventListener('click', ()=>{
-            sidebar.classList.toggle('expanded');
-            localStorage.setItem('sb_state', sidebar.classList.contains('expanded') ? 'expanded' : 'collapsed');
-        });
+      // ---- FLYOUT para submenús cuando el sidebar está retraído ----
+      const dropdownTriggers = document.querySelectorAll('.side-link[data-bs-toggle="collapse"]');
 
-        // ---- FLYOUT para submenús cuando el sidebar está retraído ----
-        const dropdownTriggers = document.querySelectorAll('.side-link[data-bs-toggle="collapse"]');
+      dropdownTriggers.forEach(trigger=>{
+          const targetSel = trigger.getAttribute('href') || trigger.dataset.bsTarget || trigger.getAttribute('data-bs-target');
+          if(!targetSel) return;
+          const submenu = document.querySelector(targetSel);
+          if(!submenu) return;
 
-        dropdownTriggers.forEach(trigger=>{
-            const targetSel = trigger.getAttribute('href') || trigger.dataset.bsTarget || trigger.getAttribute('data-bs-target');
-            if(!targetSel) return;
-            const submenu = document.querySelector(targetSel);
-            if(!submenu) return;
+          // Creamos contenedor flyout (clon visual del submenu)
+          const fly = document.createElement('div'); fly.className = 'flyout';
+          // Clonamos los side-link del submenu
+          [...submenu.querySelectorAll('.side-link')].forEach(a=>{
+          const c = a.cloneNode(true);
+          c.querySelectorAll('.text').forEach(t=>t.style.opacity='1');
+          fly.appendChild(c);
+          });
+          document.body.appendChild(fly);
 
-            // Creamos contenedor flyout (clon visual del submenu)
-            const fly = document.createElement('div'); fly.className = 'flyout';
-            // Clonamos los side-link del submenu
-            [...submenu.querySelectorAll('.side-link')].forEach(a=>{
-            const c = a.cloneNode(true);
-            c.querySelectorAll('.text').forEach(t=>t.style.opacity='1');
-            fly.appendChild(c);
-            });
-            document.body.appendChild(fly);
+          // Mostrar en hover sólo si el sidebar está RETRAÍDO y no en móvil
+          let hideTimer = null;
+          const showFly = () => {
+          if (sidebar.classList.contains('expanded') || mq.matches) return;
+          const r = trigger.getBoundingClientRect();
+          fly.style.top = Math.max(12, r.top) + 'px';
+          fly.classList.add('show');
+          };
+          const hideFly = () => { fly.classList.remove('show'); };
 
-            // Mostrar en hover sólo si el sidebar está RETRAÍDO y no en móvil
-            let hideTimer = null;
-            const showFly = () => {
-            if (sidebar.classList.contains('expanded') || mq.matches) return;
-            const r = trigger.getBoundingClientRect();
-            fly.style.top = Math.max(12, r.top) + 'px';
-            fly.classList.add('show');
-            };
-            const hideFly = () => { fly.classList.remove('show'); };
+          trigger.addEventListener('mouseenter', showFly);
+          trigger.addEventListener('mouseleave', ()=>{ hideTimer=setTimeout(hideFly,150); });
+          fly.addEventListener('mouseenter', ()=>{ clearTimeout(hideTimer); });
+          fly.addEventListener('mouseleave', hideFly);
 
-            trigger.addEventListener('mouseenter', showFly);
-            trigger.addEventListener('mouseleave', ()=>{ hideTimer=setTimeout(hideFly,150); });
-            fly.addEventListener('mouseenter', ()=>{ clearTimeout(hideTimer); });
-            fly.addEventListener('mouseleave', hideFly);
-
-            // En modo expandido usamos el collapse normal
-            trigger.addEventListener('click', (e)=>{
-            if (!sidebar.classList.contains('expanded')) {
-                e.preventDefault(); // prevenimos apertura del collapse cuando está retraído
-                showFly();
-            }
-            });
-        });
-        })();
-    </script>
+          // En modo expandido usamos el collapse normal
+          trigger.addEventListener('click', (e)=>{
+          if (!sidebar.classList.contains('expanded')) {
+              e.preventDefault(); // prevenimos apertura del collapse cuando está retraído
+              showFly();
+          }
+          });
+      });
+      })();
+  </script>
 
 </body>
 </html>
