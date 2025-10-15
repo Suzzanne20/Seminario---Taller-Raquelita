@@ -160,7 +160,7 @@ class VehiculoController extends Controller
 
         return redirect()
             ->route('marcas.index')
-            ->with('success', "Marca {$marca->nombre} deshabilitada correctamente.");
+            ->with('info', "Marca {$marca->nombre} deshabilitada correctamente."); // Cambiado a 'info'
     }
 
     // MÉTODO PARA ACTIVAR MARCA
@@ -171,7 +171,7 @@ class VehiculoController extends Controller
 
         return redirect()
             ->route('marcas.index')
-            ->with('success', "Marca {$marca->nombre} activada correctamente.");
+            ->with('info', "Marca {$marca->nombre} activada correctamente."); // Cambiado a 'info'
     }
 
     public function destroyMarca($id)
@@ -193,6 +193,7 @@ class VehiculoController extends Controller
             ->with('success', "Marca {$marcaNombre} eliminada permanentemente.")
             ->with('marca_eliminada', true); // Bandera para identificar eliminación
     }
+
     public function toggleMostrarEnRegistro($id)
     {
         $marca = Marca::findOrFail($id);
@@ -206,11 +207,11 @@ class VehiculoController extends Controller
             $estado = $marca->mostrar_en_registro ? 'mostrar' : 'ocultar';
             return redirect()
                 ->route('marcas.index')
-                ->with('success', "La marca {$marca->nombre} se {$estado}á al registrar nuevos vehículos.");
+                ->with('info', "La marca {$marca->nombre} se {$estado}á al registrar nuevos vehículos."); // Cambiado a 'info'
         }
 
         return redirect()
             ->route('marcas.index')
-            ->with('info', 'Las marcas activas siempre se muestran en el registro.');
+            ->with('info', 'Las marcas activas siempre se muestran en el registro.'); // Ya estaba como 'info'
     }
 }

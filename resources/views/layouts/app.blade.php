@@ -242,9 +242,10 @@
     @stack('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
- {{-- SweetAlert2 --}}
+    {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success') && session('marca_eliminada'))
+
+    @if(session('success'))
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
@@ -260,7 +261,8 @@
         });
     </script>
     @endif
-    @if(session('error') && !request()->is('marcas*'))
+
+    @if(session('error'))
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
@@ -276,7 +278,8 @@
         });
     </script>
     @endif
-    @if(session('warning') && !request()->is('marcas*'))
+
+    @if(session('warning'))
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             Swal.fire({
