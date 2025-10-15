@@ -15,7 +15,7 @@ body {
 /* Topbar */
 .topbar {
   background-color: #9F3B3B; 
-  padding: 1px 0; /* antes estaba muy alta, ahora es más delgada */
+  padding: 1px 0;
   text-align: center;
   position: fixed;   /* se queda fija */
   top: 0;
