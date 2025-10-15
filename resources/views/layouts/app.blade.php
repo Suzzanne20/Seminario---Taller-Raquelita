@@ -150,10 +150,22 @@
 
             {{-- Vehículos (admin y secretaria) --}}
             @hasanyrole('admin|secretaria')
-            <li class="nav-item pt-2">
-                <a class="nav-link" href="{{ route('vehiculos.index') }}">
+            <li class="nav-item dropdown pt-2">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                     <i class="bi bi-car-front-fill me-2"></i>Vehículos
                 </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="{{ route('vehiculos.index') }}">
+                            <i class="bi bi-list-ul me-2"></i>Gestión de Vehículos
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('marcas.index') }}">
+                            <i class="bi bi-tags me-2"></i>Gestión de Marcas
+                        </a>
+                    </li>
+                </ul>
             </li>
             @endhasanyrole
 
@@ -233,30 +245,53 @@
     @stack('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- SweetAlert2 --}}
+ {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success'))
+    @if(session('success') && session('marca_eliminada'))
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-        Swal.fire({
-            icon: 'success',
-            title: '¡Hecho!',
-            text: @json(session('Registro realizado con éxito')),
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#9F3B3B',
-        });
+            Swal.fire({
+                icon: 'success',
+                title: '¡Hecho!',
+                text: @json(session('success')),
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#9F3B3B',
+                customClass: {
+                    popup: 'rounded-3'
+                }
+            });
         });
     </script>
     @endif
-    @if(session('error'))
+    @if(session('error') && !request()->is('marcas*'))
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Ups…',
-            text: @json(session('Error en el registro')),
-            confirmButtonText: 'OK'
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: @json(session('error')),
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#9F3B3B',
+                customClass: {
+                    popup: 'rounded-3'
+                }
+            });
         });
+    </script>
+    @endif
+    @if(session('warning') && !request()->is('marcas*'))
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Advertencia',
+                text: @json(session('warning')),
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#9F3B3B',
+                customClass: {
+                    popup: 'rounded-3'
+                }
+            });
         });
     </script>
     @endif
