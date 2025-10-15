@@ -123,7 +123,7 @@
     </div>
 
     <div class="right-actions">
-        <a class="btn-home" href="{{ route('welcome') }}"><i class="bi bi-house"></i><span class="d-none d-sm-inline">Inicio</span></a>
+        <a class="btn-home" href="{{ route('home') }}"><i class="bi bi-house"></i><span class="d-none d-sm-inline">Inicio</span></a>
         <a class="text-white" href="https://www.facebook.com/share/1CiUS3TA9y/?mibextid=wwXIfr" target="_blank" aria-label="Facebook"><i class="bi bi-facebook fs-5"></i></a>
         <a class="text-white" href="https://wa.me/50200000000" target="_blank" aria-label="WhatsApp"><i class="bi bi-whatsapp fs-5"></i></a>
     </div>
@@ -199,7 +199,7 @@
 
       {{-- Inspecciones 360 (mecánico|admin) --}}
       @hasanyrole('mecanico|admin')
-        <a class="side-link" href="{{ route('inspecciones.index', [], false) ?? '#' }}" data-title="Inspecciones 360°">
+        <a class="side-link" href="{{ route('inspecciones.start', [], false) ?? '#' }}" data-title="Inspecciones 360°">
           <i class="bi bi-ev-front-fill"></i><span class="text">Inspecciones 360°</span>
         </a>
       @endhasanyrole
@@ -265,55 +265,67 @@
     @yield('content')
   </main>
 
-    @stack('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {{-- Scripts --}}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  @stack('scripts')
 
- {{-- SweetAlert2 --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if(session('success') && session('marca_eliminada'))
+
+    
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Hecho!',
-                text: @json(session('success')),
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#9F3B3B',
-                customClass: {
-                    popup: 'rounded-3'
-                }
-            });
+        (function(){
+        const sidebar = document.getElementById('sidebar');
+        const btn = document.getElementById('sbToggle');
+        const mq = window.matchMedia('(max-width: 992px)');
+
+        const saved = localStorage.getItem('sb_state');
+        if (saved === 'expanded') sidebar.classList.add('expanded');
+        else sidebar.classList.remove('expanded');
+
+        btn?.addEventListener('click', ()=>{
+            sidebar.classList.toggle('expanded');
+            localStorage.setItem('sb_state', sidebar.classList.contains('expanded') ? 'expanded' : 'collapsed');
         });
-    </script>
-    @endif
-    @if(session('error') && !request()->is('marcas*'))
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: @json(session('error')),
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#9F3B3B',
-                customClass: {
-                    popup: 'rounded-3'
-                }
+
+        // ---- FLYOUT para submenús cuando el sidebar está retraído ----
+        const dropdownTriggers = document.querySelectorAll('.side-link[data-bs-toggle="collapse"]');
+
+        dropdownTriggers.forEach(trigger=>{
+            const targetSel = trigger.getAttribute('href') || trigger.dataset.bsTarget || trigger.getAttribute('data-bs-target');
+            if(!targetSel) return;
+            const submenu = document.querySelector(targetSel);
+            if(!submenu) return;
+
+            // Creamos contenedor flyout (clon visual del submenu)
+            const fly = document.createElement('div'); fly.className = 'flyout';
+            // Clonamos los side-link del submenu
+            [...submenu.querySelectorAll('.side-link')].forEach(a=>{
+            const c = a.cloneNode(true);
+            c.querySelectorAll('.text').forEach(t=>t.style.opacity='1');
+            fly.appendChild(c);
             });
-        });
-    </script>
-    @endif
-    @if(session('warning') && !request()->is('marcas*'))
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Advertencia',
-                text: @json(session('warning')),
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#9F3B3B',
-                customClass: {
-                    popup: 'rounded-3'
-                }
+            document.body.appendChild(fly);
+
+            // Mostrar en hover sólo si el sidebar está RETRAÍDO y no en móvil
+            let hideTimer = null;
+            const showFly = () => {
+            if (sidebar.classList.contains('expanded') || mq.matches) return;
+            const r = trigger.getBoundingClientRect();
+            fly.style.top = Math.max(12, r.top) + 'px';
+            fly.classList.add('show');
+            };
+            const hideFly = () => { fly.classList.remove('show'); };
+
+            trigger.addEventListener('mouseenter', showFly);
+            trigger.addEventListener('mouseleave', ()=>{ hideTimer=setTimeout(hideFly,150); });
+            fly.addEventListener('mouseenter', ()=>{ clearTimeout(hideTimer); });
+            fly.addEventListener('mouseleave', hideFly);
+
+            // En modo expandido usamos el collapse normal
+            trigger.addEventListener('click', (e)=>{
+            if (!sidebar.classList.contains('expanded')) {
+                e.preventDefault(); // prevenimos apertura del collapse cuando está retraído
+                showFly();
+            }
             });
         });
         })();
@@ -321,4 +333,3 @@
 
 </body>
 </html>
-
