@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProveedorController;
 use Illuminate\Support\Facades\Route;
 //Controllers
 use App\Http\Controllers\ProfileController;
@@ -340,3 +341,5 @@ Route::post('/ordenes_compras/{id}/finalizar', [OrdenCompraController::class, 'f
 // Rutas de Detalles de ORdenes de Compras
 Route::resource('ordencompra_detalle', OrdenCompraDetalleController::class);
 
+// Rutas para gestión de Proveedores
+Route::resource('proveedores', ProveedorController::class);

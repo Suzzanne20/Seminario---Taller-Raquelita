@@ -92,10 +92,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="precio" class="form-label">Precio</label>
-                            <input type="number" step="0.01" class="form-control" id="precio" name="precio" value="{{ old('precio', $insumo->precio) }}">
-                        </div>
+
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #C24242; border-color: #C24242;">Guardar cambios</button>
                     <a href="{{ route('insumos.index') }}" class="btn btn-secondary">Cancelar</a>

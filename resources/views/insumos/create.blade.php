@@ -71,12 +71,7 @@
                  class="form-control @error('costo') is-invalid @enderror"
                  value="{{ old('costo') }}" placeholder="0.00">
         </div>
-        <div class="col-md-6">
-          <label for="precio" class="form-label">Precio (Q)</label>
-          <input id="precio" name="precio" type="number" step="0.01" min="0"
-                 class="form-control @error('precio') is-invalid @enderror"
-                 value="{{ old('precio') }}" placeholder="0.00">
-        </div>
+
       </div>
 
       <div class="row g-3 mt-1">

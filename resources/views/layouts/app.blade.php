@@ -236,6 +236,12 @@
           <a class="side-link" href="{{ route('tipo-insumos.index') }}" data-title="Tipos de Insumo">
             <i class="bi bi-sliders"></i><span class="text">Gestionar Tipos Insumo</span>
           </a>
+          <a class="side-link" href="{{ route('ordenes_compras.index') }}" data-title="Ordenes de Compras">
+            <i class="bi bi-receipt"></i><span class="text">Ordenes de Compra</span>
+          </a>
+          <a class="side-link" href="{{ route('proveedores.index') }}" data-title="Proveedores">
+            <i class="bi bi-truck"></i><span class="text">Gestión de Proveedores</span>
+          </a>
         </div>
       @endrole
 
