@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('fecha_orden');
             $table->date('fecha_entrega_esperada')->nullable();
             $table->unsignedBigInteger('proveedor_id');
-            $table->enum('estado', ['pendiente', 'aprobada', 'recibida', 'cancelada'])->default('pendiente');
+            $table->enum('estado', ['pendiente', 'aprobada', 'recibida', 'cancelada', 'finalizado'])->default('pendiente');
             $table->decimal('total', 10, 2);
             $table->text('observaciones')->nullable();
             $table->timestamps();

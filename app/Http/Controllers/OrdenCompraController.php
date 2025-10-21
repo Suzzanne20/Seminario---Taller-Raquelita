@@ -46,7 +46,7 @@ class OrdenCompraController extends Controller
             'fecha_orden' => ['required', 'date'],
             'fecha_entrega_esperada' => ['nullable', 'date', 'after_or_equal:fecha_orden'],
             'proveedor_id' => ['required', 'exists:proveedor,id'],
-            'estado' => ['required', 'in:pendiente,aprobada,recibida,cancelada'],
+            'estado' => ['required', 'in:pendiente,aprobada,recibida,cancelada,finalizado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
 
             // Detalles
@@ -125,7 +125,7 @@ class OrdenCompraController extends Controller
             'fecha_orden' => 'required|date',
             'proveedor_id' => 'required|exists:proveedor,id',
             'fecha_entrega_esperada' => 'nullable|date',
-            'estado' => 'required|in:pendiente,aprobada,recibida,cancelada',
+            'estado' => 'required|in:pendiente,aprobada,recibida,cancelada,finalizado',
             'observaciones' => 'nullable|string',
             'total' => 'required|numeric|min:0',
             'detalles' => 'required|array|min:1',
@@ -190,6 +190,32 @@ class OrdenCompraController extends Controller
             'success' => true,
             'estado' => ucfirst($orden->estado),
         ]);
+    }
+
+    public function finalizar($id)
+    {
+        $orden = OrdenCompra2::with('detalles')->findOrFail($id);
+
+        if ($orden->estado === 'finalizado') {
+            return back()->with('warning', 'La orden ya está finalizada.');
+        }
+
+        DB::transaction(function () use ($orden) {
+            foreach ($orden->detalles as $detalle) {
+                $insumo = \App\Models\Insumo::find($detalle->insumo_id);
+
+                if ($insumo) {
+                    $insumo->stock += $detalle->cantidad;
+                    $insumo->costo = $detalle->precio_unitario;
+                    $insumo->save();
+                }
+            }
+
+            $orden->estado = 'finalizado'; // 👈 Asegúrate de que tenga comillas
+            $orden->save();
+        });
+
+        return back()->with('success', 'Orden de compra finalizada y stock actualizado correctamente.');
     }
 
 

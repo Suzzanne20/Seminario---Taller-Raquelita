@@ -13,6 +13,7 @@
         .badge-aprobada { background:#17a2b8; color:#fff; }
         .badge-recibida { background:#28a745; color:#fff; }
         .badge-cancelada { background:#dc3545; color:#fff; }
+        .badge-finalizado { background:#6c757d; color:#fff; }
 
         .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
         .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
@@ -20,7 +21,7 @@
         .pagination .page-item.disabled .page-link{ color:#adb5bd; background:#f8f9fa; border-color:#e9ecef; }
         .pagination .page-link:focus{ box-shadow:0 0 0 .15rem rgba(159,59,59,.15); }
 
-        /* Estilo para el select de estado */
+        /* Select de estado */
         .estado-select {
             border: none;
             background: transparent;
@@ -34,6 +35,7 @@
         .estado-select option[value="aprobada"] { color: #fff; background:#17a2b8; }
         .estado-select option[value="recibida"] { color: #fff; background:#28a745; }
         .estado-select option[value="cancelada"] { color: #fff; background:#dc3545; }
+        .estado-select option[value="finalizado"] { color: #fff; background:#6c757d; }
     </style>
 @endpush
 
@@ -62,6 +64,7 @@
                     <option value="aprobada" {{ request('estado') == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
                     <option value="recibida" {{ request('estado') == 'recibida' ? 'selected' : '' }}>Recibida</option>
                     <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                    <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
                 </select>
                 <button class="btn btn-dark" type="submit" style="border-radius:12px;">Buscar</button>
             </form>
@@ -70,6 +73,9 @@
         {{-- Mensajes --}}
         @if(session('success'))
             <div class="alert alert-success shadow-sm rounded-3">{{ session('success') }}</div>
+        @endif
+        @if(session('warning'))
+            <div class="alert alert-warning shadow-sm rounded-3">{{ session('warning') }}</div>
         @endif
 
         {{-- Tabla --}}
@@ -83,7 +89,7 @@
                     <th>Estado</th>
                     <th>Total</th>
                     <th>Fecha Entrega</th>
-                    <th class="text-center" style="width:160px">Acciones</th>
+                    <th class="text-center" style="width:200px">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -93,12 +99,16 @@
                         <td>{{ \Carbon\Carbon::parse($orden->fecha_orden)->format('d/m/Y') }}</td>
                         <td>{{ $orden->proveedor->nombre ?? '—' }}</td>
                         <td>
-                            <select class="estado-select" data-id="{{ $orden->id }}">
-                                <option value="pendiente" {{ $orden->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                <option value="aprobada" {{ $orden->estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                                <option value="recibida" {{ $orden->estado == 'recibida' ? 'selected' : '' }}>Recibida</option>
-                                <option value="cancelada" {{ $orden->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                            </select>
+                            @if($orden->estado !== 'finalizado')
+                                <select class="estado-select" data-id="{{ $orden->id }}">
+                                    <option value="pendiente" {{ $orden->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                    <option value="aprobada" {{ $orden->estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
+                                    <option value="recibida" {{ $orden->estado == 'recibida' ? 'selected' : '' }}>Recibida</option>
+                                    <option value="cancelada" {{ $orden->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                                </select>
+                            @else
+                                <span class="badge badge-finalizado px-2 py-1">Finalizado</span>
+                            @endif
                         </td>
                         <td class="fw-semibold">Q {{ number_format($orden->total, 2) }}</td>
                         <td>{{ $orden->fecha_entrega_esperada ? \Carbon\Carbon::parse($orden->fecha_entrega_esperada)->format('d/m/Y') : '—' }}</td>
@@ -107,9 +117,17 @@
                                 <a href="{{ route('ordenes_compras.show', $orden->id) }}" class="btn btn-sm btn-outline-info" title="Ver Detalle">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{{ route('ordenes_compras.edit', $orden->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                                @if($orden->estado !== 'finalizado')
+                                    <a href="{{ route('ordenes_compras.edit', $orden->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form action="{{ route('ordenes_compras.finalizar', $orden->id) }}" method="POST" onsubmit="return confirm('¿Finalizar esta orden de compra? Se actualizará el stock de insumos.');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Finalizar OC">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                @endif
                                 <form action="{{ route('ordenes_compras.destroy', $orden->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')

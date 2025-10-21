@@ -181,6 +181,129 @@ Route::get('/inventario', [InventarioController::class, 'index'])
     ->name('inventario.index')
     ->middleware('auth');
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Rutas para Órdenes de Compra
 Route::get('/ordenes_compras', [OrdenCompraController::class, 'index'])->name('ordenes_compras.index');
 Route::get('/ordenes_compras/crear', [OrdenCompraController::class, 'create'])->name('ordenes_compras.create');
@@ -197,6 +320,10 @@ Route::get('/ordenes_compras/{id}', [OrdenCompraController::class, 'show'])->nam
 // Ruta para actualizar estado de la orden desde el index
 Route::patch('/ordenes_compras/{id}/estado', [OrdenCompraController::class, 'updateEstado'])
     ->name('ordenes_compras.updateEstado');
+
+// Ruta para finalizar la Orden de Compra
+Route::post('/ordenes_compras/{id}/finalizar', [OrdenCompraController::class, 'finalizar'])
+    ->name('ordenes_compras.finalizar');
 
 // Rutas de Detalles de ORdenes de Compras
 Route::resource('ordencompra_detalle', OrdenCompraDetalleController::class);
