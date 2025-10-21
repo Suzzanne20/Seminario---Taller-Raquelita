@@ -14,6 +14,14 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             DemoUsersSeeder::class,
         ]);
+
+        // Seeders de datos de prueba para Inventario y Compras
+        $this->call([
+            TypeInsumoSeeder::class, // Necesario antes de InsumoSeeder
+            ProveedorSeeder::class,
+            InsumoSeeder::class,     // Depende de TypeInsumoSeeder
+        ]);
+
         $this->call(CatalogosSeeder::class);
 
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProveedorController;
 use Illuminate\Support\Facades\Route;
 //Controllers
 use App\Http\Controllers\ProfileController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TipoInsumoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\OrdenCompraDetalleController;
 
 
 /* ────────────────────────────────────────────────────────────────
@@ -62,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         //Vehiculos
         Route::resource('vehiculos', VehiculoController::class);
-        
+
         // RUTAS COMPLETAS PARA GESTIÓN DE MARCAS (ADMIN)
         Route::get('/marcas', [VehiculoController::class, 'indexMarcas'])->name('marcas.index');
         Route::post('/marcas/{id}/desactivar', [VehiculoController::class, 'desactivarMarca'])->name('marcas.desactivar');
@@ -144,7 +147,7 @@ Route::post('/inspecciones',      [RecepcionController::class,'store'])->name('i
 
 Route::get('/fotos/{foto}', [RecepcionController::class, 'streamFoto'])
      ->name('fotos.stream');
-     
+
 // **Listado (GET) -> necesario para el botón Modificar**
 Route::get('/inspecciones',       [RecepcionController::class,'index'])->name('inspecciones.index');
 
@@ -190,3 +193,153 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/inventario', [InventarioController::class, 'index'])
     ->name('inventario.index')
     ->middleware('auth');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Rutas para Órdenes de Compra
+Route::get('/ordenes_compras', [OrdenCompraController::class, 'index'])->name('ordenes_compras.index');
+Route::get('/ordenes_compras/crear', [OrdenCompraController::class, 'create'])->name('ordenes_compras.create');
+Route::post('/ordenes_compras', [OrdenCompraController::class, 'store'])->name('ordenes_compras.store');
+
+// Rutas PUT y DELETE antes de las que usan {orden}
+Route::put('/ordenes_compras/{id}', [OrdenCompraController::class, 'update'])->name('ordenes_compras.update');
+Route::delete('/ordenes_compras/{id}', [OrdenCompraController::class, 'destroy'])->name('ordenes_compras.destroy');
+
+// Rutas GET con parámetros
+Route::get('/ordenes_compras/{id}/editar', [OrdenCompraController::class, 'edit'])->name('ordenes_compras.edit');
+Route::get('/ordenes_compras/{id}', [OrdenCompraController::class, 'show'])->name('ordenes_compras.show');
+
+// Ruta para actualizar estado de la orden desde el index
+Route::patch('/ordenes_compras/{id}/estado', [OrdenCompraController::class, 'updateEstado'])
+    ->name('ordenes_compras.updateEstado');
+
+// Ruta para finalizar la Orden de Compra
+Route::post('/ordenes_compras/{id}/finalizar', [OrdenCompraController::class, 'finalizar'])
+    ->name('ordenes_compras.finalizar');
+
+// Rutas de Detalles de ORdenes de Compras
+Route::resource('ordencompra_detalle', OrdenCompraDetalleController::class);
+
+// Rutas para gestión de Proveedores
+Route::resource('proveedores', ProveedorController::class);

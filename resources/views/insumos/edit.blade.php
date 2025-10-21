@@ -1,41 +1,41 @@
 @extends('layouts.app')
 
 @push('styles')
-<style>
-  html, body { height:100%; background:#f0f0f0 !important; }
-  .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
-  @media (max-width:576px){ .page-body{ min-height:calc(100vh - 64px);} }
+    <style>
+        html, body { height:100%; background:#f0f0f0 !important; }
+        .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
+        @media (max-width:576px){ .page-body{ min-height:calc(100vh - 64px);} }
 
-  .md-card{
-    max-width: 720px;
-    margin: 32px auto 64px;
-    background:#fff;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    padding:28px;
-  }
-  .md-title{
-    font-weight:700; color:#C24242; text-align:center; margin-bottom:18px;
-  }
+        .md-card{
+            max-width: 720px;
+            margin: 32px auto 64px;
+            background:#fff;
+            border-radius:12px;
+            box-shadow:0 10px 30px rgba(0,0,0,.08);
+            padding:28px;
+        }
+        .md-title{
+            font-weight:700; color:#C24242; text-align:center; margin-bottom:18px;
+        }
 
-  .form-control{
-    border:none; border-bottom:2px solid #e6e6e6;
-    border-radius:0; background:transparent; padding-left:0;
-  }
-  .form-select{
-    border:none; border-bottom:2px solid #e6e6e6; border-radius:0; background:transparent;
-    padding-left:0;
-  }
-  .form-control:focus, .form-select:focus{
-    box-shadow:none; border-color:#3f51b5;
-  }
-  .form-label{ font-size:.9rem; color:#6b7280; }
-  .help{ font-size:.8rem; color:#9CA3AF; }
+        .form-control{
+            border:none; border-bottom:2px solid #e6e6e6;
+            border-radius:0; background:transparent; padding-left:0;
+        }
+        .form-select{
+            border:none; border-bottom:2px solid #e6e6e6; border-radius:0; background:transparent;
+            padding-left:0;
+        }
+        .form-control:focus, .form-select:focus{
+            box-shadow:none; border-color:#3f51b5;
+        }
+        .form-label{ font-size:.9rem; color:#6b7280; }
+        .help{ font-size:.8rem; color:#9CA3AF; }
 
-  .btn-theme{ background:#9F3B3B; border:none; color:#fff; }
-  .btn-theme:hover{ background:#873131; color:#fff; }
-  .btn-muted{ background:#e5e7eb; color:#111827; border:none; }
-</style>
+        .btn-theme{ background:#9F3B3B; border:none; color:#fff; }
+        .btn-theme:hover{ background:#873131; color:#fff; }
+        .btn-muted{ background:#e5e7eb; color:#111827; border:none; }
+    </style>
 @endpush
 
 @section('content')
@@ -92,10 +92,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="precio" class="form-label">Precio</label>
-                            <input type="number" step="0.01" class="form-control" id="precio" name="precio" value="{{ old('precio', $insumo->precio) }}">
-                        </div>
+
                     </div>
                     <button type="submit" class="btn btn-primary" style="background-color: #C24242; border-color: #C24242;">Guardar cambios</button>
                     <a href="{{ route('insumos.index') }}" class="btn btn-secondary">Cancelar</a>

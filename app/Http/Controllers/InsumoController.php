@@ -36,17 +36,31 @@ class InsumoController extends Controller
     {
         $request->validate([
             'nombre'        => 'required|string|max:50',
-            'costo'         => 'nullable|numeric',
-            'stock'         => 'required|numeric',
-            'stock_minimo'  => 'required|numeric',
+            'costo'         => 'nullable|numeric|min:0',
+            'stock'         => 'required|integer|min:0',
+            'stock_minimo'  => 'required|integer|min:0',
             'descripcion'   => 'required|string|max:200',
             'type_insumo_id'=> 'required|exists:type_insumo,id',
-            'precio'        => 'nullable|numeric',
         ]);
 
-        Insumo::create($request->all());
-        return redirect()->route('insumos.index')->with('success', 'Insumo creado correctamente.');
+        $costo = $request->costo ?? 0;
+        $porcentajeGanancia = 20; // ⚡ Porcentaje fijo (puedes hacerlo dinámico más adelante)
+        $precio = $costo + ($costo * $porcentajeGanancia / 100) + ($costo * 0.12);
+
+        Insumo::create([
+            'nombre'         => $request->nombre,
+            'costo'          => $costo,
+            'stock'          => $request->stock,
+            'stock_minimo'   => $request->stock_minimo,
+            'descripcion'    => $request->descripcion,
+            'type_insumo_id' => $request->type_insumo_id,
+            'precio'         => $precio,
+        ]);
+
+        return redirect()->route('insumos.index')
+            ->with('success', 'Insumo creado correctamente.');
     }
+
 
     /**
      * Display the specified resource.
@@ -73,19 +87,31 @@ class InsumoController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'costo' => 'nullable|numeric',
-            'stock' => 'required|numeric',
-            'stock_minimo' => 'required|numeric',
-            'descripcion' => 'required|string',
-            'type_insumo_id' => 'required|integer',
-            'precio' => 'nullable|numeric',
+            'costo' => 'nullable|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'stock_minimo' => 'required|integer|min:0',
+            'descripcion' => 'required|string|max:200',
+            'type_insumo_id' => 'required|integer|exists:type_insumo,id',
         ]);
 
-        $insumo->update($request->all());
+        $costo = $request->costo ?? 0;
+        $porcentajeGanancia = 20;
+        $precio = $costo + ($costo * $porcentajeGanancia / 100) + ($costo * 0.12);
+
+        $insumo->update([
+            'nombre'         => $request->nombre,
+            'costo'          => $costo,
+            'stock'          => $request->stock,
+            'stock_minimo'   => $request->stock_minimo,
+            'descripcion'    => $request->descripcion,
+            'type_insumo_id' => $request->type_insumo_id,
+            'precio'         => $precio,
+        ]);
 
         return redirect()->route('insumos.index')
             ->with('success', 'Insumo actualizado exitosamente.');
     }
+
 
     /**
      * Remove the specified resource from storage.
