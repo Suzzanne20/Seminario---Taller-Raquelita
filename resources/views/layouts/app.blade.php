@@ -161,7 +161,7 @@
                     <i class="bi bi-ev-front-fill me-2"></i>Inspecciones 360°
                 </a>
             </li>
-            @endhasanyrole 
+            @endhasanyrole
 
             {{-- Órdenes de Trabajo (admin y secretaria) --}}
             @hasanyrole('admin|secretaria')
@@ -189,7 +189,7 @@
                     <li><a class="dropdown-item" href="{{ route('tipo-insumos.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestionar Tipos Insumos</a></li>
 
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Órdenes de Compra</a></li>
+                    <li><a class="dropdown-item" href="{{route('ordenes_compras.index')}}">Órdenes de Compra</a></li>
                 </ul>
             </li>
             @endrole

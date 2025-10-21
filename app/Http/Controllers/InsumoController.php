@@ -45,7 +45,8 @@ class InsumoController extends Controller
         ]);
 
         Insumo::create($request->all());
-        return redirect()->route('insumos.index')->with('success', 'Insumo creado correctamente.');
+        return redirect()->route('insumos.index')
+            ->with('success', 'Insumo creado correctamente.');
     }
 
     /**
