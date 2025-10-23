@@ -33,17 +33,6 @@
             color: #1d4ed8;
         }
 
-        .filters {
-            background: #e60000;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 6px rgba(4, 227, 194, 0.64);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -110,6 +99,10 @@
             padding: 1.5rem;
             border-radius: 0.75rem;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
         }
 
         .chart-box h2 {
@@ -127,6 +120,8 @@
             margin-top: 3rem;
         }
     </style>
+
+
 @endpush
 
 @section('content')
@@ -136,33 +131,38 @@
             <p>Centro de mantenimiento de vehículos</p>
         </div>
 
-        <form class="filters">
-            <div>
-                <label>Desde</label>
-                <input type="date" class="w-full border border-gray-300 rounded px-2 py-1">
-            </div>
-            <div>
-                <label>Hasta</label>
-                <input type="date" class="w-full border border-gray-300 rounded px-2 py-1">
-            </div>
-            <div>
-                <label>Técnico</label>
-                <select class="w-full border border-gray-300 rounded px-2 py-1">
-                    <option>Todos</option>
-                    <option>Juan Pérez</option>
-                    <option>Ana López</option>
-                </select>
-            </div>
-            <div>
-                <label>Estado OT</label>
-                <select class="w-full border border-gray-300 rounded px-2 py-1">
-                    <option>Todos</option>
-                    <option>Abierta</option>
-                    <option>En proceso</option>
-                    <option>Cerrada</option>
-                </select>
+
+        <form method="GET" action="{{ route('inventario.index') }}">
+            <div class="bg-gray-50 p-6 rounded-lg shadow-md mb-6 flex flex-wrap gap-4 items-end">
+                <div class="flex flex-col">
+                    <label for="mes" class="text-gray-700 font-medium mb-1">Mes</label>
+                    <input type="month" id="mes" name="mes" value="{{ old('mes', $mes) }}"
+                           class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <button type="submit" class="bg-green-600 text-blue-100 px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out">
+                        Actualizar
+                    </button>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-gray-700 font-medium mb-1">Técnico</label>
+                    <select class="border border-gray-300 rounded-md p-2 bg-gray-100 cursor-not-allowed" disabled>
+                        <option>Todos</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-gray-700 font-medium mb-1">Estado OT</label>
+                    <select class="border border-gray-300 rounded-md p-2 bg-gray-100 cursor-not-allowed" disabled>
+                        <option>Todos</option>
+                    </select>
+                </div>
+
             </div>
         </form>
+
 
         <div class="kpi-grid">
             <div class="kpi">
@@ -184,6 +184,7 @@
                 <div class="value">{{ $totalOT }}</div>
             </div>
         </div>
+
 
         <div class="table-wrapper">
             <h2 class="text-xl font-semibold mb-4">Entradas y Salidas</h2>
@@ -217,21 +218,37 @@
             </table>
         </div>
 
+
         <div class="charts">
             <div class="chart-box">
-                <h2 class="text-lg font-bold mb-4">Margen por Servicio / Técnico</h2>
-                <canvas id="barMargen"></canvas>
+                <h2 class="text-lg font-bold mb-4">Conteo por Tipo de Servicio</h2>
+
+                @if($conteoServicios->isNotEmpty())
+                    <canvas id="barMargen"></canvas>
+                @else
+                    <div class="text-center text-gray-500 py-8 flex-grow flex items-center justify-center">
+                        No hay datos de servicios para mostrar.
+                    </div>
+                @endif
+
             </div>
 
             <div class="chart-box">
                 <h2 class="text-lg font-bold mb-4">Actividad semanal (OT cerradas / día)</h2>
-                <div class="grid grid-cols-7 text-center text-sm">
-                    @foreach (['Lun'=>8,'Mar'=>10,'Mié'=>12,'Jue'=>9,'Vie'=>15,'Sáb'=>6,'Dom'=>'—'] as $dia => $val)
+
+
+                <div class="grid grid-cols-7 text-center text-sm gap-2">
+                    @foreach ($actividadSemanal as $dia => $val)
                         <div class="p-3 bg-gray-100 rounded-lg" style="color: #1e1e1e">
-                            {{ $dia }}<br><span class="font-semibold">{{ $val }}</span>
+                            {{ $dia }}<br>
+                            <span class="font-semibold" style="color: {{ $val > 0 ? '#1d4ed8' : '#1e1e1e' }}">
+                            {{ $val }}
+                        </span>
                         </div>
                     @endforeach
                 </div>
+
+
             </div>
         </div>
 
@@ -239,37 +256,44 @@
             Datos calculados automáticamente desde la base de datos.
         </footer>
     </div>
+
+
 @endsection
 
 @push('scripts')
+    {{-- Corregido el CDN de Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        new Chart(document.getElementById('barMargen'), {
-            type: 'bar',
-            data: {
-                labels: ['Afinación','Frenos','Suspensión','Diagnóstico','Aceite'],
-                datasets: [{
-                    label: 'Margen %',
-                    data: [42, 35, 38, 60, 48],
-                    backgroundColor: '#3b82f6'
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: v => v + '%'
+
+    @if($conteoServicios->isNotEmpty())
+        <script>
+            new Chart(document.getElementById('barMargen'), {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($conteoServicios->keys()) !!},
+                    datasets: [{
+                        label: 'Cantidad de OTs',
+                        data: {!! json_encode($conteoServicios->values()) !!},
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
                 }
-            }
-        });
-    </script>
+            });
+        </script>
+    @endif
+
+
 @endpush
