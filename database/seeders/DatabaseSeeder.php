@@ -24,5 +24,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call(CatalogosSeeder::class);
 
+        // NUEVOS SEEDERS PARA VEHÍCULOS (añadidos al final)
+        $this->call([
+            MarcaSeeder::class,      // Debe ejecutarse primero
+            VehiculoSeeder::class,   // Depende de MarcaSeeder
+        ]);
+
     }
 }
