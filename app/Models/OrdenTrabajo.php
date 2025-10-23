@@ -68,4 +68,13 @@ class OrdenTrabajo extends Model
     {
         return $this->belongsTo(\App\Models\User::class, 'id_creador');
     }
+    public function ordenesCompra()
+    {
+        return $this->hasMany(\App\Models\OrdenCompra2::class, 'orden_trabajo_id');
+    }
+    public function insumosOT()
+    {
+        return $this->hasMany(\App\Models\InsumoOt::class, 'orden_trabajo_id');
+    }
+
 }
