@@ -8,7 +8,7 @@
 
   /* Tarjeta centrada con sombra suave */
   .md-card{
-    max-width: 620px;
+    max-width: 900px;
     margin: 32px auto 64px;
     background: #fff;
     border-radius: 12px;
@@ -41,6 +41,9 @@
 
   .btn-md-primary{
     background:#9F3B3B; border:none;
+  }
+  .btn-md-primary:hover {
+    background: #3f51b5; /* Azul en hover */
   }
   .btn-md-secondary{
     background:#e5e7eb; color:#111827; border:none;
@@ -84,6 +87,26 @@
   input[type=number] {
     -moz-appearance: textfield;
   }
+
+  /* Estilos para secciones de campos */
+  .section-title {
+    background: linear-gradient(135deg, #9F3B3B, #C24242);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 25px 0 15px 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .section-subtitle {
+    background: #f8f9fa;
+    color: #495057;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 20px 0 10px 0;
+    font-weight: 500;
+    border-left: 4px solid #9F3B3B;
+  }
 </style>
 @endpush
 
@@ -105,6 +128,11 @@
 
     <form action="{{ route('vehiculos.store') }}" method="POST" novalidate id="vehiculoForm">
       @csrf
+
+      {{-- SECCIÓN: INFORMACIÓN BÁSICA DEL VEHÍCULO --}}
+      <div class="section-title">
+        <i class="bi bi-car-front me-2"></i>Información Básica del Vehículo
+      </div>
 
       <div class="mb-3">
         <label class="form-label">Placa</label>
@@ -129,7 +157,6 @@
                  max="{{ date('Y') + 1 }}"
                  required
                  onkeydown="return event.keyCode !== 69 && event.keyCode !== 189">
-         <!-- <div class="form-text">Año desde 1960 hasta {{ date('Y') + 1 }}</div>  -->
         </div>
         <div class="col-md-4">
           <label class="form-label">Línea</label>
@@ -180,6 +207,165 @@
         </div>
       </div>
 
+      {{-- SECCIÓN: SISTEMA DE LUBRICACIÓN --}}
+      <div class="section-title">
+        <i class="bi bi-droplet me-2"></i>Sistema de Lubricación
+      </div>
+
+      <div class="section-subtitle">Aceite del Motor</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Cantidad Aceite Motor</label>
+          <input type="text" name="cantidad_aceite_motor" value="{{ old('cantidad_aceite_motor') }}" class="form-control" placeholder="Ej: 5 litros">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marca Aceite</label>
+          <input type="text" name="marca_aceite" value="{{ old('marca_aceite') }}" class="form-control" placeholder="Ej: Mobil 1">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Tipo Aceite</label>
+          <input type="text" name="tipo_aceite" value="{{ old('tipo_aceite') }}" class="form-control" placeholder="Ej: 5W-30">
+        </div>
+      </div>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <label class="form-label">Filtro Aceite</label>
+          <input type="text" name="filtro_aceite" value="{{ old('filtro_aceite') }}" class="form-control" placeholder="Ej: PH3683">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Filtro Aire</label>
+          <input type="text" name="filtro_aire" value="{{ old('filtro_aire') }}" class="form-control" placeholder="Ej: A2024">
+        </div>
+      </div>
+
+        {{-- SECCIÓN: CAJA DE CAMBIOS --}}
+        <div class="section-title">
+            <i class="bi bi-gear me-2"></i>Caja de Cambios
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Cantidad Aceite CC</label>
+                <input type="text" name="cantidad_aceite_cc" value="{{ old('cantidad_aceite_cc') }}" class="form-control" placeholder="Ej: 2.5 litros">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Marca CC</label>
+                <input type="text" name="marca_cc" value="{{ old('marca_cc') }}" class="form-control" placeholder="Ej: Castrol">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tipo Aceite CC</label>
+                <input type="text" name="tipo_aceite_cc" value="{{ old('tipo_aceite_cc') }}" class="form-control" placeholder="Ej: ATF">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Filtro Aceite CC</label>
+                <input type="text" name="filtro_aceite_cc" value="{{ old('filtro_aceite_cc') }}" class="form-control" placeholder="Ej: TF087">
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-6">
+                <label class="form-label">Filtro de Enfriador</label>
+                <input type="text" name="filtro_de_enfriador" value="{{ old('filtro_de_enfriador') }}" class="form-control" placeholder="Ej: CF123">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Tipo Caja</label>
+                <input type="text" name="tipo_caja" value="{{ old('tipo_caja') }}" class="form-control" placeholder="Ej: Automática 6 velocidades">
+            </div>
+        </div>
+
+      {{-- SECCIÓN: DIFERENCIAL --}}
+      <div class="section-title">
+        <i class="bi bi-gear-fill me-2"></i>Diferencial
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Cantidad Aceite Diferencial</label>
+          <input type="text" name="cantidad_aceite_diferencial" value="{{ old('cantidad_aceite_diferencial') }}" class="form-control" placeholder="Ej: 1.2 litros">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marca Aceite D</label>
+          <input type="text" name="marca_aceite_d" value="{{ old('marca_aceite_d') }}" class="form-control" placeholder="Ej: Shell">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Tipo Aceite D</label>
+          <input type="text" name="tipo_aceite_d" value="{{ old('tipo_aceite_d') }}" class="form-control" placeholder="Ej: 80W-90">
+        </div>
+      </div>
+
+      {{-- SECCIÓN: TRANSFER --}}
+      <div class="section-title">
+        <i class="bi bi-gear-wide me-2"></i>Transfer
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Cantidad Aceite Transfer</label>
+          <input type="text" name="cantidad_aceite_transfer" value="{{ old('cantidad_aceite_transfer') }}" class="form-control" placeholder="Ej: 1.5 litros">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marca Aceite T</label>
+          <input type="text" name="marca_aceite_t" value="{{ old('marca_aceite_t') }}" class="form-control" placeholder="Ej: Valvoline">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Tipo Aceite T</label>
+          <input type="text" name="tipo_aceite_t" value="{{ old('tipo_aceite_t') }}" class="form-control" placeholder="Ej: 75W-140">
+        </div>
+      </div>
+
+      {{-- SECCIÓN: FILTROS Y COMPONENTES --}}
+      <div class="section-title">
+        <i class="bi bi-funnel me-2"></i>Filtros y Componentes
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Filtro Cabina</label>
+          <input type="text" name="filtro_cabina" value="{{ old('filtro_cabina') }}" class="form-control" placeholder="Ej: CF072">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Filtro Diesel</label>
+          <input type="text" name="filtro_diesel" value="{{ old('filtro_diesel') }}" class="form-control" placeholder="Ej: P550935">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Contra Filtro Diesel</label>
+          <input type="text" name="contra_filtro_diesel" value="{{ old('contra_filtro_diesel') }}" class="form-control" placeholder="Ej: WK731/6">
+        </div>
+      </div>
+
+      {{-- SECCIÓN: FRENOS Y REPUESTOS MULTIPLES --}}
+      <div class="section-title">
+        <i class="bi bi-lightning-charge me-2"></i>Frenos Y Repuestos Multiples
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Candelas</label>
+          <input type="text" name="candelas" value="{{ old('candelas') }}" class="form-control" placeholder="Ej: BKR6E-11">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Pastillas Delanteras</label>
+          <input type="text" name="pastillas_delanteras" value="{{ old('pastillas_delanteras') }}" class="form-control" placeholder="Ej: P06065">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Pastillas Traseras</label>
+          <input type="text" name="pastillas_traseras" value="{{ old('pastillas_traseras') }}" class="form-control" placeholder="Ej: P06070">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Fajas</label>
+          <input type="text" name="fajas" value="{{ old('fajas') }}" class="form-control" placeholder="Ej: 6PK2280">
+        </div>
+      </div>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <label class="form-label">Aceite Hidráulico</label>
+          <input type="text" name="aceite_hidraulico" value="{{ old('aceite_hidraulico') }}" class="form-control" placeholder="Ej: DOT 4">
+        </div>
+      </div>
+
+      {{-- BOTONES DE ACCIÓN --}}
       <div class="d-flex gap-2 mt-4">
         <button type="submit" class="btn btn-md-primary px-4 text-white">Guardar Vehículo</button>
         <a href="{{ route('vehiculos.index') }}" class="btn btn-md-secondary px-4">Cancelar</a>

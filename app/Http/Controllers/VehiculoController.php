@@ -56,6 +56,33 @@ class VehiculoController extends Controller
             'linea'      => 'required|string|max:45',
             'motor'      => 'required|string|max:45',
             'cilindraje' => 'required|numeric',
+            
+            // 🔽 NUEVOS CAMPOS (nullable)
+            'cantidad_aceite_motor' => 'nullable|string|max:45',
+            'marca_aceite' => 'nullable|string|max:45',
+            'tipo_aceite' => 'nullable|string|max:45',
+            'filtro_aceite' => 'nullable|string|max:45',
+            'filtro_aire' => 'nullable|string|max:45',
+            'cantidad_aceite_cc' => 'nullable|string|max:45',
+            'marca_cc' => 'nullable|string|max:45',
+            'tipo_aceite_cc' => 'nullable|string|max:45',
+            'filtro_aceite_cc' => 'nullable|string|max:45',
+            'filtro_de_enfriador' => 'nullable|string|max:45',
+            'tipo_caja' => 'nullable|string|max:45',
+            'cantidad_aceite_diferencial' => 'nullable|string|max:45',
+            'marca_aceite_d' => 'nullable|string|max:45',
+            'tipo_aceite_d' => 'nullable|string|max:45',
+            'cantidad_aceite_transfer' => 'nullable|string|max:45',
+            'marca_aceite_t' => 'nullable|string|max:45',
+            'tipo_aceite_t' => 'nullable|string|max:45',
+            'filtro_cabina' => 'nullable|string|max:45',
+            'filtro_diesel' => 'nullable|string|max:45',
+            'contra_filtro_diesel' => 'nullable|string|max:45',
+            'candelas' => 'nullable|string|max:45',
+            'pastillas_delanteras' => 'nullable|string|max:45',
+            'pastillas_traseras' => 'nullable|string|max:45',
+            'fajas' => 'nullable|string|max:45',
+            'aceite_hidraulico' => 'nullable|string|max:45',
         ], [
             'placa.regex' => 'La placa debe tener el formato: 1 letra + 3 números + 3 letras (ejemplo: P123ABC)'
         ]);
@@ -93,6 +120,33 @@ class VehiculoController extends Controller
             'linea'      => 'required|string|max:45',
             'motor'      => 'required|string|max:45',
             'cilindraje' => 'required|numeric',
+            
+            // 🔽 NUEVOS CAMPOS (nullable)
+            'cantidad_aceite_motor' => 'nullable|string|max:45',
+            'marca_aceite' => 'nullable|string|max:45',
+            'tipo_aceite' => 'nullable|string|max:45',
+            'filtro_aceite' => 'nullable|string|max:45',
+            'filtro_aire' => 'nullable|string|max:45',
+            'cantidad_aceite_cc' => 'nullable|string|max:45',
+            'marca_cc' => 'nullable|string|max:45',
+            'tipo_aceite_cc' => 'nullable|string|max:45',
+            'filtro_aceite_cc' => 'nullable|string|max:45',
+            'filtro_de_enfriador' => 'nullable|string|max:45',
+            'tipo_caja' => 'nullable|string|max:45',
+            'cantidad_aceite_diferencial' => 'nullable|string|max:45',
+            'marca_aceite_d' => 'nullable|string|max:45',
+            'tipo_aceite_d' => 'nullable|string|max:45',
+            'cantidad_aceite_transfer' => 'nullable|string|max:45',
+            'marca_aceite_t' => 'nullable|string|max:45',
+            'tipo_aceite_t' => 'nullable|string|max:45',
+            'filtro_cabina' => 'nullable|string|max:45',
+            'filtro_diesel' => 'nullable|string|max:45',
+            'contra_filtro_diesel' => 'nullable|string|max:45',
+            'candelas' => 'nullable|string|max:45',
+            'pastillas_delanteras' => 'nullable|string|max:45',
+            'pastillas_traseras' => 'nullable|string|max:45',
+            'fajas' => 'nullable|string|max:45',
+            'aceite_hidraulico' => 'nullable|string|max:45',
         ]);
 
         $vehiculo->update($validated);
@@ -112,11 +166,47 @@ class VehiculoController extends Controller
 
     public function destroy(string $placa)
     {
-        Vehiculo::findOrFail($placa)->delete();
+        $vehiculo = Vehiculo::findOrFail($placa);
 
-        return redirect()
-            ->route('vehiculos.index')
-            ->with('success', 'Vehículo eliminado correctamente.');
+        try {
+            // Verificar si el vehículo tiene órdenes de trabajo asociadas
+            if ($vehiculo->ordenes()->count() > 0) {
+                return redirect()
+                    ->route('vehiculos.index')
+                    ->with('error', 'No se puede eliminar el vehículo porque tiene órdenes de trabajo asociadas. Primero elimine las órdenes de trabajo relacionadas.');
+            }
+
+            $vehiculo->delete();
+
+            return redirect()
+                ->route('vehiculos.index')
+                ->with('success', 'Vehículo eliminado correctamente.');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Capturar error de integridad referencial
+            if ($e->getCode() == 23000) {
+                return redirect()
+                    ->route('vehiculos.index')
+                    ->with('error', 'No se puede eliminar el vehículo porque está siendo utilizado en órdenes de trabajo. Elimine primero las órdenes de trabajo asociadas.');
+            }
+            
+            // Otros errores de base de datos
+            return redirect()
+                ->route('vehiculos.index')
+                ->with('error', 'Error al eliminar el vehículo: ' . $e->getMessage());
+        }
+    }
+
+    // Método para verificar dependencias antes de eliminar
+    public function checkDependencies(string $placa)
+    {
+        $vehiculo = Vehiculo::findOrFail($placa);
+        $ordenesCount = $vehiculo->ordenes()->count();
+        
+        return response()->json([
+            'tiene_ordenes' => $ordenesCount > 0,
+            'ordenes_count' => $ordenesCount
+        ]);
     }
 
     // MÉTODO PARA AGREGAR MARCAS DESDE EL FORMULARIO
@@ -213,5 +303,46 @@ class VehiculoController extends Controller
         return redirect()
             ->route('marcas.index')
             ->with('info', 'Las marcas activas siempre se muestran en el registro.'); // Ya estaba como 'info'
+    }
+
+    public function detalles($placa)
+    {
+        $vehiculo = Vehiculo::with('marca')
+            ->where('placa', $placa)
+            ->firstOrFail();
+
+        return response()->json([
+            'placa' => $vehiculo->placa,
+            'marca' => $vehiculo->marca->nombre ?? '—',
+            'modelo' => $vehiculo->modelo,
+            'linea' => $vehiculo->linea,
+            'motor' => $vehiculo->motor,
+            'cilindraje' => $vehiculo->cilindraje,
+            'cantidad_aceite_motor' => $vehiculo->cantidad_aceite_motor,
+            'marca_aceite' => $vehiculo->marca_aceite,
+            'tipo_aceite' => $vehiculo->tipo_aceite,
+            'filtro_aceite' => $vehiculo->filtro_aceite,
+            'filtro_aire' => $vehiculo->filtro_aire,
+            'cantidad_aceite_cc' => $vehiculo->cantidad_aceite_cc,
+            'marca_cc' => $vehiculo->marca_cc,
+            'tipo_aceite_cc' => $vehiculo->tipo_aceite_cc,
+            'filtro_aceite_cc' => $vehiculo->filtro_aceite_cc,
+            'filtro_de_enfriador' => $vehiculo->filtro_de_enfriador,
+            'tipo_caja' => $vehiculo->tipo_caja,
+            'cantidad_aceite_diferencial' => $vehiculo->cantidad_aceite_diferencial,
+            'marca_aceite_d' => $vehiculo->marca_aceite_d,
+            'tipo_aceite_d' => $vehiculo->tipo_aceite_d,
+            'cantidad_aceite_transfer' => $vehiculo->cantidad_aceite_transfer,
+            'marca_aceite_t' => $vehiculo->marca_aceite_t,
+            'tipo_aceite_t' => $vehiculo->tipo_aceite_t,
+            'filtro_cabina' => $vehiculo->filtro_cabina,
+            'filtro_diesel' => $vehiculo->filtro_diesel,
+            'contra_filtro_diesel' => $vehiculo->contra_filtro_diesel,
+            'pastillas_delanteras' => $vehiculo->pastillas_delanteras,
+            'pastillas_traseras' => $vehiculo->pastillas_traseras,
+            'candelas' => $vehiculo->candelas,
+            'fajas' => $vehiculo->fajas,
+            'aceite_hidraulico' => $vehiculo->aceite_hidraulico,
+        ]);
     }
 }

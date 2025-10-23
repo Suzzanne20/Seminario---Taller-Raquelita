@@ -65,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         //Vehiculos
         Route::resource('vehiculos', VehiculoController::class);
+        Route::get('/vehiculos/{placa}/detalles', [VehiculoController::class, 'detalles'])->name('vehiculos.detalles');
+
 
         // RUTAS COMPLETAS PARA GESTIÓN DE MARCAS (ADMIN)
         Route::get('/marcas', [VehiculoController::class, 'indexMarcas'])->name('marcas.index');
@@ -119,6 +121,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Vehículos
         Route::resource('vehiculos', VehiculoController::class)->only(['index','create','store','edit','update','show']);
+        Route::get('/vehiculos/{placa}/detalles', [VehiculoController::class, 'detalles'])->name('vehiculos.detalles');
 
         // RUTAS PARA GESTIÓN DE MARCAS (SECRETARIA - SOLO LECTURA)
         Route::get('/marcas', [VehiculoController::class, 'indexMarcas'])->name('marcas.index');
@@ -195,7 +198,7 @@ Route::get('/inventario', [InventarioController::class, 'index'])
     ->middleware('auth');
 
 
-
+Route::get('/vehiculos/{placa}/check-dependencies', [VehiculoController::class, 'checkDependencies'])->name('vehiculos.check-dependencies');
 
 
 
