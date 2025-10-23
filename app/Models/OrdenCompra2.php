@@ -19,6 +19,7 @@ class OrdenCompra2 extends Model
         'estado',
         'total',
         'observaciones',
+        'orden_trabajo_id',
     ];
 
     /**
@@ -35,4 +36,9 @@ class OrdenCompra2 extends Model
     {
         return $this->hasMany(OrdenCompraDetalle::class, 'orden_compra_id');
     }
+    public function ordenTrabajo()
+    {
+        return $this->belongsTo(\App\Models\OrdenTrabajo::class, 'orden_trabajo_id');
+    }
+
 }

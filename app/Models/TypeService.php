@@ -15,4 +15,5 @@ class TypeService extends Model
     {
         return $this->hasMany(Cotizacion::class, 'type_service_id');
     }
+
 }
