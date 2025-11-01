@@ -18,6 +18,23 @@ class ClienteController extends Controller
         return view('clientes.create');
     }
 
+    public function quickStore(Request $request)
+    {
+        $data = $request->validate([
+            'nombre'    => 'required|string|max:45',
+            'nit'       => 'nullable|string|max:20',
+            'telefono'  => 'required|string|max:20',
+            'direccion' => 'nullable|string|max:60',
+        ]);
+
+        $c = Cliente::create($data);
+
+        return response()->json([
+            'ok'      => true,
+            'cliente' => ['id' => $c->id, 'nombre' => $c->nombre],
+            'message' => 'Cliente creado',
+        ], 201);
+    }
     public function store(Request $request)
     {
         $request->validate([

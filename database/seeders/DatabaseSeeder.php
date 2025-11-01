@@ -17,12 +17,10 @@ class DatabaseSeeder extends Seeder
 
         // Seeders de datos de prueba para Inventario y Compras
         $this->call([
-            TypeInsumoSeeder::class, // Necesario antes de InsumoSeeder
+            TypeInsumoSeeder::class, // Catalogos previos antes de tablas pivote
             ProveedorSeeder::class,
             InsumoSeeder::class,     // Depende de TypeInsumoSeeder
         ]);
-
-        $this->call(CatalogosSeeder::class);
 
         // NUEVOS SEEDERS PARA VEHÍCULOS (añadidos al final)
         $this->call([

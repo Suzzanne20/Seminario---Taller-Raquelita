@@ -96,6 +96,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/ordenes/{orden}/editar',  [OrdenTrabajoController::class, 'edit'])->name('ordenes.edit');
         Route::put('/ordenes/{orden}',         [OrdenTrabajoController::class, 'update'])->name('ordenes.update');
         Route::delete('/ordenes/{orden}',      [OrdenTrabajoController::class, 'destroy'])->name('ordenes.destroy');
+        Route::post('/clientes/quick-store',   [ClienteController::class, 'quickStore']) ->name('clientes.quickStore');
+
+        // routes/web.php
+        Route::resource('ordenes', OrdenTrabajoController::class)
+            ->parameters(['ordenes' => 'orden']);
+
+        // para el botón "Vincular" del panel de cliente
+        Route::post('ordenes/{orden}/link-cliente', [OrdenTrabajoController::class,'linkCliente'])
+            ->name('ordenes.linkCliente');
 
 
     });

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion, User, Insumo};
+use App\Models\{OrdenTrabajo, Vehiculo, TypeService, Estado, Cotizacion, User, Insumo, Cliente};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -14,10 +14,10 @@ class OrdenTrabajoController extends Controller
 {
     $q = request('q'); // búsqueda por placa
 
-    $ordenes = OrdenTrabajo::with(['vehiculo','servicio','estado'])
+    $ordenes = OrdenTrabajo::with(['vehiculo','servicio','estado', 
+                                   'insumos' => fn ($qq) => $qq->select('insumo.id','nombre','precio')])
         ->when($q, function ($query, $q) {
-            $query->whereHas('vehiculo', fn($qq) =>
-                $qq->where('placa', 'like', "%{$q}%")
+            $query->whereHas('vehiculo', fn($qq) => $qq->where('placa', 'like', "%{$q}%")
             );
         })
         ->orderByDesc('id')
@@ -38,9 +38,10 @@ class OrdenTrabajoController extends Controller
                            ->get(['id','descripcion','type_service_id','costo_mo','total']);
         $tecnicos     = User::whereHas('roles', fn($q)=>$q->whereRaw('LOWER(name)=?',['mecanico']))
                            ->orderBy('name')->get(['id','name']);
+        $clientes     = Cliente::orderBy('nombre')->get(['id','nombre']);
 
         return view('ordenes.ot_registro', compact(
-            'vehiculos','servicios','insumos','cotizaciones','tecnicos'
+            'vehiculos','servicios','insumos','cotizaciones','tecnicos', 'clientes'
         ));
     }
 
@@ -58,8 +59,9 @@ class OrdenTrabajoController extends Controller
             'proximo_servicio' => 'nullable|integer|min:0',
             'costo_mo'         => 'nullable|numeric|min:0',
             'cotizacion_id'    => 'nullable|integer|exists:cotizaciones,id',
+            'cliente_id'       => 'nullable|integer|exists:cliente,id',
             'tecnico_id'       => [
-                'nullable','integer','exists:users,id',
+            'nullable','integer','exists:users,id',
                 function ($attr, $value, $fail) {
                     if ($value) {
                         $ok = User::where('id',$value)
@@ -72,6 +74,8 @@ class OrdenTrabajoController extends Controller
             'insumos'            => 'nullable|array',
             'insumos.*.id'       => 'required_with:insumos|integer|exists:insumo,id',
             'insumos.*.cantidad' => 'required_with:insumos|numeric|min:0.01',
+            'checks'             => 'nullable|array',
+            'checks.*'           => 'boolean',
         ]);
 
         DB::transaction(function () use ($data) {
@@ -106,6 +110,17 @@ class OrdenTrabajoController extends Controller
                 $insumosOT       = $data['insumos'] ?? [];
             }
 
+            // Pivot cliente_vehiculo (si se seleccionó un cliente)
+            if (!empty($data['cliente_id'] ?? null)) {
+                DB::table('cliente_vehiculo')->updateOrInsert(
+                    [
+                        'cliente_id'     => (int)$data['cliente_id'],
+                        'vehiculo_placa' => $data['vehiculo_placa'],
+                    ],
+                    [] 
+                );
+            }
+
             // === Calcular total de insumos ===
             $totalInsumos = 0.0;
             if (!empty($insumosOT)) {
@@ -129,7 +144,8 @@ class OrdenTrabajoController extends Controller
                 'id_creador'       => $userId,
                 'vehiculo_placa'   => $data['vehiculo_placa'],
                 'type_service_id'  => $type_service_id,
-                'estado_id'        => 1, // NUEVA
+                'estado_id'        => 1, 
+                'mantenimiento_json'=> self::normalizeChecks($data['checks'] ?? []),
             ]);
 
             // === Guardar insumos de la OT ===
@@ -228,7 +244,7 @@ public function update(Request $request, OrdenTrabajo $orden)
         'costo_mo'         => 'nullable|numeric|min:0',
         'estado_id'        => 'required|integer|exists:estado,id',
         'tecnico_id'       => [
-            'nullable','integer','exists:users,id',
+        'nullable','integer','exists:users,id',
             function ($attr, $value, $fail) {
                 if ($value) {
                     $ok = User::where('id',$value)
@@ -242,6 +258,8 @@ public function update(Request $request, OrdenTrabajo $orden)
         'insumos'             => 'nullable|array',
         'insumos.*.id'        => 'required_with:insumos|integer|exists:insumo,id',
         'insumos.*.cantidad'  => 'required_with:insumos|numeric|min:0.01',
+        'checks'              => 'nullable|array',
+        'checks.*'            => 'boolean',
     ]);
 
     DB::transaction(function () use ($orden, $data) {
@@ -265,6 +283,7 @@ public function update(Request $request, OrdenTrabajo $orden)
             'costo_mo'         => (float)($data['costo_mo'] ?? 0),
             'total'            => (float)($data['costo_mo'] ?? 0) + $totalInsumos,
             'estado_id'        => (int) $data['estado_id'],
+            'mantenimiento_json' => self::normalizeChecks($data['checks'] ?? []),
         ]);
 
         // técnico (tabla asignacion_orden)
@@ -294,12 +313,27 @@ public function update(Request $request, OrdenTrabajo $orden)
 
     public function destroy(OrdenTrabajo $orden)
     {
-        DB::transaction(function () use ($orden) {
-            DB::table('asignacion_orden')->where('orden_trabajo_id', $orden->id)->delete();
-            $orden->delete();
-        });
-
+        $orden->delete(); // las pivote se borran solitas
         return back()->with('success', 'Orden de trabajo eliminada correctamente.');
     }
+
+    private static function normalizeChecks(array $in): array
+    {
+        $keys = [
+            'filtro_aceite','filtro_aire','filtro_a_acondicionado','filtro_caja',
+            'aceite_diferencial','filtro_combustible','aceite_hidraulico',
+            'transfer','engrase'
+        ];
+        $out = [];
+        foreach ($keys as $k) { $out[$k] = !empty($in[$k]); }
+
+        if (!empty($in['aceite_caja']) && empty($out['filtro_a_acondicionado'])) {
+        $out['filtro_a_acondicionado'] = true;
+        }
+        return $out;
+    }
+
+
+
 }
 
