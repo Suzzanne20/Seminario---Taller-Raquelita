@@ -348,6 +348,10 @@
   </script>
   @endif
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.css">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/js/tom-select.complete.min.js"></script>
+
+
   @stack('scripts')
 
   <script>
@@ -412,3 +416,4 @@
 
 </body>
 </html>
+

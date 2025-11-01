@@ -48,6 +48,24 @@
     box-shadow:0 4px 14px rgba(0,0,0,.04) inset;
   }
   .resume .big{ font-size:1.25rem; font-weight:800; color:#C24242; }
+
+  /* Separadores visuales + consistencia */
+  .section-title{ font-weight:800; color:#0f172a; letter-spacing:.2px; }
+  .hr-soft{ border:0; border-top:1px solid #eef2f7; margin:1.25rem 0; }
+
+  /* Etiquetas e inputs alineados */
+  .form-label{ font-size:.9rem; color:#64748b; }
+  .form-control, .form-select{ padding-left:0; }
+
+  /* Pastillas de estados, más compactas */
+  .chip{ padding:.4rem .75rem; border-radius:999px; border:1px solid #e5e7eb; }
+  .chip.active{ background:#111827; color:#fff; border-color:#111827; }
+
+  /* Bloque resumen fijo abajo del card en desktop */
+  @media (min-width: 992px){
+    .resume{ position: sticky; bottom: 0; }
+  }
+
 </style>
 @endpush
 
@@ -158,21 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <form action="{{ route('ordenes.store') }}" method="POST" novalidate>
       @csrf
 
-      {{-- Cabecera / vínculos rápidos --}}
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div class="d-flex align-items-center gap-2">
-          <span class="chip active">Nueva</span>
-          <span class="chip">Asignada</span>
-          <span class="chip">Pendiente</span>
-          <span class="chip">En proceso</span>
-          <span class="chip">Finalizada</span>
-        </div>
-      </div>
-
       {{-- Sección: datos de vehículo y servicio --}}
+      <hr class="hr-soft">
       <div class="row g-4">
-        <div class="col-12">
-          <label class="form-label fw-semibold">Crear desde cotización aprobada (opcional)</label>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Cotización previa (opcional)</label>
           <select name="cotizacion_id" id="cotizacion_id"
                   class="form-select @error('cotizacion_id') is-invalid @enderror">
             <option value="">— Sin cotización —</option>
@@ -183,20 +191,45 @@ document.addEventListener('DOMContentLoaded', function() {
             @endforeach
           </select>
           @error('cotizacion_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-          <small class="text-muted">Si eliges una cotización, la placa deja de ser obligatoria.</small>
         </div>
 
         <div class="col-md-6">
-          <label class="form-label fw-semibold">Vehículo (placa)</label>
-          <input name="vehiculo_placa" id="vehiculo_placa"
-                list="lista_placas"
-                class="form-control @error('vehiculo_placa') is-invalid @enderror"
-                value="{{ old('vehiculo_placa') }}" maxlength="7" style="text-transform:uppercase" required>
-          <datalist id="lista_placas">
-            @foreach($vehiculos as $v)
-              <option value="{{ $v->placa }}">{{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}</option>
+          <label class="form-label fw-semibold d-flex align-items-center justify-content-between">
+            <span>Cliente</span>
+          </label>
+
+          <select name="cliente_id" id="cliente_id"
+                  class="form-select @error('cliente_id') is-invalid @enderror">
+            <option value="">— Seleccione —</option>
+            @foreach($clientes as $cli)
+              <option value="{{ $cli->id }}">
+                {{ str_pad($cli->id, 2, '0', STR_PAD_LEFT) }} - {{ $cli->nombre }}
+              </option>
             @endforeach
-          </datalist>
+          </select>
+          @error('cliente_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+
+          <small class="text-muted">Si no existe, créalo con el botón “Nuevo”.</small>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill"
+                    data-bs-toggle="modal" data-bs-target="#modalNuevoCliente">
+              <i class="bi bi-plus-lg"></i> Nuevo
+            </button>
+        </div>
+
+        
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Vehículo (placa)</label>
+          <select name="vehiculo_placa" id="vehiculo_placa"
+                  class="form-select @error('vehiculo_placa') is-invalid @enderror" required>
+            <option value="">— Seleccione —</option>
+            @foreach($vehiculos as $v)
+              <option value="{{ $v->placa }}">
+                {{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}
+              </option>
+            @endforeach
+          </select>
           @error('vehiculo_placa') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
           <small class="text-muted">Escribe para buscar por placa</small>
         </div>
@@ -210,21 +243,6 @@ document.addEventListener('DOMContentLoaded', function() {
           });
           </script>
         @endpush
-
-
-        <div class="col-md-6">
-          <label class="form-label fw-semibold">Tipo de servicio</label>
-          <select name="type_service_id"
-                  class="form-select @error('type_service_id') is-invalid @enderror" required>
-            <option value="">Seleccione…</option>
-            @foreach($servicios as $s)
-              <option value="{{ $s->id }}" @selected(old('type_service_id')==$s->id)>
-                {{ $s->descripcion }}
-              </option>
-            @endforeach
-          </select>
-          @error('type_service_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-        </div>
 
         <div class="col-md-4">
           <label class="form-label fw-semibold">Kilometraje</label>
@@ -243,14 +261,20 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <div class="col-md-4">
-          <label class="form-label fw-semibold">Costo mano de obra (Q)</label>
-          <input type="number" step="0.01" min="0" name="costo_mo"
-                 class="form-control @error('costo_mo') is-invalid @enderror"
-                 value="{{ old('costo_mo', 0) }}" id="costo_mo">
-          @error('costo_mo') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+          <label class="form-label fw-semibold">Tipo de servicio</label>
+          <select name="type_service_id"
+                  class="form-select @error('type_service_id') is-invalid @enderror" required>
+            <option value="">Seleccione…</option>
+            @foreach($servicios as $s)
+              <option value="{{ $s->id }}" @selected(old('type_service_id')==$s->id)>
+                {{ $s->descripcion }}
+              </option>
+            @endforeach
+          </select>
+          @error('type_service_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label class="form-label fw-semibold">Técnico asignado</label>
           <select name="tecnico_id" id="tecnico_id"
                   class="form-select @error('tecnico_id') is-invalid @enderror">
@@ -262,8 +286,84 @@ document.addEventListener('DOMContentLoaded', function() {
           @error('tecnico_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
         </div>
 
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Costo mano de obra (Q)</label>
+          <input type="number" step="0.01" min="0" name="costo_mo"
+                 class="form-control @error('costo_mo') is-invalid @enderror"
+                 value="{{ old('costo_mo', 0) }}" id="costo_mo">
+          @error('costo_mo') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+        </div>
+
+      <hr class="hr-soft">
+<h5 class="fw-bold mb-2">Checklist de mantenimiento</h5>
+
+@php
+  $checks = [
+    'filtro_aceite'           => 'Filtro de aceite',
+    'filtro_aire'             => 'Filtro de aire',
+    'filtro_a_acondicionado'  => 'Filtro de aire acondicionado',
+    'filtro_caja'             => 'Filtro de caja de transmisión',
+    'aceite_diferencial'      => 'Aceite de diferencial',
+    'filtro_combustible'      => 'Filtro de combustible',
+    'aceite_hidraulico'       => 'Aceite hidráulico',
+    'transfer'                => 'Transfer',
+    'engrase'                 => 'Engrase',
+  ];
+@endphp
+
+<div class="card border-0" style="background:#f9fafb;border-radius:12px;">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      <div class="fw-semibold text-muted">Marca los cambios a realizar</div>
+      <div class="d-flex gap-2">
+        <button type="button" id="mark-full" class="btn btn-light btn-sm rounded-pill">Marcar todo</button>
+        <button type="button" id="unmark-all" class="btn btn-outline-secondary btn-sm rounded-pill">Quitar todo</button>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      @foreach($checks as $name => $label)
+        <div class="col-12 col-sm-6 col-lg-4">
+          <label class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 border bg-white h-100"
+                 style="border-color:#e5e7eb;">
+            <input type="checkbox"
+                   name="checks[{{ $name }}]"
+                   value="1"                                              {{-- importante --}}
+                   class="form-check-input m-0">
+            <span class="small">{{ $label }}
+            </span>
+          </label>
+        </div>
+      @endforeach
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+  document.getElementById('mark-full')?.addEventListener('click', ()=>{
+    document.querySelectorAll('input[name^="checks["]').forEach(cb=> cb.checked = true);
+  });
+  document.getElementById('unmark-all')?.addEventListener('click', ()=>{
+    document.querySelectorAll('input[name^="checks["]').forEach(cb=> cb.checked = false);
+  });
+</script>
+@endpush
+
+@push('scripts')
+<script>
+  document.getElementById('mark-full')?.addEventListener('click', ()=>{
+    document.querySelectorAll('input[name^="checks["]').forEach(cb=> cb.checked = true);
+  });
+  document.getElementById('unmark-all')?.addEventListener('click', ()=>{
+    document.querySelectorAll('input[name^="checks["]').forEach(cb=> cb.checked = false);
+  });
+</script>
+@endpush        
+
         <div class="col-12">
-          <label class="form-label fw-semibold">Descripción / Falla</label>
+        <hr class="hr-soft">
+        <h5 class="fw-bold mb-2">Descripción / Falla</h5>
           <textarea name="descripcion" rows="3"
                     class="form-control @error('descripcion') is-invalid @enderror"
                     placeholder="Describe la falla o el requerimiento…">{{ old('descripcion') }}</textarea>
@@ -272,7 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
 
       {{-- Insumos dinámicos --}}
-      <hr class="my-4">
+
+      <hr class="hr-soft">
       <h5 class="fw-bold mb-2">Insumos</h5>
 
       <div id="insumos-container" class="mb-2"></div>
@@ -310,6 +411,50 @@ document.addEventListener('DOMContentLoaded', function() {
     </form>
   </div>
 </div>
+{{-- Modal para registrar cliente desde OT --}}
+<div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px;">
+      <div class="modal-header">
+        <h5 class="modal-title">Nuevo cliente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formQuickCliente">
+          @csrf
+          <div class="mb-2">
+            <label class="form-label">Nombre</label>
+            <input name="nombre" type="text" class="form-control" required maxlength="45">
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">NIT</label>
+              <input name="nit" type="text" class="form-control" maxlength="20" placeholder="CF o 1234567-8">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Teléfono</label>
+              <input name="telefono" type="text" class="form-control" required maxlength="20" placeholder="5555-5555">
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Dirección</label>
+            <input name="direccion" type="text" class="form-control" maxlength="60">
+          </div>
+          <div id="quickCliErrors" class="text-danger small mt-2" style="display:none;"></div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-muted" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnSaveQuickCliente" class="btn btn-theme">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 @endsection
 
 @push('scripts')
@@ -392,5 +537,110 @@ document.addEventListener('DOMContentLoaded', function() {
     cot?.addEventListener('change', toggleReq);
     toggleReq();
   })();
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Cliente: buscar por id y nombre
+  new TomSelect('#cliente_id', {
+    maxOptions: 1000,
+    searchField: ['text'],         // busca en toda la etiqueta renderizada "01 - Nombre"
+    allowEmptyOption: true,
+    create: false,
+    sortField: [{field:'text', direction:'asc'}],
+    render: {
+      option: (data) => {
+        // data.text ya trae "01 - Nombre"
+        return `<div>${data.text}</div>`;
+      }
+    }
+  });
+
+  // Placa: buscar por placa o descripción
+  new TomSelect('#vehiculo_placa', {
+    maxOptions: 2000,
+    searchField: ['value','text'], // placa y texto mostrado
+    allowEmptyOption: true,
+    create: false,
+    render: {
+      option: (data) => `<div><strong>${data.value}</strong> <span class="text-muted">${data.text.replace(data.value+' — ','')}</span></div>`
+    },
+    onChange: (val)=>{
+      // fuerza uppercase en el value seleccionado
+      if(val){
+        const sel = document.querySelector('#vehiculo_placa');
+        if(sel){
+          const opt = [...sel.options].find(o=>o.value.toUpperCase()===val.toUpperCase());
+          if(opt) sel.value = opt.value.toUpperCase();
+        }
+      }
+    }
+  });
+
+  // Cuando se cree un cliente por el modal, añadimos la opción "ID - Nombre" y lo seleccionamos
+  window.__addClienteToSelect = function(id, nombre){
+    const ddl = document.getElementById('cliente_id').tomselect;
+    const label = String(id).padStart(2,'0') + ' - ' + nombre;
+    ddl.addOption({value:id, text:label});
+    ddl.addItem(String(id), true);
+  };
+});
+
+
+
+  // ========= Modal Quick para registro de Cliente y enlace a vehiculo desde OT =========
+(function(){
+  const form  = document.getElementById('formQuickCliente');
+  const save  = document.getElementById('btnSaveQuickCliente');
+  const ddl   = document.getElementById('cliente_id');
+  const errs  = document.getElementById('quickCliErrors');
+
+  function getCsrf(){
+    const el = document.querySelector('input[name="_token"]');
+    return el ? el.value : '';
+  }
+
+  async function quickStore(){
+    errs.style.display = 'none';
+    errs.innerHTML = '';
+
+    const fd = new FormData(form);
+
+    const resp = await fetch("{{ route('clientes.quickStore') }}", {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': getCsrf(), 'Accept':'application/json' },
+      body: fd
+    });
+
+    if (resp.ok){
+      const data = await resp.json();
+      // agrega opción y selecciona
+      window.__addClienteToSelect(data.cliente.id, data.cliente.nombre);
+      ddl.dispatchEvent(new Event('change'));
+
+      // cierra modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoCliente'));
+      modal.hide();
+      form.reset();
+      return;
+    }
+
+    // errores de validación
+    const j = await resp.json().catch(()=>({}));
+    const list = [];
+    if (j.errors){
+      Object.values(j.errors).forEach(arr => arr.forEach(msg => list.push(msg)));
+    } else if (j.message){ list.push(j.message); }
+    errs.innerHTML = list.map(m=>`• ${m}`).join('<br>');
+    errs.style.display = 'block';
+  }
+
+  save?.addEventListener('click', quickStore);
+})();
 </script>
+
+
+
+
+
+
 @endpush

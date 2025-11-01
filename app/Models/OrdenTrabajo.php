@@ -22,6 +22,7 @@ class OrdenTrabajo extends Model
         'vehiculo_placa',
         'type_service_id',
         'estado_id',
+        'mantenimiento_json',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class OrdenTrabajo extends Model
         'costo_mo'       => 'decimal:2',
         'total'          => 'decimal:2',
         'vehiculo_placa' => 'string',
+        'mantenimiento_json'=> 'array', 
     ];
 
     // --- Relaciones principales ---
