@@ -81,6 +81,7 @@ class RecepcionController extends Controller
                         }
                     },
                 ],
+                // Soporta múltiples por sección: fotos[front][], fotos[top][], ...
                 'fotos'            => ['nullable'],
                 'fotos.*'          => ['nullable'],
                 'fotos.*.*'        => ['nullable','image','max:4096'],
@@ -94,10 +95,7 @@ class RecepcionController extends Controller
             ]
         );
 
-        // Observaciones: SOLO el texto del usuario
         $obsTexto = $data['observaciones'] ?? null;
-
-        // Puntos por sección
         $sections = ['front','top','right','left','back'];
         $detalles = $this->parseDetallesSecciones($request->input('detalles_json'));
 
@@ -109,14 +107,16 @@ class RecepcionController extends Controller
                 throw new \RuntimeException('Vehículo no existe');
             }
 
-            // Crear recepción
+            // Siempre asigna un técnico: el enviado o el usuario logueado
+            $tecnicoId = $request->integer('tecnico_id') ?: auth()->id();
+
             $rec = Recepcion::create([
                 'fecha_creacion'   => now(),
                 'vehiculo_placa'   => $data['vehiculo_placa'],
                 'type_vehiculo_id' => (int) $data['type_vehiculo_id'],
-                'observaciones'    => $obsTexto,                     // solo texto
-                'detalles_json'    => null,                          // se actualiza al final
-                'id_tecnico'       => $data['tecnico_id'] ?? null,   // columna dedicada
+                'observaciones'    => $obsTexto,
+                'detalles_json'    => null,
+                'id_tecnico'       => $tecnicoId, // ← nunca null
             ]);
 
             // Guardar fotos (BLOB) y enlazar por índice al punto
@@ -141,18 +141,18 @@ class RecepcionController extends Controller
     /** Mostrar recepción (precarga técnico y fotos) */
     public function show(Recepcion $rec)
     {
-        $rec->load(['fotos', 'tecnicoRel']); // <-- asegúrate de tener la relación en el modelo
+        $rec->load(['fotos', 'tecnicoRel']);
         return view('Inspeccion.ver_isp', compact('rec'));
     }
 
-    /** Editar (si luego lo usas) */
+    /** Editar */
     public function edit(Recepcion $rec)
     {
         $tipos = DB::table('type_vehiculo')->select('id','descripcion')->orderBy('id')->get();
         return view('Inspeccion.editar_isp', compact('rec','tipos'));
     }
 
-    /** Actualizar (incluye id_tecnico si decides editarlo ahí) */
+    /** Actualizar */
     public function update(Request $request, Recepcion $rec)
     {
         if ($request->filled('vehiculo_placa')) {
@@ -165,21 +165,14 @@ class RecepcionController extends Controller
             'vehiculo_placa'   => ['required','string','size:7','regex:/^[A-Z0-9]{7}$/','exists:vehiculo,placa'],
             'type_vehiculo_id' => ['required','integer','exists:type_vehiculo,id'],
             'observaciones'    => ['nullable','string','max:255'],
-            'tecnico_id'       => [
-                'nullable','integer','exists:users,id',
-                function ($attr, $value, $fail) {
-                    if ($value && !$this->userEsMecanico((int)$value)) {
-                        $fail('El usuario seleccionado no tiene el rol de Mecánico.');
-                    }
-                },
-            ],
+            // técnico opcional; si no viene, NO lo tocamos
+            'tecnico_id'       => ['nullable','integer','exists:users,id'],
             'detalles_json'    => ['nullable','string'],
             'fotos'            => ['nullable'],
             'fotos.*'          => ['nullable'],
             'fotos.*.*'        => ['nullable','image','max:4096'],
         ]);
 
-        // Observaciones: SOLO el texto
         $obsTexto = $data['observaciones'] ?? null;
         $sections = ['front','top','right','left','back'];
 
@@ -205,10 +198,15 @@ class RecepcionController extends Controller
             $rec->vehiculo_placa   = $data['vehiculo_placa'];
             $rec->type_vehiculo_id = (int) $data['type_vehiculo_id'];
             $rec->observaciones    = $obsTexto;
-            $rec->id_tecnico       = $data['tecnico_id'] ?? null;
+
+            // Sólo actualizar id_tecnico si viene en la request
+            if ($request->filled('tecnico_id')) {
+                $rec->id_tecnico = (int) $data['tecnico_id'];
+            }
+
             $rec->save();
 
-            // Nuevas fotos (opcional)
+            // Nuevas fotos (opcional) – soporta múltiples por sección: fotos[front][]
             $fotos = $request->file('fotos', null);
             if ($fotos) {
                 $this->adjuntarFotosYEnlazarPuntos($rec, $fotos, $incoming, $sections);
@@ -227,7 +225,7 @@ class RecepcionController extends Controller
         }
     }
 
-    /** Eliminar */
+    /** Eliminar: vuelve al listado con modal animado */
     public function destroy(Recepcion $rec)
     {
         DB::beginTransaction();
@@ -236,11 +234,19 @@ class RecepcionController extends Controller
             $rec->delete();
 
             DB::commit();
-            return redirect()->route('inspecciones.create')->with('ok','Inspección eliminada correctamente.');
+            return redirect()
+                ->route('inspecciones.index')
+                ->with('flash_kind', 'success')
+                ->with('flash_title', '¡Eliminado!')
+                ->with('flash_msg', 'La inspección se eliminó correctamente.');
         } catch (Throwable $e) {
             DB::rollBack();
             report($e);
-            return back()->with('error','No se pudo eliminar la inspección: '.$e->getMessage());
+            return redirect()
+                ->route('inspecciones.index')
+                ->with('flash_kind', 'error')
+                ->with('flash_title', 'Ups…')
+                ->with('flash_msg', 'No se pudo eliminar la inspección. '.$e->getMessage());
         }
     }
 
@@ -259,7 +265,7 @@ class RecepcionController extends Controller
      *               ENDPOINTS / UTILIDADES EXTRA
      * ============================================================ */
 
-    /** GET JSON: técnicos (rol mecánico) con filtro q (para select2) */
+    /** GET JSON: técnicos (rol mecánico) con filtro q */
     public function tecnicosLista(Request $request)
     {
         $q = trim((string) $request->get('q'));
@@ -272,7 +278,7 @@ class RecepcionController extends Controller
         return response()->json($items);
     }
 
-    /** GET JSON: placas con filtro q (para select2/autocomplete) */
+    /** GET JSON: placas con filtro q */
     public function placasLista(Request $request)
     {
         $q = strtoupper(trim((string) $request->get('q')));
@@ -373,7 +379,7 @@ class RecepcionController extends Controller
 
     /**
      * Adjunta fotos (BLOB) a la recepción y enlaza a puntos por índice.
-     * Soporta estructura seccionada: fotos[front][], fotos[top][], etc.
+     * Soporta múltiples por sección: fotos[front][], fotos[top][], etc.
      */
     private function adjuntarFotosYEnlazarPuntos(Recepcion $rec, $fotos, array &$detalles, array $sections): void
     {
@@ -415,7 +421,6 @@ class RecepcionController extends Controller
                     'recepcion_id' => $rec->id,
                 ]);
 
-                // Busca el primer punto libre en cualquier sección
                 $asignada = false;
                 foreach ($sections as $sec) {
                     foreach ($detalles[$sec] as $i => $p) {
@@ -428,10 +433,7 @@ class RecepcionController extends Controller
                     }
                 }
 
-                // Si no hay punto libre, igual guardamos la foto “huérfana”
-                if (!$asignada) {
-                    // Nada más que hacer; seguirá apareciendo en la galería
-                }
+                // Si no hay punto libre, la foto queda guardada sin enlace específico
             }
         }
     }
