@@ -11,8 +11,12 @@ return new class extends Migration {
             $table->dateTime('fecha_creacion');
             $table->char('vehiculo_placa', 7);
             $table->string('observaciones', 255)->nullable();
+
+            // Usamos LONGTEXT para permitir JSON grande sin truncar
+            $table->longText('detalles_json')->nullable();
+
             $table->unsignedBigInteger('type_vehiculo_id');
-            $table->unsignedBigInteger('id_tecnico'); 
+            $table->unsignedBigInteger('id_tecnico');
             $table->timestamps();
 
             $table->foreign('vehiculo_placa')->references('placa')->on('vehiculo');
@@ -20,6 +24,7 @@ return new class extends Migration {
             $table->foreign('id_tecnico')->references('id')->on('users');
         });
     }
+
     public function down(): void {
         Schema::dropIfExists('recepcion');
     }
