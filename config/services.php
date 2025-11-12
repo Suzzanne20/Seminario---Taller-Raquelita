@@ -2,17 +2,11 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
+    'ultramsg' => [
+        'instance'   => env('ULTRAMSG_INSTANCE'),
+        'token'      => env('ULTRAMSG_TOKEN'),
+        'default_cc' => env('ULTRAMSG_DEFAULT_CC', '502'),
+    ],
 
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
