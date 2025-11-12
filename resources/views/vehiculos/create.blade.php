@@ -3,7 +3,7 @@
 @push('styles')
 <style>
   html, body { height: 100%; background:#f0f0f0 !important; }
-  .page-body { min-height: calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
+  .page-body { min-height: calc(100vh - 72px); background:rgba(255, 255, 255, 0.144) !important; color:#212529; }
   @media (max-width: 576px){ .page-body{ min-height: calc(100vh - 64px);} }
 
   /* Tarjeta centrada con sombra suave */

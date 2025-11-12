@@ -104,6 +104,40 @@
         .flyout{ left:16px; } /* no lo usamos realmente en móvil */
         }
 
+        /* === Fondo fijo === */
+        body::before{
+          content:"";
+          position:fixed;         
+          inset:0;                 
+          z-index:-1;        
+          background-image: url('{{ asset('img/GridArt_FONDO.jpg') }}');
+          background-size: cover; 
+          background-position: center center;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          transform: translateZ(0);
+        }
+
+        /* Velo sutil para mejorar legibilidad sobre el fondo */
+        body::after{
+          content:"";
+          position:fixed;
+          inset:0;
+          z-index:-1;
+          background: rgba(255, 255, 255, 0.541); /* ajusta opacidad a tu gusto */
+          /* si prefieres más contraste, usa .35 o .4 */
+        }
+
+        /* Deja ver el fondo detrás del contenido */
+        .page-body{
+          background: transparent !important;
+        }
+
+        /* iOS/Android: evita jank del attachment fixed en móviles */
+        @media (max-width: 992px){
+          body::before{ background-attachment: scroll; }
+        }
+
 
     @stack('styles')
   </style>
