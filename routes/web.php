@@ -46,7 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // Home con autenticacion
-    Route::view('/welcome', 'welcome')->name('welcome');
+    //Route::view('/welcome', 'welcome')->name('welcome');
 
     // Perfil del usuario autenticado
     Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
