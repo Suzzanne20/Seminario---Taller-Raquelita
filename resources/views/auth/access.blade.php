@@ -114,6 +114,16 @@
                             </label>
                             <a class="link" href="#" id="goto-recover">¿Olvidaste tu contraseña?</a>
                         </div>
+                        <div class="mt-3">
+                        <div class="cf-turnstile"
+                            data-sitekey="{{ config('services.turnstile.site_key') }}"
+                            data-theme="auto"  {{-- light|dark|auto --}}
+                            data-appearance="always">
+                        </div>
+                        @error('cf-turnstile-response')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                        </div>
                         <button class="btn" type="submit">Acceder</button>
                     </form>
                 </section>
@@ -137,7 +147,8 @@
             </div>
         </section>
     </div>
-
+{{-- Cloudflare Turnstile --}}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     @push('scripts')
         <script>
             const tabs = {
