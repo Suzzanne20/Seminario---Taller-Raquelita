@@ -25,7 +25,6 @@ class InventarioController extends Controller
             }
         }
 
-
         $query = OrdenTrabajo::with([
             'insumosOT.insumo',
             'servicio'
@@ -37,33 +36,39 @@ class InventarioController extends Controller
 
         $ordenes = $query->get();
 
-
         $conteoServicios = $ordenes->groupBy(function ($ot) {
-            // Accedemos a la descripción usando la relación 'servicio'
             return $ot->servicio->descripcion ?? 'Sin Tipo';
         })
             ->map->count()
             ->sortDesc();
 
 
-        $conteoPorDia = $ordenes->groupBy(function($ot) {
+        $calendario = [];
+        $diasDeSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-            return Carbon::parse($ot->fecha)->format('N');
-        })->map->count();
+        if ($fechaInicio) {
 
+            $conteoPorDiaDelMes = $ordenes->groupBy(function($ot) {
+                return Carbon::parse($ot->fecha_creacion)->format('j');
+            })->map->count();
 
-        $actividadSemanal = [
-            'Lun' => $conteoPorDia->get(1, 0),
-            'Mar' => $conteoPorDia->get(2, 0),
-            'Mié' => $conteoPorDia->get(3, 0),
-            'Jue' => $conteoPorDia->get(4, 0),
-            'Vie' => $conteoPorDia->get(5, 0),
-            'Sáb' => $conteoPorDia->get(6, 0),
-            'Dom' => $conteoPorDia->get(7, 0)
-        ];
+            $diaInicioSemana = $fechaInicio->copy()->isoWeekday();
+            $diasEnMes = $fechaInicio->daysInMonth;
+
+            for ($i = 1; $i < $diaInicioSemana; $i++) {
+                $calendario[] = ['dia' => null, 'total' => 0];
+            }
+
+            for ($dia = 1; $dia <= $diasEnMes; $dia++) {
+                $total = $conteoPorDiaDelMes->get($dia, 0);
+                $calendario[] = [
+                    'dia' => $dia,
+                    'total' => $total
+                ];
+            }
+        }
 
         $ingresos = $ordenes->sum('total');
-
 
         $egresos = $ordenes->reduce(function ($carry, $ot) {
             $costo_ot = $ot->insumosOT->sum(function ($uso) {
@@ -72,12 +77,9 @@ class InventarioController extends Controller
             return $carry + $costo_ot;
         }, 0);
 
-
         $ganancia = $ingresos - $egresos;
 
-
         $totalOT = $ordenes->count();
-
 
         $registros = $ordenes->map(function ($ot) {
             $egresos = $ot->insumosOT->sum(function ($uso) {
@@ -85,7 +87,6 @@ class InventarioController extends Controller
             });
 
             return [
-
                 'descripcion' => $ot->descripcion ?? ($ot->servicio->descripcion ?? 'OT sin descripción'),
                 'ingresos' => $ot->total,
                 'egresos' => $egresos,
@@ -101,7 +102,8 @@ class InventarioController extends Controller
             'registros',
             'mes',
             'conteoServicios',
-            'actividadSemanal' // <-- NUEVO: Pasamos la nueva variable a la vista
+            'calendario',
+            'diasDeSemana'
         ));
     }
 }
