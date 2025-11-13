@@ -23,51 +23,135 @@
         }
 
         .title h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #f30606;
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: #c24242;
         }
 
         .title p {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #1d4ed8;
+        }
+
+        .filter-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 1rem;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border: 1px solid #e5e7eb;
+            max-width: 480px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .filter-card label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.35rem;
+        }
+
+        .filter-card .month-input {
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.9rem;
+            outline: none;
+            min-width: 220px;
+
+            position: relative;
+            color: #111827;
+        }
+
+        .filter-card .month-input:focus {
+            border-color: #c24242;
+            box-shadow: 0 0 0 2px rgba(194, 66, 66, 0.25);
+        }
+
+        .filter-card .month-input:invalid {
+            color: transparent;
+        }
+
+        .filter-card .month-input::before {
+            content: 'Selecciona mes';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            pointer-events: none;
+        }
+
+        .filter-card .month-input:valid::before {
+            display: none;
+        }
+
+        .filter-card button {
+            border-radius: 999px;
+            padding: 0.55rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #c24242, #9f3b3b);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+        }
+
+        .filter-card button:hover {
+            opacity: 0.95;
+            box-shadow: 0 10px 18px rgba(156, 34, 34, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .filter-card button:active {
+            transform: translateY(0);
+            box-shadow: none;
         }
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
             gap: 1rem;
         }
 
         .kpi {
             background: white;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.1rem 1.2rem;
+            border-radius: 0.9rem;
+            text-align: left;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+            border-top: 4px solid #c24242;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .kpi .label {
-            font-size: 0.85rem;
-            color: #1d4ed8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #6b7280;
         }
 
         .kpi .value {
             font-size: 1.5rem;
-            font-weight: bold;
-            margin-top: 0.5rem;
+            font-weight: 800;
+            color: #111827;
         }
 
         .table-wrapper {
             background: white;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            margin-top: 2rem;
+            padding: 1.5rem 1.5rem 1.75rem;
+            border-radius: 0.9rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            margin-top: 2.2rem;
         }
 
         .table-wrapper h2 {
             color: #1e40af;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
         }
 
         table {
@@ -85,6 +169,9 @@
         table th {
             background-color: #f1f5f9;
             color: #1d4ed8;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
         .charts {
@@ -96,10 +183,9 @@
 
         .chart-box {
             background: white;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-
+            padding: 1.5rem 1.5rem 1.75rem;
+            border-radius: 0.9rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
             min-height: 300px;
             display: flex;
             flex-direction: column;
@@ -107,21 +193,84 @@
 
         .chart-box h2 {
             color: #1d4ed8;
+            font-weight: 700;
+            margin-bottom: 1rem;
         }
 
-        .chart-box .grid > div {
-            color: #1e1e1e !important;
+        .calendar-header-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-header-grid > div {
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        .calendar-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+        }
+
+        .calendar-day {
+            padding: 0.3rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            color: #374151;
+            min-height: 65px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .calendar-day-empty {
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        .calendar-day .day-number {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #111827;
+        }
+
+        .calendar-day .day-count {
+            font-weight: 700;
+            font-size: 1.25rem;
+            line-height: 1;
+            text-align: center;
+            margin-top: 0.25rem;
+            align-self: center;
+        }
+
+        .calendar-day .day-count-zero {
+            color: #9ca3af;
+        }
+
+        .calendar-day .day-count-gt-zero {
+            color: #1d4ed8;
+        }
+
+        /* --- 1. AQUÍ ESTÁ EL CSS PARA EL SCROLL --- */
+        .table-scroll-container {
+            max-height: 450px; /* Puedes cambiar 450px al alto que quieras (ej. 300px) */
+            overflow-y: auto;
         }
 
         footer {
             text-align: center;
             font-size: 0.75rem;
             color: #6b7280;
-            margin-top: 3rem;
+            margin-top: 2.5rem;
         }
     </style>
-
-
 @endpush
 
 @section('content')
@@ -131,33 +280,26 @@
             <p>Centro de mantenimiento de vehículos</p>
         </div>
 
-
         <form method="GET" action="{{ route('inventario.index') }}">
-            <div class="bg-gray-50 p-6 rounded-lg shadow-md mb-6 flex flex-wrap gap-4 items-end">
-                <div class="flex flex-col">
-                    <label for="mes" class="text-gray-700 font-medium mb-1">Mes</label>
-                    <input type="month" id="mes" name="mes" value="{{ old('mes', $mes) }}"
-                           class="border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
+
+            <div class="filter-card">
+
+                <div class="flex flex-col w-full sm:w-auto">
+                    <label for="mes">Visualizar ganancias del mes de: </label>
+                    <input
+                        type="month"
+                        id="mes"
+                        name="mes"
+                        value="{{ old('mes', $mes) }}"
+                        class="month-input"
+                        required
+                    >
                 </div>
 
-                <div>
-                    <button type="submit" class="bg-green-600 text-blue-100 px-4 py-2 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out">
+                <div class="w-full sm:w-auto flex sm:justify-end mt-3 sm:mt-6">
+                    <button type="submit">
                         Actualizar
                     </button>
-                </div>
-
-                <div class="flex flex-col">
-                    <label class="text-gray-700 font-medium mb-1">Técnico</label>
-                    <select class="border border-gray-300 rounded-md p-2 bg-gray-100 cursor-not-allowed" disabled>
-                        <option>Todos</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col">
-                    <label class="text-gray-700 font-medium mb-1">Estado OT</label>
-                    <select class="border border-gray-300 rounded-md p-2 bg-gray-100 cursor-not-allowed" disabled>
-                        <option>Todos</option>
-                    </select>
                 </div>
 
             </div>
@@ -185,39 +327,39 @@
             </div>
         </div>
 
-
         <div class="table-wrapper">
             <h2 class="text-xl font-semibold mb-4">Entradas y Salidas</h2>
-            <table>
-                <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th>Ingresos (OT)</th>
-                    <th>Egresos (OC)</th>
-                    <th>Ganancia</th>
-                </tr>
-                </thead>
-                <tbody>
-                @forelse ($registros as $r)
-                    <tr>
-                        <td>{{ $r['descripcion'] }}</td>
-                        <td>Q {{ number_format($r['ingresos'], 2) }}</td>
-                        <td>Q {{ number_format($r['egresos'], 2) }}</td>
-                        <td style="color: {{ $r['ganancia'] >= 0 ? '#16a34a' : '#dc2626' }};">
-                            Q {{ number_format($r['ganancia'], 2) }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-gray-500 py-3">
-                            No hay registros de órdenes de trabajo.
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
 
+            <div class="table-scroll-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Ingresos (OT)</th>
+                        <th>Egresos (OC)</th>
+                        <th>Ganancia</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @forelse ($registros as $r)
+                        <tr>
+                            <td>{{ $r['descripcion'] }}</td>
+                            <td>Q {{ number_format($r['ingresos'], 2) }}</td>
+                            <td>Q {{ number_format($r['egresos'], 2) }}</td>
+                            <td style="color: {{ $r['ganancia'] >= 0 ? '#16a34a' : '#dc2626' }};">
+                                Q {{ number_format($r['ganancia'], 2) }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-500 py-3">
+                                No hay registros de órdenes de trabajo.
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div> </div>
 
         <div class="charts">
             <div class="chart-box">
@@ -230,25 +372,39 @@
                         No hay datos de servicios para mostrar.
                     </div>
                 @endif
-
             </div>
 
             <div class="chart-box">
-                <h2 class="text-lg font-bold mb-4">Actividad semanal (OT cerradas / día)</h2>
+                <h2 class="text-lg font-bold mb-4">Actividad mensual (OT cerradas / día)</h2>
 
+                @if(isset($calendario) && isset($diasDeSemana) && !empty($calendario))
 
-                <div class="grid grid-cols-7 text-center text-sm gap-2">
-                    @foreach ($actividadSemanal as $dia => $val)
-                        <div class="p-3 bg-gray-100 rounded-lg" style="color: #1e1e1e">
-                            {{ $dia }}<br>
-                            <span class="font-semibold" style="color: {{ $val > 0 ? '#1d4ed8' : '#1e1e1e' }}">
-                            {{ $val }}
-                        </span>
-                        </div>
-                    @endforeach
-                </div>
+                    <div class="calendar-header-grid">
+                        @foreach($diasDeSemana as $dia)
+                            <div>{{ $dia }}</div>
+                        @endforeach
+                    </div>
 
+                    <div class="calendar-days-grid">
+                        @foreach($calendario as $dia)
+                            @if($dia['dia'] !== null)
+                                <div class="calendar-day">
+                                    <span class="day-number">{{ $dia['dia'] }}</span>
+                                    <span class="day-count {{ $dia['total'] > 0 ? 'day-count-gt-zero' : 'day-count-zero' }}">
+                                        {{ $dia['total'] }}
+                                    </span>
+                                </div>
+                            @else
+                                <div class="calendar-day-empty"></div>
+                            @endif
+                        @endforeach
+                    </div>
 
+                @else
+                    <div class="text-center text-gray-500 py-8 flex-grow flex items-center justify-center">
+                        No hay datos de actividad para este mes.
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -256,12 +412,9 @@
             Datos calculados automáticamente desde la base de datos.
         </footer>
     </div>
-
-
 @endsection
 
 @push('scripts')
-    {{-- Corregido el CDN de Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @if($conteoServicios->isNotEmpty())
@@ -294,6 +447,4 @@
             });
         </script>
     @endif
-
-
 @endpush
