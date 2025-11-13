@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use App\Rules\Turnstile;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -28,6 +29,9 @@ class ConfirmablePasswordController extends Controller
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
             'password' => $request->password,
+            'cf-turnstile-response' => ['required', new Turnstile],
+
+
         ])) {
             throw ValidationException::withMessages([
                 'password' => __('auth.password'),
