@@ -1,4 +1,4 @@
-@extends('layouts.app') 
+@extends('layouts.app')
 @section('title','Editar Inspección 360')
 
 @php
@@ -88,7 +88,7 @@
         <img id="sectionImage" src="{{ Vite::asset('resources/otros/assets/sections/front.jpg') }}" alt="Sección actual">
       </div>
       <small style="opacity:.75;display:block;margin-top:6px">
-        Click en la carrocería para añadir un punto. 
+        Click en la carrocería para añadir un punto.
         <span class="legend ms-1">
           <span class="tag tag-i">I</span> Inicial (primer registro)
           <span class="tag tag-m">M</span> Modificado
@@ -151,14 +151,17 @@
   </dialog>
 </form>
 
+@role('admin')
 {{-- ELIMINAR --}}
 <div style="max-width:1200px;margin:0 auto 16px;padding:0 16px">
   <form action="{{ route('inspecciones.destroy', $rec) }}" method="POST"
         onsubmit="return confirm('¿Seguro que deseas eliminar esta inspección?');">
-    @csrf @method('DELETE')
+        @csrf
+      @method('DELETE')
     <button type="submit" class="btn danger">Eliminar inspección</button>
   </form>
 </div>
+@endrole
 
 {{-- ===== JS ===== --}}
 <script>

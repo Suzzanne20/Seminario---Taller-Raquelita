@@ -8,7 +8,7 @@
 
   .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
   .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
-  
+
   .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
   .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
   .pagination .page-item.active .page-link{ background:#535353; border-color:#1d1d1d;  color:#fff; }
@@ -60,7 +60,7 @@
     max-height: 75vh;
     overflow-y: auto;
   }
-  
+
   .table th {
     position: sticky;
     top: 0;
@@ -173,14 +173,14 @@
           <a href="{{ route('vehiculos.edit', $vehiculo->placa) }}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil-square me-1"></i>Editar
           </a>
-          <button type="button" 
-                  class="btn btn-sm btn-outline-danger" 
+          <button type="button"
+                  class="btn btn-sm btn-outline-danger"
                   onclick="confirmarEliminacionVehiculo('{{ $vehiculo->placa }}', '{{ $vehiculo->marca->nombre ?? 'N/A' }}', '{{ $vehiculo->linea }}', '{{ $vehiculo->modelo }}')">
             <i class="bi bi-trash me-1"></i>Eliminar
           </button>
         </div>
       </div>
-      
+
       <div class="row">
         {{-- Información Básica --}}
         <div class="col-md-6">
@@ -197,7 +197,7 @@
             </div>
           </div>
         </div>
-        
+
         {{-- Sistema de Lubricación --}}
         <div class="col-md-6">
           @if($vehiculo->cantidad_aceite_motor || $vehiculo->marca_aceite || $vehiculo->tipo_aceite || $vehiculo->filtro_aceite || $vehiculo->filtro_aire)
@@ -258,7 +258,7 @@
             </div>
             @endif
         </div>
-        
+
         {{-- Diferencial --}}
         <div class="col-md-6">
           @if($vehiculo->cantidad_aceite_diferencial || $vehiculo->marca_aceite_d || $vehiculo->tipo_aceite_d)
@@ -392,8 +392,8 @@
                       if($v->filtro_aire) $aceiteInfo[] = "<strong>Filtro Aire:</strong> " . $v->filtro_aire;
                       $aceiteTooltip = implode("<br>", $aceiteInfo);
                     @endphp
-                    <span class="badge bg-info info-badge" 
-                          data-bs-toggle="tooltip" 
+                    <span class="badge bg-info info-badge"
+                          data-bs-toggle="tooltip"
                           data-bs-html="true"
                           title="{!! $aceiteTooltip !!}"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -413,8 +413,8 @@
                             if($v->tipo_caja) $cajaInfo[] = "<strong>Tipo Caja:</strong> " . $v->tipo_caja;
                             $cajaTooltip = implode("<br>", $cajaInfo);
                         @endphp
-                        <span class="badge bg-warning info-badge" 
-                              data-bs-toggle="tooltip" 
+                        <span class="badge bg-warning info-badge"
+                              data-bs-toggle="tooltip"
                               data-bs-html="true"
                               title="{!! $cajaTooltip !!}"
                               onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -431,8 +431,8 @@
                       if($v->tipo_aceite_d) $diferencialInfo[] = "<strong>Tipo Aceite:</strong> " . $v->tipo_aceite_d;
                       $diferencialTooltip = implode("<br>", $diferencialInfo);
                     @endphp
-                    <span class="badge bg-primary info-badge" 
-                          data-bs-toggle="tooltip" 
+                    <span class="badge bg-primary info-badge"
+                          data-bs-toggle="tooltip"
                           data-bs-html="true"
                           title="{!! $diferencialTooltip !!}"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -449,8 +449,8 @@
                       if($v->tipo_aceite_t) $transferInfo[] = "<strong>Tipo Aceite T:</strong> " . $v->tipo_aceite_t;
                       $transferTooltip = implode("<br>", $transferInfo);
                     @endphp
-                    <span class="badge bg-success info-badge" 
-                          data-bs-toggle="tooltip" 
+                    <span class="badge bg-success info-badge"
+                          data-bs-toggle="tooltip"
                           data-bs-html="true"
                           title="{!! $transferTooltip !!}"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -467,8 +467,8 @@
                       if($v->contra_filtro_diesel) $filtrosInfo[] = "<strong>Contra Filtro:</strong> " . $v->contra_filtro_diesel;
                       $filtrosTooltip = implode("<br>", $filtrosInfo);
                     @endphp
-                    <span class="badge bg-secondary info-badge" 
-                          data-bs-toggle="tooltip" 
+                    <span class="badge bg-secondary info-badge"
+                          data-bs-toggle="tooltip"
                           data-bs-html="true"
                           title="{!! $filtrosTooltip !!}"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -487,8 +487,8 @@
                       if($v->aceite_hidraulico) $frenosInfo[] = "<strong>Aceite Hidráulico:</strong> " . $v->aceite_hidraulico;
                       $frenosTooltip = implode("<br>", $frenosInfo);
                     @endphp
-                    <span class="badge bg-danger info-badge" 
-                          data-bs-toggle="tooltip" 
+                    <span class="badge bg-danger info-badge"
+                          data-bs-toggle="tooltip"
                           data-bs-html="true"
                           title="{!! $frenosTooltip !!}"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
@@ -496,7 +496,7 @@
                     </span>
                   @endif
 
-                  @if(!$v->cantidad_aceite_motor && !$v->cantidad_aceite_cc && !$v->cantidad_aceite_diferencial && 
+                  @if(!$v->cantidad_aceite_motor && !$v->cantidad_aceite_cc && !$v->cantidad_aceite_diferencial &&
                       !$v->cantidad_aceite_transfer && !$v->filtro_cabina && !$v->pastillas_delanteras)
                     <span class="text-muted small">Sin datos técnicos</span>
                   @endif
@@ -504,23 +504,25 @@
               </td>
               <td class="text-center">
                 <div class="d-inline-flex gap-2">
-                  <button type="button" 
-                          class="btn btn-sm btn-outline-info btn-action" 
+                  <button type="button"
+                          class="btn btn-sm btn-outline-info btn-action"
                           title="Ver detalles completos"
                           onclick="mostrarDetallesVehiculo('{{ $v->placa }}')">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <a href="{{ route('vehiculos.edit', $v->placa) }}" 
-                     class="btn btn-sm btn-outline-primary btn-action" 
+                  <a href="{{ route('vehiculos.edit', $v->placa) }}"
+                     class="btn btn-sm btn-outline-primary btn-action"
                      title="Editar vehículo">
                     <i class="bi bi-pencil-square"></i>
                   </a>
-                  <button type="button" 
-                          class="btn btn-sm btn-outline-danger btn-action" 
+                    @role('admin')
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger btn-action"
                           title="Eliminar vehículo"
                           onclick="confirmarEliminacionVehiculo('{{ $v->placa }}', '{{ $v->marca->nombre ?? 'N/A' }}', '{{ $v->linea }}', '{{ $v->modelo }}')">
                     <i class="bi bi-trash"></i>
                   </button>
+                    @endrole
                 </div>
               </td>
             </tr>
@@ -700,14 +702,14 @@ function imprimirVehiculo() {
             linea: basicData.línea || '—',
             motor: basicData.motor || '—',
             cilindraje: basicData.cilindraje || '—',
-            
+
             // Sistema de Lubricación
             cantidad_aceite_motor: lubricacionData.aceite_motor || '—',
             marca_aceite: lubricacionData.marca_aceite || '—',
             tipo_aceite: lubricacionData.tipo_aceite || '—',
             filtro_aceite: lubricacionData.filtro_aceite || '—',
             filtro_aire: lubricacionData.filtro_aire || '—',
-            
+
             // Caja de Cambios
             cantidad_aceite_cc: cajaData.aceite_cc || '—',
             marca_cc: cajaData.marca_cc || '—',
@@ -715,22 +717,22 @@ function imprimirVehiculo() {
             filtro_aceite_cc: cajaData.filtro_aceite_cc || '—',
             filtro_de_enfriador: cajaData.filtro_de_enfriador || '—',
             tipo_caja: cajaData.tipo_caja || '—',
-            
+
             // Diferencial
             cantidad_aceite_diferencial: diferencialData.aceite_diferencial || '—',
             marca_aceite_d: diferencialData.marca_aceite_d || '—',
             tipo_aceite_d: diferencialData.tipo_aceite_d || '—',
-            
+
             // Transfer
             cantidad_aceite_transfer: transferData.aceite_transfer || '—',
             marca_aceite_t: transferData.marca_aceite_t || '—',
             tipo_aceite_t: transferData.tipo_aceite_t || '—',
-            
+
             // Filtros y Componentes
             filtro_cabina: filtrosData.filtro_cabina || '—',
             filtro_diesel: filtrosData.filtro_diesel || '—',
             contra_filtro_diesel: filtrosData.contra_filtro_diesel || '—',
-            
+
             // Sistema Eléctrico y Frenos
             pastillas_delanteras: frenosData.pastillas_delanteras || '—',
             pastillas_traseras: frenosData.pastillas_traseras || '—',
@@ -741,7 +743,7 @@ function imprimirVehiculo() {
     };
 
     const data = getVehiculoData();
-    
+
     if (!data) {
         Swal.close();
         Swal.fire({
@@ -773,13 +775,13 @@ function imprimirVehiculo() {
             <meta charset="UTF-8">
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-                
+
                 * {
                     margin: 0;
                     padding: 0;
                     box-sizing: border-box;
                 }
-                
+
                 body {
                     font-family: 'Inter', sans-serif;
                     line-height: 1.6;
@@ -787,21 +789,21 @@ function imprimirVehiculo() {
                     background: #fff;
                     padding: 25px;
                 }
-                
+
                 .header {
                     text-align: center;
                     margin-bottom: 30px;
                     padding-bottom: 20px;
                     border-bottom: 3px solid #9F3B3B;
                 }
-                
+
                 .header h1 {
                     color: #9F3B3B;
                     font-size: 28px;
                     font-weight: 700;
                     margin-bottom: 5px;
                 }
-                
+
                 .header .placa {
                     background: #9F3B3B;
                     color: white;
@@ -812,14 +814,14 @@ function imprimirVehiculo() {
                     font-weight: 600;
                     letter-spacing: 2px;
                 }
-                
+
                 .info-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                     gap: 20px;
                     margin-bottom: 25px;
                 }
-                
+
                 .info-card {
                     background: #f8f9fa;
                     border: 1px solid #e9ecef;
@@ -827,7 +829,7 @@ function imprimirVehiculo() {
                     padding: 20px;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
                 }
-                
+
                 .info-card h3 {
                     color: #9F3B3B;
                     font-size: 16px;
@@ -839,7 +841,7 @@ function imprimirVehiculo() {
                     align-items: center;
                     gap: 8px;
                 }
-                
+
                 .info-item {
                     display: flex;
                     justify-content: space-between;
@@ -847,17 +849,17 @@ function imprimirVehiculo() {
                     padding: 8px 0;
                     border-bottom: 1px solid #e9ecef;
                 }
-                
+
                 .info-item:last-child {
                     border-bottom: none;
                 }
-                
+
                 .info-label {
                     font-weight: 500;
                     color: #495057;
                     font-size: 13px;
                 }
-                
+
                 .info-value {
                     font-weight: 400;
                     color: #212529;
@@ -865,7 +867,7 @@ function imprimirVehiculo() {
                     text-align: right;
                     max-width: 60%;
                 }
-                
+
                 .section-title {
                     background: linear-gradient(135deg, #9F3B3B, #C24242);
                     color: white;
@@ -875,7 +877,7 @@ function imprimirVehiculo() {
                     font-weight: 600;
                     font-size: 16px;
                 }
-                
+
                 .footer {
                     text-align: center;
                     margin-top: 40px;
@@ -884,18 +886,18 @@ function imprimirVehiculo() {
                     color: #6c757d;
                     font-size: 12px;
                 }
-                
+
                 .print-date {
                     margin-top: 10px;
                     font-style: italic;
                 }
-                
+
                 .no-print {
                     text-align: center;
                     margin-top: 30px;
                     padding: 20px;
                 }
-                
+
                 .print-btn {
                     background: #9F3B3B;
                     color: white;
@@ -907,11 +909,11 @@ function imprimirVehiculo() {
                     margin-right: 10px;
                     transition: background 0.3s;
                 }
-                
+
                 .print-btn:hover {
                     background: #873131;
                 }
-                
+
                 .close-btn {
                     background: #6c757d;
                     color: white;
@@ -922,24 +924,24 @@ function imprimirVehiculo() {
                     cursor: pointer;
                     transition: background 0.3s;
                 }
-                
+
                 .close-btn:hover {
                     background: #5a6268;
                 }
-                
+
                 @media print {
                     body {
                         padding: 15px;
                     }
-                    
+
                     .no-print {
                         display: none !important;
                     }
-                    
+
                     .info-card {
                         break-inside: avoid;
                     }
-                    
+
                     .header {
                         margin-bottom: 20px;
                     }
@@ -951,11 +953,11 @@ function imprimirVehiculo() {
                 <h1>FICHA TÉCNICA DE VEHÍCULO</h1>
                 <div class="placa">${data.placa}</div>
             </div>
-            
+
             <div class="section-title">
                 INFORMACIÓN BÁSICA DEL VEHÍCULO
             </div>
-            
+
             <div class="info-grid">
                 <div class="info-card">
                     <h3>📋 Datos Generales</h3>
@@ -966,7 +968,7 @@ function imprimirVehiculo() {
                     ${createInfoItem('Motor', data.motor)}
                     ${createInfoItem('Cilindraje', data.cilindraje)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>🛢️ Sistema de Lubricación</h3>
                     ${createInfoItem('Aceite Motor', data.cantidad_aceite_motor)}
@@ -975,7 +977,7 @@ function imprimirVehiculo() {
                     ${createInfoItem('Filtro Aceite', data.filtro_aceite)}
                     ${createInfoItem('Filtro Aire', data.filtro_aire)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>⚙️ Caja de Cambios</h3>
                     ${createInfoItem('Aceite CC', data.cantidad_aceite_cc)}
@@ -985,28 +987,28 @@ function imprimirVehiculo() {
                     ${createInfoItem('Filtro Enfriador', data.filtro_de_enfriador)}
                     ${createInfoItem('Tipo Caja', data.tipo_caja)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>🔧 Diferencial</h3>
                     ${createInfoItem('Aceite Diferencial', data.cantidad_aceite_diferencial)}
                     ${createInfoItem('Marca Aceite D', data.marca_aceite_d)}
                     ${createInfoItem('Tipo Aceite D', data.tipo_aceite_d)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>🔄 Transfer</h3>
                     ${createInfoItem('Aceite Transfer', data.cantidad_aceite_transfer)}
                     ${createInfoItem('Marca Aceite T', data.marca_aceite_t)}
                     ${createInfoItem('Tipo Aceite T', data.tipo_aceite_t)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>🔍 Filtros y Componentes</h3>
                     ${createInfoItem('Filtro Cabina', data.filtro_cabina)}
                     ${createInfoItem('Filtro Diesel', data.filtro_diesel)}
                     ${createInfoItem('Contra Filtro Diesel', data.contra_filtro_diesel)}
                 </div>
-                
+
                 <div class="info-card">
                     <h3>⚡ Frenos Y Respuestos Multiples</h3>
                     ${createInfoItem('Pastillas Delanteras', data.pastillas_delanteras)}
@@ -1016,18 +1018,18 @@ function imprimirVehiculo() {
                     ${createInfoItem('Aceite Hidráulico', data.aceite_hidraulico)}
                 </div>
             </div>
-            
+
             <div class="footer">
                 <p>Sistema de Gestión de Vehículos - Taller Mecánico</p>
-                <p class="print-date">Generado el ${new Date().toLocaleDateString('es-ES', { 
-                    year: 'numeric', 
-                    month: 'long', 
+                <p class="print-date">Generado el ${new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
                 })}</p>
             </div>
-            
+
             <div class="no-print">
                 <button class="print-btn" onclick="window.print()">
                     🖨️ Imprimir
@@ -1058,7 +1060,7 @@ function imprimirVehiculo() {
     setTimeout(() => {
         // Cerrar el loading
         Swal.close();
-        
+
         // Abrir ventana de impresión
         ventanaImpresion = window.open('', '_blank', 'width=1000,height=700,scrollbars=yes');
         ventanaImpresion.document.write(contenidoImpresion);
@@ -1070,7 +1072,7 @@ function imprimirVehiculo() {
                 ventanaImpresion.focus();
             }
         }, 100);
-        
+
     }, 500);
 
 }
@@ -1097,7 +1099,7 @@ function mostrarDetallesVehiculo(placa) {
     })
     .then(data => {
       Swal.close();
-      
+
       // Construir el contenido del modal
       const contenido = `
         <div class="row">
@@ -1128,7 +1130,7 @@ function mostrarDetallesVehiculo(placa) {
               <span class="detail-value">${data.cilindraje}</span>
             </div>
           </div>
-          
+
           <div class="col-md-6">
             <h6 class="text-success mb-3"><i class="bi bi-droplet me-2"></i>Sistema de Lubricación</h6>
             <div class="detail-item">
@@ -1149,7 +1151,7 @@ function mostrarDetallesVehiculo(placa) {
             </div>
           </div>
         </div>
-        
+
         <div class="row mt-4">
           <div class="col-md-6">
               <h6 class="text-warning mb-3"><i class="bi bi-gear me-2"></i>Caja de Cambios</h6>
@@ -1174,7 +1176,7 @@ function mostrarDetallesVehiculo(placa) {
                   <span class="detail-value">${data.tipo_caja || '—'}</span>
               </div>
           </div>
-          
+
           <div class="col-md-6">
             <h6 class="text-info mb-3"><i class="bi bi-gear-fill me-2"></i>Diferencial</h6>
             <div class="detail-item">
@@ -1220,7 +1222,7 @@ function mostrarDetallesVehiculo(placa) {
           </div>
         </div>
         ` : ''}
-        
+
         <!-- SECCIÓN FILTROS Y COMPONENTES -->
         ${(data.filtro_cabina || data.filtro_diesel || data.contra_filtro_diesel) ? `
         <div class="row mt-4">
@@ -1249,7 +1251,7 @@ function mostrarDetallesVehiculo(placa) {
           </div>
         </div>
         ` : ''}
-        
+
         <!-- FRENOS Y RESPUESTOS MULTIPLES -->
         ${(data.pastillas_delanteras || data.pastillas_traseras || data.candelas || data.fajas || data.aceite_hidraulico) ? `
         <div class="row mt-4">
@@ -1293,7 +1295,7 @@ function mostrarDetallesVehiculo(placa) {
       `;
 
       document.getElementById('detallesModalBody').innerHTML = contenido;
-      
+
       // Mostrar el modal
       const modal = new bootstrap.Modal(document.getElementById('detallesModal'));
       modal.show();
@@ -1335,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para realizar búsqueda automática
     function realizarBusquedaAutomatica() {
         const query = searchInput.value.trim();
-        
+
         // Solo buscar si hay al menos 3 caracteres o está vacío (para limpiar)
         if (query.length >= 3 || query.length === 0) {
             // Usar Fetch API para búsqueda en tiempo real
@@ -1352,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const doc = parser.parseFromString(html, 'text/html');
                     const newTable = doc.querySelector('.table-responsive');
                     const newPagination = doc.querySelector('.pagination');
-                    
+
                     // Reemplazar solo la tabla y paginación
                     if (newTable) {
                         const currentTable = document.querySelector('.table-responsive');
@@ -1360,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             currentTable.innerHTML = newTable.innerHTML;
                         }
                     }
-                    
+
                     if (newPagination) {
                         const currentPagination = document.querySelector('.pagination');
                         if (currentPagination && newPagination.innerHTML.trim()) {
@@ -1369,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             currentPagination.innerHTML = '';
                         }
                     }
-                    
+
                     // Re-inicializar tooltips
                     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                     const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -1386,7 +1388,7 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', function() {
         // Clear previous timeout
         clearTimeout(timeoutId);
-        
+
         // Set new timeout (debounce)
         timeoutId = setTimeout(realizarBusquedaAutomatica, 500);
     });
@@ -1394,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Prevenir envío del formulario si es búsqueda en tiempo real
     searchForm.addEventListener('submit', function(e) {
         const query = searchInput.value.trim();
-        
+
         // Si la búsqueda ya se mostró en tiempo real, prevenir envío duplicado
         if (query.length >= 3) {
             e.preventDefault();

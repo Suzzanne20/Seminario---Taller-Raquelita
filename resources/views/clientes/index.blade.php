@@ -58,6 +58,7 @@
                                style="background:#C24242; color:white; padding:6px 12px; border-radius:5px; text-decoration:none;">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
+                            @role('admin')
                             <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
@@ -67,6 +68,7 @@
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
+                            @endrole
                         </div>
                     </td>
                 </tr>

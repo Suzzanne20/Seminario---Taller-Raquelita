@@ -107,11 +107,11 @@
         /* === Fondo fijo === */
         body::before{
           content:"";
-          position:fixed;         
-          inset:0;                 
-          z-index:-1;        
+          position:fixed;
+          inset:0;
+          z-index:-1;
           background-image: url('{{ asset('img/GridArt_FONDO.jpg') }}');
-          background-size: cover; 
+          background-size: cover;
           background-position: center center;
           background-repeat: no-repeat;
           background-attachment: fixed;
@@ -384,6 +384,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.css">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
   @stack('scripts')

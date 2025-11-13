@@ -195,7 +195,7 @@
                    class="btn btn-outline-primary btn-round" data-title="Editar">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-
+                    @role('admin')
                 {{-- IMPORTANTE: quitamos confirm() y usamos modal --}}
                 <form action="{{ route('inspecciones.destroy', $r) }}" method="POST"
                       class="d-inline js-delete-form" data-item-id="{{ $r->id }}">
@@ -204,6 +204,7 @@
                     <i class="bi bi-trash"></i>
                   </button>
                 </form>
+                  @endrole
 
               </div>
             </td>

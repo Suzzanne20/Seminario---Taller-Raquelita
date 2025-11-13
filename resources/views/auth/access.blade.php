@@ -107,6 +107,10 @@
                             <label for="login-pass">Contraseña</label>
                             <svg class="icon" width="18" height="18" viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1" fill="none"/></svg>
                             <input id="login-pass" name="password" required type="password" placeholder="Tu contraseña"/>
+                            <button type="button" id="togglePassword"
+                                    style="position:absolute; right:10px; top:70%; transform:translateY(-50%); background:none; border:none; cursor:pointer;">
+                                <i class="fa fa-eye"></i>
+                            </button>
                         </div>
                         <div class="actions">
                             <label style="display:flex; align-items:center; gap:8px; font-size:13px">
@@ -127,7 +131,6 @@
                         <button class="btn" type="submit">Acceder</button>
                     </form>
                 </section>
-
 
                 {{-- RECUPERACIÓN (POST /forgot-password → password.email) --}}
                 <section id="panel-recover" role="tabpanel" aria-labelledby="tab-recover" hidden>
@@ -172,6 +175,24 @@
             if(backLogin){ backLogin.addEventListener('click',()=>switchTab('login')); }
 
             switchTab('login');
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const togglePassword = document.getElementById('togglePassword');
+                const passwordInput = document.getElementById('login-pass');
+
+                if (togglePassword && passwordInput) {
+                    togglePassword.addEventListener('click', () => {
+                        const type = passwordInput.type === 'password' ? 'text' : 'password';
+                        passwordInput.type = type;
+
+                        // Alterna ícono del botón
+                        togglePassword.innerHTML = type === 'password'
+                            ? '<i class="fa fa-eye"></i>'
+                            : '<i class="fa fa-eye-slash"></i>';
+                    });
+                }
+            });
         </script>
     @endpush
 @endsection
