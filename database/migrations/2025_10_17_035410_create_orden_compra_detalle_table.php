@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('orden_compra_id');
             $table->unsignedBigInteger('insumo_id');
-            $table->decimal('cantidad', 10, 2);
+            $table->integer('cantidad');
             $table->decimal('precio_unitario', 10, 2);
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();

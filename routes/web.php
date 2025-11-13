@@ -42,7 +42,7 @@ require __DIR__.'/auth.php';
  *────────────────────────────────────────────────────────────────*/
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'welcome')->name('welcome');
-    Route::view('/welcome', 'welcome');
+    //Route::view('/welcome', 'welcome');
 
 
     // Home con autenticacion
