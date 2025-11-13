@@ -3,7 +3,7 @@
 @push('styles')
 <style>
   html, body { height:100%; background:#f0f0f0 !important; }
-  .page-body { min-height:calc(100vh - 72px); background:#f0f0f0 !important; color:#212529; }
+  .page-body { min-height:calc(100vh - 72px); background:rgba(255, 255, 255, 0.144) !important; color:#212529; }
   @media (max-width:576px){ .page-body { min-height:calc(100vh - 64px); } }
 
   .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
@@ -20,7 +20,7 @@
 @section('content')
 <div class="container py-4">
 
-  <div class="container"><br><br>
+  <div class="container">
     <h1 class="text-center mb-4" style="color:#C24242;">Órdenes de Trabajo</h1>
   </div>
 
@@ -98,6 +98,26 @@
       </thead>
       <tbody>
         @forelse ($ordenes as $ot)
+        @php
+          // Marca + línea
+          $marca  = $ot->vehiculo->marca->nombre ?? '';
+          $linea  = $ot->vehiculo->linea ?? '';
+          $label1 = trim($marca.' '.$linea) ?: '—';
+
+          // Teléfono del primer cliente asociado
+          $telRaw = optional($ot->vehiculo->clientes)->first()->telefono ?? '';
+
+          // Formatear 8 dígitos como 0000-0000
+          $telDigits = preg_replace('/\D+/', '', (string)$telRaw);
+          if (strlen($telDigits) === 8) {
+              $telFmt = substr($telDigits,0,4).'-'.substr($telDigits,4);
+          } else {
+              $telFmt = $telRaw ?: '—';
+          }
+
+          // Tooltip con 2 líneas (HTML permitido)
+          $tooltipHtml = "<div>{$label1}</div><div>Contacto: {$telFmt}</div>";
+        @endphp
           @php
             // Decodifica el JSON del checklist
             $raw = $ot->mantenimiento_json ?? [];
@@ -134,8 +154,16 @@
             @endphp
             {{ $fc }}
           </td>
-
-          <td>{{ $ot->vehiculo->placa ?? '—' }}</td>
+          <td> 
+            <span
+              class="text-decoration-underline"
+              data-bs-toggle="tooltip"
+              data-bs-html="true"
+              data-bs-custom-class="tt-placa"
+              title="{!! $tooltipHtml !!}">
+              {{ $ot->vehiculo->placa ?? '—' }}
+            </span>
+          </td>
           <td>{{ $ot->servicio->descripcion ?? '—' }}</td>
 
           {{-- columnas del checklist: ✅ si está marcado, – si no --}}
@@ -177,25 +205,16 @@
               <i class="bi bi-pencil-square"></i> </a>
 
 
-            <form action="{{ route('ordenes.destroy',$ot) }}" method="POST" class="d-inline js-del">
+            <form action="{{ route('ordenes.destroy',$ot) }}"
+                  method="POST"
+                  class="d-inline js-del"
+                  data-title="Eliminar orden"
+                  data-text="Se eliminará la Orden de Trabajo #{{ $ot->id }} del vehiculo {{ $ot->vehiculo->placa ?? '—' }}.  Esta acción no se puede deshacer.">
               @csrf @method('DELETE')
               <button class="btn btn-danger btn-sm rounded-pill">
                 <i class="bi bi-trash3"></i>
               </button>
             </form>
-
-            @push('scripts')
-            <script>
-              document.addEventListener('click', (e)=>{
-                const f = e.target.closest('form.js-del');
-                if (f) {
-                  e.preventDefault();
-                  if (confirm('¿Eliminar la orden seleccionada?')) f.submit();
-                }
-              });
-            </script>
-            @endpush
-
             </div>
           </td>
         </tr>
@@ -213,6 +232,44 @@
     {{ $ordenes->links() }}
   </div>
 </div>
+
+@push('scripts')
+  {{-- SweetAlert2 (CDN) --}}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener('click', (e) => {
+      const form = e.target.closest('form.js-del');
+      if (!form) return;
+
+      e.preventDefault();
+
+      const title = form.dataset.title || '¿Eliminar?';
+      const text  = form.dataset.text  || 'Esta acción no se puede deshacer.';
+
+      Swal.fire({
+        title: title,
+        html: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        focusCancel: true,
+        customClass: {
+          confirmButton: 'btn btn-danger',
+          cancelButton: 'btn btn-secondary'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    });
+  </script>
+@endpush
+
 
 @push('scripts')
 <script>
@@ -259,15 +316,6 @@
     // Limpia al cerrar para evitar IDs duplicados
     modalEl.addEventListener('hidden.bs.modal', () => { cont.innerHTML = ''; }, { once:true });
     modal.show();
-  });
-
-  // Confirmación de borrado (tu mismo código)
-  document.addEventListener('click', (e)=>{
-    const f = e.target.closest('form.js-del');
-    if (f) {
-      e.preventDefault();
-      if (confirm('¿Eliminar la orden seleccionada?')) f.submit();
-    }
   });
 })();
 </script>

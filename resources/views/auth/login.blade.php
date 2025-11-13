@@ -53,6 +53,17 @@
                             </div>
                         </div>
 
+                        <div class="mt-3">
+                        <div class="cf-turnstile"
+                            data-sitekey="{{ config('services.turnstile.site_key') }}"
+                            data-theme="auto"  {{-- light|dark|auto --}}
+                            data-appearance="always">
+                        </div>
+                        @error('cf-turnstile-response')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                        </div>
+
                         <div class="row mb-0">
                             <div class="col-md-8 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
@@ -72,4 +83,6 @@
         </div>
     </div>
 </div>
+{{-- Cloudflare Turnstile --}}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 @endsection

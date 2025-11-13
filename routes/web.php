@@ -42,11 +42,11 @@ require __DIR__.'/auth.php';
  *────────────────────────────────────────────────────────────────*/
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'welcome')->name('welcome');
-    Route::view('/welcome', 'welcome');
+    //Route::view('/welcome', 'welcome');
 
 
     // Home con autenticacion
-    Route::view('/welcome', 'welcome')->name('welcome');
+    //Route::view('/welcome', 'welcome')->name('welcome');
 
     // Perfil del usuario autenticado
     Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
