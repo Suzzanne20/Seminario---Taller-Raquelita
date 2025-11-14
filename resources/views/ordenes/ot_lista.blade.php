@@ -87,8 +87,8 @@
           {{-- columnas del checklist --}}
           @foreach($CL as [$abbr,$title])
             <th class="text-center" title="{{ $title }}">{{ $abbr }}</th>
-          @endforeach          
-          
+          @endforeach
+
           <th>Kms.</th>
           <th>Próx. Serv.</th>
           <th>Total</th>
@@ -154,7 +154,7 @@
             @endphp
             {{ $fc }}
           </td>
-          <td> 
+          <td>
             <span
               class="text-decoration-underline"
               data-bs-toggle="tooltip"
@@ -193,7 +193,7 @@
           </td>
 
           <td>
-            <span class="badge bg-{{ $ot->estado->badge_class ?? 'dark' }}"> 
+            <span class="badge bg-{{ $ot->estado->badge_class ?? 'dark' }}">
               {{ $ot->estado->nombre ?? '—' }}
             </span>
           </td>
@@ -204,7 +204,7 @@
             <a href="{{ route('ordenes.edit', $ot->id) }}" class="btn btn-sm btn-outline-primary">
               <i class="bi bi-pencil-square"></i> </a>
 
-
+            @role('admin')
             <form action="{{ route('ordenes.destroy',$ot) }}"
                   method="POST"
                   class="d-inline js-del"
@@ -215,6 +215,7 @@
                 <i class="bi bi-trash3"></i>
               </button>
             </form>
+                @endrole
             </div>
           </td>
         </tr>

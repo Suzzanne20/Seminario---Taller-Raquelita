@@ -14,17 +14,14 @@ use App\Http\Controllers\TipoInsumoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\RecepcionController;
+use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\OrdenCompraDetalleController;
 
 
 /* ────────────────────────────────────────────────────────────────
  | PÚBLICO (sin autenticación)
  *────────────────────────────────────────────────────────────────*/
-
-use App\Http\Controllers\RecepcionController;
-
-use App\Http\Controllers\InventarioController;
-
 
 //Landing pública
 
@@ -87,26 +84,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('insumos', InsumoController::class); //CRUD
         Route::resource('tipo-insumos', TipoInsumoController::class);
         Route::get('insumos', [TipoInsumoController::class, 'index'])->name('insumos.index');
-
-        //Ordenes de Trabajo <----------------
-        Route::get('/ordenes',                 [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
-        Route::get('/ordenes/crear',           [OrdenTrabajoController::class, 'create'])->name('ordenes.create');
-        Route::post('/ordenes',                [OrdenTrabajoController::class, 'store'])->name('ordenes.store');
-        Route::resource('ordenes',              OrdenTrabajoController::class) ->except(['edit']) ->parameters(['ordenes' => 'orden']);
-        Route::get('/ordenes/{orden}/editar',  [OrdenTrabajoController::class, 'edit'])->name('ordenes.edit');
-        Route::put('/ordenes/{orden}',         [OrdenTrabajoController::class, 'update'])->name('ordenes.update');
-        Route::delete('/ordenes/{orden}',      [OrdenTrabajoController::class, 'destroy'])->name('ordenes.destroy');
-        Route::post('/clientes/quick-store',   [ClienteController::class, 'quickStore']) ->name('clientes.quickStore');
-
-        // routes/web.php
-        Route::resource('ordenes', OrdenTrabajoController::class)
-            ->parameters(['ordenes' => 'orden']);
-
-        // para el botón "Vincular" del panel de cliente
-        Route::post('ordenes/{orden}/link-cliente', [OrdenTrabajoController::class,'linkCliente'])
-            ->name('ordenes.linkCliente');
-
-
     });
 
     /* ───────────────────────────────────────────────────────
@@ -118,8 +95,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Clientes (CRUD)
         Route::resource('clientes', ClienteController::class);
 
-
-        Route::get('/ordenes', [OrdenTrabajoController::class, 'index'])->name('ordenes.index');
+        Route::resource('ordenes', OrdenTrabajoController::class)
+            ->parameters(['ordenes' => 'orden']);
+        // para el botón "Vincular" del panel de cliente
+        Route::post('ordenes/{orden}/link-cliente', [OrdenTrabajoController::class,'linkCliente'])
+            ->name('ordenes.linkCliente');
 
         // Cotizaciones y aprobacion
         Route::resource('cotizaciones', CotizacionController::class);
@@ -127,6 +107,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('cotizaciones.aprobar');
         Route::post('cotizaciones/{cotizacione}/rechazar', [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
 
+        Route::post('/clientes/quick-store',   [ClienteController::class, 'quickStore']) ->name('clientes.quickStore');
 
         // Vehículos
         Route::resource('vehiculos', VehiculoController::class)->only(['index','create','store','edit','update','show']);
@@ -158,7 +139,7 @@ Route::get('/inspecciones/crear', [RecepcionController::class,'create'])->name('
 Route::post('/inspecciones',      [RecepcionController::class,'store'])->name('inspecciones.store');
 
 Route::get('/fotos/{foto}', [RecepcionController::class, 'streamFoto'])
-     ->name('fotos.stream');
+    ->name('fotos.stream');
 
 // **Listado (GET) -> necesario para el botón Modificar**
 Route::get('/inspecciones',       [RecepcionController::class,'index'])->name('inspecciones.index');
@@ -208,126 +189,6 @@ Route::get('/inventario', [InventarioController::class, 'index'])
 
 
 Route::get('/vehiculos/{placa}/check-dependencies', [VehiculoController::class, 'checkDependencies'])->name('vehiculos.check-dependencies');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Rutas para Órdenes de Compra
 Route::get('/ordenes_compras', [OrdenCompraController::class, 'index'])->name('ordenes_compras.index');
