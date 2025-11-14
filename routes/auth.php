@@ -12,9 +12,9 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
     //LOGIN / LOGOUT
-    Route::get('/access', [AuthenticatedSessionController::class, 'create'])
+    Route::get('/acceso', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest')
-        ->name('access');
+        ->name('acceso');
     Route::post('/access', [AuthenticatedSessionController::class, 'store'])
         ->middleware('guest');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
