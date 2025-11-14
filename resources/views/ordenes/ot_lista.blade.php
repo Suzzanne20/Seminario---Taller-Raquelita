@@ -94,7 +94,9 @@
   ];
 @endphp
 
-
+@php
+  $filters = request()->only('q','estado','page');
+@endphp
   <div class="table-responsive shadow-sm rounded-3">
     <table class="table table-hover align-middle mb-0">
       <thead class="table-dark">
@@ -184,7 +186,20 @@
               {{ $ot->vehiculo->placa ?? '—' }}
             </span>
           </td>
-          <td>{{ $ot->servicio->descripcion ?? '—' }}</td>
+          <td>
+            @php
+              $descOT = trim((string)($ot->descripcion ?? ''));
+              $tipServ = $descOT !== '' ? $descOT : 'Sin descripción';
+            @endphp
+
+            <span
+              class="text-body"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="{{ $tipServ }}">
+              {{ $ot->servicio->descripcion ?? '—' }}
+            </span>
+          </td>
 
           {{-- columnas del checklist: ✅ si está marcado, – si no --}}
           @foreach($CL as $key => [$abbr,$title])
@@ -220,21 +235,22 @@
 
           <td class="text-center">
             <div class="d-inline-flex gap-2">
-
-            <a href="{{ route('ordenes.edit', $ot->id) }}" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-pencil-square"></i> </a>
+            <a href="{{ route('ordenes.edit', array_merge(['orden' => $ot->id], $filters)) }}"
+              class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil-square"></i>
+            </a>
 
             @role('admin')
-            <form action="{{ route('ordenes.destroy',$ot) }}"
-                  method="POST"
-                  class="d-inline js-del"
-                  data-title="Eliminar orden"
-                  data-text="Se eliminará la Orden de Trabajo #{{ $ot->id }} del vehiculo {{ $ot->vehiculo->placa ?? '—' }}.  Esta acción no se puede deshacer.">
-              @csrf @method('DELETE')
-              <button class="btn btn-danger btn-sm rounded-pill">
-                <i class="bi bi-trash3"></i>
-              </button>
-            </form>
+                <form action="{{ route('ordenes.destroy',$ot) }}"
+                      method="POST"
+                      class="d-inline js-del"
+                      data-title="Eliminar orden"
+                      data-text="Se eliminará la Orden de Trabajo #{{ $ot->id }} del vehiculo {{ $ot->vehiculo->placa ?? '—' }}.  Esta acción no se puede deshacer.">
+                  @csrf @method('DELETE')
+                  <button class="btn btn-danger btn-sm rounded-pill">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </form>
                 @endrole
             </div>
           </td>

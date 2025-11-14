@@ -157,7 +157,12 @@
       <h2 class="md-title mb-0">Orden de Trabajo #{{ $orden->id }}</h2>
       <div class="d-flex gap-2">
         <a href="#" class="btn btn-muted"><i class="bi bi-printer me-1"></i> Imprimir</a>
-        <a href="{{ route('ordenes.index') }}" class="btn btn-muted">Volver</a>
+
+        @php $filters = request()->only('q','estado','page'); @endphp
+
+        <a href="{{ route('ordenes.index', $filters) }}" class="btn btn-outline-secondary">
+          ← Volver al listado
+        </a>        
       </div>
     </div>
 
