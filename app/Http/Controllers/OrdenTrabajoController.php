@@ -14,23 +14,34 @@ class OrdenTrabajoController extends Controller
 {
     public function index()
     {
-        $q = request('q'); // búsqueda por placa
+        $q        = request('q');                 // búsqueda por placa
+        $estadoId = (int) request('estado');      // <-- cast a int
 
         $ordenes = OrdenTrabajo::with([
-            'vehiculo','servicio','estado', 'vehiculo.marca', 'vehiculo.clientes',
-            'insumos' => fn($qq) => $qq->select('insumo.id','nombre','precio')
-        ])
-        ->when($q, function ($query, $q) {
-            $query->whereHas('vehiculo', fn($qq) =>
-                $qq->where('placa', 'like', "%{$q}%")
-            );
-        })
-        ->orderByDesc('id')
-        ->paginate(10)
-        ->withQueryString();
+                'vehiculo','servicio','estado',
+                'vehiculo.marca','vehiculo.clientes',
+                'insumos' => fn($qq) => $qq->select('insumo.id','nombre','precio'),
+            ])
+            ->when($q !== null && $q !== '', function ($query) use ($q) {
+                $query->whereHas('vehiculo', fn($qq) =>
+                    $qq->where('placa', 'like', "%{$q}%")
+                );
+            })
+            // ⬇️ aplica filtro por estado solo si está entre 1 y 5
+            ->when($estadoId >= 1 && $estadoId <= 5, function ($query) use ($estadoId) {
+                $query->where('estado_id', $estadoId);
+            })
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        // Solo estados 1..5, ordenados por id asc
+        $estados = \App\Models\Estado::whereBetween('id', [1,5])
+            ->orderBy('id')
+            ->get(['id','nombre']);
 
         $view = view()->exists('ordenes.ot_lista') ? 'ordenes.ot_lista' : 'ordenes.index';
-        return view($view, compact('ordenes','q'));
+        return view($view, compact('ordenes','q','estados'));
     }
 
     public function create()
