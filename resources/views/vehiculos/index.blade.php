@@ -680,12 +680,34 @@ function imprimirVehiculo() {
             return {};
         };
 
-        // Extraer datos básicos
+        // Extraer datos básicos - BUSCAR DIRECTAMENTE EN EL HTML
         const headerElement = printableElement.querySelector('h4');
         const placa = headerElement ? headerElement.textContent.replace('Resultado de Búsqueda:', '').trim() : '—';
 
-        // Extraer datos de todas las secciones
-        const basicData = getSectionData('Información Básica');
+        // Buscar directamente los valores en la sección de Información Básica
+        const basicSection = Array.from(printableElement.querySelectorAll('.search-section')).find(section => 
+            section.querySelector('.search-section-title')?.textContent.includes('Información Básica')
+        );
+
+        let marca = '—';
+        let modelo = '—';
+        let linea = '—';
+        let motor = '—';
+        let cilindraje = '—';
+
+        if (basicSection) {
+            const items = basicSection.querySelectorAll('.row.small > div');
+            items.forEach(item => {
+                const text = item.textContent.trim();
+                if (text.includes('Marca:')) marca = text.split(':')[1].trim();
+                if (text.includes('Modelo:')) modelo = text.split(':')[1].trim();
+                if (text.includes('Línea:')) linea = text.split(':')[1].trim();
+                if (text.includes('Motor:')) motor = text.split(':')[1].trim();
+                if (text.includes('Cilindraje:')) cilindraje = text.split(':')[1].trim();
+            });
+        }
+
+        // Extraer datos de otras secciones
         const lubricacionData = getSectionData('Sistema de Lubricación');
         const cajaData = getSectionData('Caja de Cambios');
         const diferencialData = getSectionData('Diferencial');
@@ -695,11 +717,11 @@ function imprimirVehiculo() {
 
         return {
             placa: placa,
-            marca: basicData.marca || '—',
-            modelo: basicData.modelo || '—',
-            linea: basicData.línea || '—',
-            motor: basicData.motor || '—',
-            cilindraje: basicData.cilindraje || '—',
+            marca: marca,
+            modelo: modelo,
+            linea: linea,
+            motor: motor,
+            cilindraje: cilindraje,
             
             // Sistema de Lubricación
             cantidad_aceite_motor: lubricacionData.aceite_motor || '—',
@@ -785,66 +807,133 @@ function imprimirVehiculo() {
                     line-height: 1.6;
                     color: #333;
                     background: #fff;
-                    padding: 25px;
+                    padding: 15px;
                 }
                 
-                .header {
+                /* Nuevo encabezado estilo orden de trabajo */
+                .header-print {
+                    margin-bottom: 12px;
+                }
+                
+                .header-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                
+                .header-left {
+                    width: 33%;
+                    vertical-align: top;
+                    text-align: left;
+                }
+                
+                .header-center {
+                    width: 34%;
+                    vertical-align: top;
                     text-align: center;
-                    margin-bottom: 30px;
-                    padding-bottom: 20px;
-                    border-bottom: 3px solid #9F3B3B;
                 }
                 
-                .header h1 {
+                .header-right {
+                    width: 33%;
+                    vertical-align: top;
+                    text-align: right;
+                }
+                
+                .company-name {
                     color: #9F3B3B;
-                    font-size: 28px;
-                    font-weight: 700;
-                    margin-bottom: 5px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    margin: 0 0 2px 0;
                 }
                 
-                .header .placa {
-                    background: #9F3B3B;
+                .company-info {
+                    font-size: 9px;
+                    line-height: 1.1;
+                    margin: 0;
+                }
+                
+                .document-title {
+                    font-size: 14px;
+                    font-weight: bold;
+                    margin: 0 0 2px 0;
+                }
+                
+                .document-subtitle {
+                    font-size: 9px;
+                    margin: 0;
+                }
+                
+                .logo-img {
+                    max-height: 60px;
+                    max-width: 100px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 2px;
+                }
+                
+                .logo-placeholder {
+                    border: 1px solid #ccc;
+                    padding: 8px;
+                    display: inline-block;
+                    text-align: center;
+                    background: #f8f9fa;
+                    border-radius: 4px;
+                }
+                
+                .logo-placeholder small {
+                    font-size: 8px;
+                    color: #6c757d;
+                }
+                
+                .header-divider {
+                    margin: 6px 0;
+                    border-top: 1px solid #9F3B3B;
+                }
+                
+                .placa-badge {
+                    background: #1E1E1E;
                     color: white;
                     display: inline-block;
-                    padding: 8px 20px;
-                    border-radius: 8px;
-                    font-size: 20px;
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
                     font-weight: 600;
-                    letter-spacing: 2px;
+                    letter-spacing: 1px;
+                    margin-top: 3px;
                 }
                 
                 .info-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 25px;
+                    gap: 15px;
+                    margin-bottom: 20px;
                 }
                 
                 .info-card {
                     background: #f8f9fa;
                     border: 1px solid #e9ecef;
-                    border-radius: 12px;
-                    padding: 20px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    border-radius: 8px;
+                    padding: 15px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+                    font-size: 9px;
                 }
                 
                 .info-card h3 {
                     color: #9F3B3B;
-                    font-size: 16px;
+                    font-size: 10px;
                     font-weight: 600;
-                    margin-bottom: 15px;
-                    padding-bottom: 8px;
-                    border-bottom: 2px solid #9F3B3B;
+                    margin-bottom: 12px;
+                    padding-bottom: 6px;
+                    border-bottom: 1px solid #9F3B3B;
                     display: flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: 6px;
                 }
                 
                 .info-item {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    padding: 8px 0;
+                    padding: 6px 0;
                     border-bottom: 1px solid #e9ecef;
                 }
                 
@@ -855,13 +944,13 @@ function imprimirVehiculo() {
                 .info-label {
                     font-weight: 500;
                     color: #495057;
-                    font-size: 13px;
+                    font-size: 9px;
                 }
                 
                 .info-value {
                     font-weight: 400;
                     color: #212529;
-                    font-size: 13px;
+                    font-size: 9px;
                     text-align: right;
                     max-width: 60%;
                 }
@@ -869,42 +958,42 @@ function imprimirVehiculo() {
                 .section-title {
                     background: linear-gradient(135deg, #9F3B3B, #C24242);
                     color: white;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    margin: 25px 0 15px 0;
+                    padding: 10px 15px;
+                    border-radius: 6px;
+                    margin: 20px 0 12px 0;
                     font-weight: 600;
-                    font-size: 16px;
+                    font-size: 12px;
                 }
                 
                 .footer {
                     text-align: center;
-                    margin-top: 40px;
-                    padding-top: 20px;
-                    border-top: 2px solid #e9ecef;
+                    margin-top: 30px;
+                    padding-top: 15px;
+                    border-top: 1px solid #e9ecef;
                     color: #6c757d;
-                    font-size: 12px;
+                    font-size: 9px;
                 }
                 
                 .print-date {
-                    margin-top: 10px;
+                    margin-top: 8px;
                     font-style: italic;
                 }
                 
                 .no-print {
                     text-align: center;
-                    margin-top: 30px;
-                    padding: 20px;
+                    margin-top: 25px;
+                    padding: 15px;
                 }
                 
                 .print-btn {
                     background: #9F3B3B;
                     color: white;
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 6px;
-                    font-size: 14px;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    font-size: 12px;
                     cursor: pointer;
-                    margin-right: 10px;
+                    margin-right: 8px;
                     transition: background 0.3s;
                 }
                 
@@ -916,9 +1005,9 @@ function imprimirVehiculo() {
                     background: #6c757d;
                     color: white;
                     border: none;
-                    padding: 12px 24px;
-                    border-radius: 6px;
-                    font-size: 14px;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    font-size: 12px;
                     cursor: pointer;
                     transition: background 0.3s;
                 }
@@ -929,7 +1018,22 @@ function imprimirVehiculo() {
                 
                 @media print {
                     body {
+                        padding: 12px;
+                        font-size: 9px;
+                        line-height: 1.4;
+                        color: #000;
+                        background: #fff;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                        font-family: 'Inter', sans-serif;
+                        margin: 0;
                         padding: 15px;
+                        box-sizing: border-box;
+                        width: 100%;
+                        height: auto;
+                        overflow: visible;
+                        position: relative;
+                        display: block;
                     }
                     
                     .no-print {
@@ -938,23 +1042,99 @@ function imprimirVehiculo() {
                     
                     .info-card {
                         break-inside: avoid;
+                        page-break-inside: avoid;
+                        margin-bottom: 15px;
+                        background: #f8f9fa !important;
+                        border: 1px solid #e9ecef !important;
                     }
                     
-                    .header {
-                        margin-bottom: 20px;
+                    .header-print {
+                        margin-bottom: 10px;
+                    }
+                    
+                    .company-name {
+                        color: #9F3B3B !important;
+                    }
+                    
+                    .placa-badge {
+                        background: #edededff !important;
+                        color: white !important;
+                    }
+                    
+                    .section-title {
+                        background: linear-gradient(135deg, #9F3B3B, #C24242) !important;
+                        color: white !important;
+                    }
+                    
+                    .info-card h3 {
+                        color: #9F3B3B !important;
+                        border-bottom: 1px solid #9F3B3B !important;
+                    }
+                    
+                    @page {
+                        size: A4;
+                        margin: 15mm;
+                    }
+                    
+                    body, html {
+                        width: 100%;
+                        height: auto;
+                        margin: 0;
+                        padding: 0;
+                        background: white;
+                    }
+                    
+                    .header-table {
+                        width: 100% !important;
+                    }
+                    
+                    .info-grid {
+                        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+                        gap: 12px !important;
                     }
                 }
             </style>
         </head>
         <body>
-            <div class="header">
-                <h1>FICHA TÉCNICA DE VEHÍCULO</h1>
-                <div class="placa">${data.placa}</div>
+            <!-- Nuevo encabezado estilo orden de trabajo -->
+            <div class="header-print">
+                <table class="header-table">
+                    <tr>
+                        <!-- Columna izquierda: Información de contacto -->
+                        <td class="header-left">
+                            <div class="company-name">CENTRO DE SERVICIO RAQUELITA</div>
+                            <p class="company-info">
+                                Calle Principal, Colonia 15 de Abril<br>
+                                Santo Tomás de Castilla, Puerto Barrios<br>
+                                Guatemala · (502) 7945-3982
+                            </p>
+                        </td>
+                        
+                        <!-- Columna central: Información del documento -->
+<td class="header-center">
+    <div class="document-title">FICHA TÉCNICA DE VEHÍCULO</div>
+    <div class="placa-text">${data.placa}</div>
+    <p class="document-subtitle">
+        <strong>Vehículo:</strong> ${data.marca} ${data.linea} ${data.modelo}
+    </p>
+</td>
+                        
+                        <!-- Columna derecha: Logo -->
+                        <td class="header-right">
+                            <img src="/img/logo_taller_circular.png"  
+                                 alt="Logo Taller" 
+                                 class="logo-img"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                            <div class="logo-placeholder" style="display: none;">
+                                <small>LOGO<br>TALLER</small>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="header-divider"></div>
             </div>
             
-            <div class="section-title">
-                INFORMACIÓN BÁSICA DEL VEHÍCULO
-            </div>
+
             
             <div class="info-grid">
                 <div class="info-card">
@@ -1049,6 +1229,19 @@ function imprimirVehiculo() {
                         window.close();
                     }, 1000);
                 };
+
+                // Manejar error de imagen del logo
+                document.addEventListener('DOMContentLoaded', function() {
+                    const logo = document.querySelector('.logo-img');
+                    const placeholder = document.querySelector('.logo-placeholder');
+                    // Forzar mostrar placeholder si el logo no carga
+                    setTimeout(() => {
+                        if (logo && !logo.complete) {
+                            logo.style.display = 'none';
+                            placeholder.style.display = 'inline-block';
+                        }
+                    }, 1000);
+                });
             <\/script>
         </body>
         </html>
@@ -1072,7 +1265,6 @@ function imprimirVehiculo() {
         }, 100);
         
     }, 500);
-
 }
 
 // Función para mostrar detalles completos del vehículo
