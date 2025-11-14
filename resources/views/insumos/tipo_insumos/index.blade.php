@@ -69,6 +69,7 @@
                                 <i class="bi bi-pencil-square"></i>
                                 Editar
                             </a>
+                            @role('admin')
                             <form action="{{ route('tipo-insumos.destroy', $type->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
@@ -77,6 +78,7 @@
                                     Eliminar
                                 </button>
                             </form>
+                            @endrole
                         </div>
                     </td>
                 </tr>
@@ -89,6 +91,6 @@
         </table>
     </div>
 
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 @endsection

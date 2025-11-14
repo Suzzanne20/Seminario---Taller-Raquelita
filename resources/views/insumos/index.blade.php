@@ -45,6 +45,7 @@
     <div class="alert alert-success shadow-sm rounded-3">{{ session('success') }}</div>
   @endif
 
+
   {{-- Eliminación múltiple --}}
   <form id="bulkDeleteForm" action="{{ route('insumos.destroyMultiple') }}" method="POST">
     @csrf
@@ -87,6 +88,7 @@
                   <a href="{{ route('insumos.edit', $i->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                   </a>
+                    @role('admin')
                   <form action="{{ route('insumos.destroy', $i->id) }}" method="POST"
                         onsubmit="return confirm('¿Eliminar el insumo {{ $i->nombre }}?')">
                     @csrf @method('DELETE')
@@ -94,6 +96,7 @@
                       <i class="bi bi-trash"></i>
                     </button>
                   </form>
+                    @endrole
                 </div>
               </td>
             </tr>
@@ -106,12 +109,14 @@
       </table>
     </div>
 
+
     {{-- Botón eliminar seleccionados --}}
     <div class="d-flex justify-content-end mt-3">
       <button id="deleteMultipleBtn" type="button" class="btn btn-danger d-none">
         <i class="bi bi-trash me-1"></i> Eliminar seleccionados
       </button>
     </div>
+
   </form>
 
     {{-- Paginación --}}
