@@ -10,9 +10,9 @@ return new class extends Migration {
             $table->id();
             $table->string('nombre', 50);
             $table->decimal('costo', 10, 2)->nullable();
-            $table->integer('stock')->nulleable();
+            $table->integer('stock')->nullable();
             $table->integer('stock_minimo');
-            $table->string('descripcion', 200);
+            $table->string('descripcion', 200)->nullable();
             $table->unsignedBigInteger('type_insumo_id');
             $table->decimal('precio', 10, 2)->nullable();
             $table->timestamps();

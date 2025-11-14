@@ -20,7 +20,7 @@ class OrdenTrabajoImportSeeder extends Seeder
 
         // OBTENER IDs REALES DE TU BASE DE DATOS
         $defaults = [
-            'id_creador' => 4, // Ajusta según tu BD
+            'id_creador' => 1, // Ajusta según tu BD
             'type_service_id' => 1, // Ajusta según tu BD
             'estado_id' => 5, // Ajusta según tu BD
         ];
@@ -118,7 +118,7 @@ class OrdenTrabajoImportSeeder extends Seeder
             }
         }
 
-        $this->command->info("✅ Importación completada:");
+        $this->command->info("   ✅ Importación completada:");
         $this->command->info("   ✅ Órdenes importadas: $imported");
         $this->command->info("   ❌ Errores: $errors");
         

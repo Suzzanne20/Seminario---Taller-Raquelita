@@ -34,9 +34,15 @@ class TypeInsumoSeeder extends Seeder
         DB::table('type_insumo')->insertOrIgnore([
             ['id'=>1,'nombre'=>'Aceite'],
             ['id'=>2,'nombre'=>'Filtro de Aceite'],
-            ['id'=>3,'nombre'=>'Depurador de Aire'],
-            ['id'=>4,'nombre'=>'Accesorios'],
-            ['id'=>5,'nombre'=>'Fricciones'],
+            ['id'=>3,'nombre'=>'Filtro de Aire'],
+            ['id'=>4,'nombre'=>'Filtro de Combustible'],
+            ['id'=>5,'nombre'=>'Bateria'],
+            ['id'=>6,'nombre'=>'Fricción'],
+            ['id'=>7,'nombre'=>'Accesorios'],
+            ['id'=>8,'nombre'=>'Otros'],
+            ['id'=>9,'nombre'=>'Servicios'],
+            ['id'=>10,'nombre'=>'N/A'],
+
         ]);
 
         DB::table('type_service')->insertOrIgnore([
@@ -47,3 +53,4 @@ class TypeInsumoSeeder extends Seeder
 
     }
 }
+
