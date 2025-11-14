@@ -59,6 +59,8 @@
   .btn-theme{ background:#9F3B3B; border:none; color:#fff; border-radius:12px; }
   .btn-theme:hover{ background:#873131; color:#fff; }
   .btn-muted{ background:#e5e7eb; color:#111827; border:none; border-radius:12px; }
+  .btn-print{ background:#e5e7eb; color:#111827; border:none; border-radius:12px; transition: all 0.3s ease; }
+  .btn-print:hover{ background:#198754; color:#fff; }
 
   .pane{ background:#fafafa; border:1px solid #eee; border-radius:12px; padding:16px; }
 
@@ -111,7 +113,7 @@
     box-shadow:0 6px 16px rgba(0,0,0,.12);
   }
 
-  /* ACTIVO: borde contrastado + “Activo” en la esquina  */
+  /* ACTIVO: borde contrastado + "Activo" en la esquina  */
   .status-card.active{
     outline:3px solid rgba(255,255,255,.85);
     box-shadow:0 8px 22px rgba(0,0,0,.16);
@@ -146,17 +148,55 @@
 
   /* switches compactos */
   .form-check-input[type="checkbox"].form-switch{ width:2.6em; }
+
+  /* Estilos para impresión */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .printable-area, .printable-area * {
+      visibility: visible;
+    }
+    .printable-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white;
+      box-shadow: none;
+      margin: 0;
+      padding: 20px;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .print-only {
+      display: block !important;
+    }
+    .btn-print, .btn-muted, .btn-theme {
+      display: none !important;
+    }
+  }
 </style>
 @endpush
 
 @section('content')
 <div class="container">
+  {{-- Flash de éxito --}}
+  @if(session('success'))
+    <div class="alert alert-success shadow-sm mt-3" style="border-radius:12px;">
+      {{ session('success') }}
+    </div>
+  @endif
+
   <div class="md-card">
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 no-print">
       <h2 class="md-title mb-0">Orden de Trabajo #{{ $orden->id }}</h2>
       <div class="d-flex gap-2">
-        <a href="#" class="btn btn-muted"><i class="bi bi-printer me-1"></i> Imprimir</a>
+        <button type="button" class="btn btn-print" id="btn-print">
+          <i class="bi bi-printer me-1"></i> Imprimir
+        </button>
         <a href="{{ route('ordenes.index') }}" class="btn btn-muted">Volver</a>
       </div>
     </div>
@@ -166,6 +206,195 @@
         <ul class="mb-0">@foreach ($errors->all() as $e) <li>{{ $e }}</li> @endforeach</ul>
       </div>
     @endif
+    {{-- Sección para impresión --}}
+    <div class="printable-area" id="print-section" style="display: none;">
+      
+      {{-- Encabezado para impresión con tabla --}}
+      <div class="print-only" style="display: none; margin-bottom: 12px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            {{-- Columna izquierda: Información de contacto --}}
+            <td style="width: 33%; vertical-align: top; text-align: left;">
+              <h5 style="color: #9F3B3B; font-size: 11px; font-weight: bold; margin: 0 0 2px 0;">
+                CENTRO DE SERVICIO RAQUELITA
+              </h5>
+              <p style="font-size: 9px; line-height: 1.1; margin: 0;">
+                Calle Principal, Colonia 15 de Abril<br>
+                Santo Tomás de Castilla, Puerto Barrios<br>
+                Guatemala · (502) 7945-3982
+              </p>
+            </td>
+            
+            {{-- Columna central: Información de orden de trabajo --}}
+            <td style="width: 34%; vertical-align: top; text-align: center;">
+              <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 2px 0;">
+                Orden de Trabajo #{{ $orden->id }}
+              </h2>
+              <p style="font-size: 9px; margin: 0;">
+                <strong>Estado:</strong> {{ $orden->estado->nombre ?? 'N/A' }}
+              </p>
+            </td>
+            
+            {{-- Columna derecha: Logo --}}
+            <td style="width: 33%; vertical-align: top; text-align: right;">
+              @if(file_exists(public_path('img/logo-raquelita.png')))
+                <img src="{{ asset('img/logo-raquelita.png') }}" 
+                     alt="Logo" 
+                     style="max-height: 50px; max-width: 90px;">
+              @else
+                <div style="border: 1px dashed #ccc; padding: 4px; display: inline-block; text-align: center;">
+                  <small style="font-size: 7px;">Logo</small>
+                </div>
+              @endif
+            </td>
+          </tr>
+        </table>
+        <hr style="margin: 6px 0; border-top: 1px solid #9F3B3B;">
+      </div>
+
+      {{-- Información compacta en tabla --}}
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 9px;">
+        <tr>
+          {{-- Columna Cliente --}}
+          <td style="width: 50%; vertical-align: top; padding: 6px; border: 1px solid #ddd; border-radius: 3px;">
+            <strong style="color: #C24242; font-size: 10px;">INFORMACIÓN DEL CLIENTE</strong><br>
+            <table style="width: 100%; margin-top: 3px;">
+              <tr>
+                <td style="width: 22px; vertical-align: top;">
+                  <div style="width: 20px; height: 20px; border-radius: 50%; background: #9F3B3B; display: grid; place-items: center; color: white; font-weight: 800; font-size: 9px;">
+                    {{ strtoupper(substr($owner?->nombre ?? 'C',0,1)) }}
+                  </div>
+                </td>
+                <td style="vertical-align: top; padding-left: 5px;">
+                  <strong style="font-size: 10px;">{{ $owner?->nombre ?? 'Cliente sin asignar' }}</strong><br>
+                  @if($owner && $owner->telefono)
+                    <span style="background: #111; color: #fff; border-radius: 6px; padding: 1px 3px; font-size: 7px;">
+                      {{ $owner->telefono }}
+                    </span>
+                  @endif
+                  <div style="color: #6b7280; font-size: 8px; margin-top: 1px;">
+                    Orden Generada: {{ optional($orden->fecha_creacion)->format('d/m/Y H:i') }}
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          
+          {{-- Columna Vehículo --}}
+          <td style="width: 50%; vertical-align: top; padding: 6px; border: 1px solid #ddd; border-radius: 3px; margin-left: 6px;">
+            <strong style="color: #C24242; font-size: 10px;">INFORMACIÓN DEL VEHÍCULO</strong><br>
+            <div style="margin-top: 3px; line-height: 1.2;">
+              <strong>Vehículo:</strong> {{ $orden->vehiculo->marca->nombre ?? 'N/A' }} · {{ $orden->vehiculo->linea ?? '' }} {{ $orden->vehiculo->modelo ?? '' }}<br>
+              <strong>Placa:</strong> {{ $orden->vehiculo_placa }} · 
+              <strong>Km:</strong> {{ number_format($orden->kilometraje, 0) }} · 
+              <strong>Próx:</strong> {{ number_format($orden->proximo_servicio, 0) }}
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      {{-- Descripción/Falla compacta --}}
+      @if($orden->descripcion)
+      <div style="border: 1px solid #ddd; border-radius: 3px; padding: 6px; margin-bottom: 8px; font-size: 9px;">
+        <strong style="color: #C24242; font-size: 10px;">DESCRIPCIÓN / FALLA</strong>
+        <p style="margin: 3px 0 0 0; line-height: 1.2;">{{ $orden->descripcion }}</p>
+      </div>
+      @endif
+
+      {{-- Información Adicional compacta --}}
+      <div style="border: 1px solid #ddd; border-radius: 3px; padding: 6px; margin-bottom: 10px; font-size: 9px;">
+        <strong style="color: #C24242; font-size: 10px;">INFORMACIÓN ADICIONAL</strong>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin-top: 3px;">
+          <div>
+            <strong>Técnico:</strong><br>
+            <span>{{ $orden->tecnico->name ?? 'No asignado' }}</span>
+          </div>
+          <div>
+            <strong>Tipo servicio:</strong><br>
+            <span>
+              @if($orden->type_service_id == $idCorrectivo) Reparación
+              @elseif($orden->type_service_id == $idPreventivo) Mantenimiento
+              @elseif($orden->type_service_id == $idOtro) Otro
+              @else No especificado
+              @endif
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {{-- Checklist de Mantenimiento optimizado --}}
+      @if(count(array_filter($chk)) > 0)
+      <div style="border: 1px solid #ddd; border-radius: 3px; padding: 8px; margin-bottom: 10px; font-size: 9px;">
+        <strong style="color: #C24242; font-size: 10px; display: block; margin-bottom: 5px;">CHECKLIST DE MANTENIMIENTO</strong>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px;">
+          @foreach($checks as $name=>$label)
+            @if(!empty($chk[$name]))
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #198754; font-size: 8px;">✓</span>
+                <span style="font-size: 9px;">{{ $label }}</span>
+              </div>
+            @endif
+          @endforeach
+        </div>
+      </div>
+      @endif
+
+      {{-- Productos/Servicios optimizado --}}
+      @if($orden->items && $orden->items->count() > 0)
+      <div style="border: 1px solid #ddd; border-radius: 3px; padding: 8px; margin-bottom: 10px; font-size: 9px;">
+        <strong style="color: #C24242; font-size: 10px; display: block; margin-bottom: 6px;">PRODUCTOS / SERVICIOS</strong>
+        <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+          <thead>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <th style="text-align: left; padding: 4px 2px; font-size: 9px;">Producto</th>
+              <th style="text-align: center; padding: 4px 2px; font-size: 9px;">Cantidad</th>
+              <th style="text-align: right; padding: 4px 2px; font-size: 9px;">P. Unit.</th>
+              <th style="text-align: right; padding: 4px 2px; font-size: 9px;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @php
+              $subtotal = 0;
+            @endphp
+            @foreach($orden->items as $item)
+              @php
+                $precio = $item->insumo->precio ?? 0;
+                $subtotalItem = $precio * $item->cantidad;
+                $subtotal += $subtotalItem;
+              @endphp
+              <tr style="border-bottom: 1px dashed #e5e7eb;">
+                <td style="padding: 4px 2px; font-size: 9px;">{{ $item->insumo->nombre ?? 'N/A' }}</td>
+                <td style="text-align: center; padding: 4px 2px; font-size: 9px;">{{ $item->cantidad }}</td>
+                <td style="text-align: right; padding: 4px 2px; font-size: 9px;">Q {{ number_format($precio, 2) }}</td>
+                <td style="text-align: right; padding: 4px 2px; font-size: 9px;">Q {{ number_format($subtotalItem, 2) }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        
+        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 9px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>SUBTOTAL:</strong> Q {{ number_format($subtotal, 2) }}
+            </div>
+            <div>
+              <strong>Mano de obra:</strong> Q {{ number_format($orden->costo_mo ?? 0, 2) }}
+            </div>
+            <div style="font-weight: 800; color: #C24242; font-size: 10px;">
+              <strong>TOTAL:</strong> Q {{ number_format($subtotal + ($orden->costo_mo ?? 0), 2) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
+
+      {{-- Pie de página para impresión --}}
+      <div class="print-only" style="display: none; margin-top: 15px; padding-top: 8px; border-top: 1px solid #ddd;">
+        <div class="text-center" style="font-size: 8px; color: #6b7280;">
+          <small>Este documento fue generado el <span id="fecha-local"></span></small>
+        </div>
+      </div>
+    </div>
 
     <form action="{{ route('ordenes.update', $orden) }}" method="POST" novalidate>
       @csrf @method('PUT')
@@ -472,6 +701,84 @@
   document.addEventListener('change', e=>{ if(e.target.classList.contains('insumo-select')) recalc(); });
   document.addEventListener('input',  e=>{ if(e.target.classList.contains('cantidad-input') || e.target.id==='costo_mo') recalc(); });
   document.addEventListener('click',  e=>{ if(e.target.classList.contains('i-remove')){ e.target.closest('.i-row').remove(); recalc(); }});
+
+  // Funcionalidad de impresión mejorada
+  const printBtn = document.getElementById('btn-print');
+
+  function imprimirOrdenTrabajo() {
+    // Obtener fecha y hora local del usuario
+    const ahora = new Date();
+    const fechaLocal = ahora.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const horaLocal = ahora.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // Actualizar el elemento con la fecha local
+    document.getElementById('fecha-local').textContent = `${fechaLocal} ${horaLocal}`;
+
+    // Mostrar elementos de impresión
+    const printElements = document.querySelectorAll('.print-only');
+    printElements.forEach(el => {
+      el.style.display = 'block';
+    });
+
+    // Mostrar la sección de impresión
+    const printSection = document.getElementById('print-section');
+    printSection.style.display = 'block';
+
+    // Ocultar elementos que no se deben imprimir
+    const noPrintElements = document.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => {
+      el.style.display = 'none';
+    });
+
+    // Ejecutar la impresión
+    window.print();
+
+    // Restaurar la vista normal después de imprimir
+    setTimeout(() => {
+      printElements.forEach(el => {
+        el.style.display = 'none';
+      });
+      printSection.style.display = 'none';
+      noPrintElements.forEach(el => {
+        el.style.display = '';
+      });
+    }, 500);
+  }
+
+  // Asignar la función al botón de imprimir
+  printBtn?.addEventListener('click', imprimirOrdenTrabajo);
+
+  // También actualizar para los eventos de impresión del navegador
+  window.addEventListener('beforeprint', () => {
+    const ahora = new Date();
+    const fechaLocal = ahora.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const horaLocal = ahora.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    document.getElementById('fecha-local').textContent = `${fechaLocal} ${horaLocal}`;
+
+    const printElements = document.querySelectorAll('.print-only');
+    printElements.forEach(el => {
+      el.style.display = 'block';
+    });
+    const noPrintElements = document.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => {
+      el.style.display = 'none';
+    });
+  });
 })();
 </script>
 @endpush
