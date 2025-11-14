@@ -255,7 +255,7 @@
       @endhasanyrole
 
       {{-- Bodega (solo admin) --}}
-      @role('admin')
+        @hasanyrole('admin|secretaria')
         <a class="side-link" data-bs-toggle="collapse" href="#secBod" role="button" aria-expanded="false" aria-controls="secBod" data-title="Bodega / Inventario">
           <i class="bi bi-box-seam"></i><span class="text">Bodega</span>
           <i class="bi bi-caret-right-fill side-caret"></i>
@@ -270,17 +270,17 @@
           <a class="side-link" href="{{ route('tipo-insumos.index') }}" data-title="Tipos de Insumo">
             <i class="bi bi-sliders"></i><span class="text">Gestionar Tipos Insumo</span>
           </a>
+            @role('admin')
           <a class="side-link" href="{{ route('ordenes_compras.index') }}" data-title="Ordenes de Compras">
             <i class="bi bi-receipt"></i><span class="text">Ordenes de Compra</span>
           </a>
           <a class="side-link" href="{{ route('proveedores.index') }}" data-title="Proveedores">
             <i class="bi bi-truck"></i><span class="text">Gestión de Proveedores</span>
           </a>
+            @endrole
         </div>
-      @endrole
 
       {{-- Cotizaciones (admin|secretaria) --}}
-      @hasanyrole('admin|secretaria')
         <a class="side-link" data-bs-toggle="collapse" href="#secCoti" role="button" aria-expanded="false" aria-controls="secCoti" data-title="Cotizaciones">
           <i class="bi bi-wallet2"></i><span class="text">Cotizaciones</span>
           <i class="bi bi-caret-right-fill side-caret"></i>
