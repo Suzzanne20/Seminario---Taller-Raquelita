@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('orden_trabajo', function (Blueprint $table) {
             $table->id();
             $table->dateTime('fecha_creacion')->useCurrent();
-            $table->string('descripcion', 100);
+            $table->string('descripcion', 100)->nullable();
             $table->integer('kilometraje')->nullable();
             $table->integer('proximo_servicio')->nullable();
             $table->decimal('costo_mo', 10, 2)->nullable();

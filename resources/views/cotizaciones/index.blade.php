@@ -86,6 +86,7 @@
                 <a href="{{ route('cotizaciones.edit', $c->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
                   <i class="bi bi-pencil-square"></i>
                 </a>
+                  @role('admin')
                 <form action="{{ route('cotizaciones.destroy', $c->id) }}" method="POST"
                       onsubmit="return confirm('¿Eliminar la cotización #{{ $c->id }}?')">
                   @csrf @method('DELETE')
@@ -93,6 +94,7 @@
                     <i class="bi bi-trash"></i>
                   </button>
                 </form>
+                  @endrole
               </div>
             </td>
           </tr>

@@ -138,9 +138,9 @@
         <i class="bi bi-telephone me-1"></i> +502 79453982
       </a><br>
 
-      @auth
+        @role('admin')
         <a href="{{ route('dashboard') }}" class="btn-brand">Ir al panel</a>
-      @endauth
+        @endrole
     </div>
   </section><br><br><br>
 
@@ -155,7 +155,7 @@
         <img src="{{ asset('img/pres4.jpg') }}" alt="">
         <img src="{{ asset('img/pres5.jpg') }}" alt="">
         <img src="{{ asset('img/pres6.jpg') }}" alt="">
-         
+
       </div>
       </div>
     </div>
@@ -277,7 +277,7 @@
         <img src="{{ asset('img/pres7.jpg') }}" alt="">
         <img src="{{ asset('img/pres8.jpg') }}" alt="">
         <img src="{{ asset('img/pres9.jpg') }}" alt="">
-        <img src="{{ asset('img/pres10.jpg') }}" alt="">  
+        <img src="{{ asset('img/pres10.jpg') }}" alt="">
       </div>
     </div>
 

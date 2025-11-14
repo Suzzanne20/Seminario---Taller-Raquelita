@@ -5,7 +5,7 @@
 @push('styles')
     <style>
         body {
-            background-color: rgba(122, 211, 126, 0.05);
+            background-color: #f8fafc;
             color: #1e1e1e;
             font-family: sans-serif;
         }
@@ -13,13 +13,13 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1.5rem 3rem;
+            padding: 2rem;
         }
 
         .title {
             text-align: center;
-            margin-bottom: 1.5rem;
-            margin-top: 1rem;
+            margin-bottom: 2.5rem;
+            margin-top: 2rem;
         }
 
         .title h1 {

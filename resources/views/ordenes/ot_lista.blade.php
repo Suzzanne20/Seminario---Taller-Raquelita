@@ -37,7 +37,27 @@
       <input type="text" name="q" class="form-control" placeholder="Buscar por placa…"
              value="{{ request('q') }}">
     </div>
+
+    {{-- Filtro por estado --}}
+    <div class="input-group">
+      <span class="input-group-text bg-white"><i class="bi bi-flag"></i></span>
+      <select name="estado" class="form-select" style="min-width:220px">
+        <option value="">— Todos los estados —</option>
+        @foreach($estados as $e)
+          <option value="{{ $e->id }}" @selected((string)$e->id === request('estado'))>
+            {{ $e->nombre }}
+          </option>
+        @endforeach
+      </select>
+    </div>
+
     <button class="btn btn-dark" type="submit" style="border-radius:12px;">Buscar</button>
+
+    @if(request()->hasAny(['q','estado']) && (request('q') || request('estado')))
+      <a href="{{ route('ordenes.index') }}" class="btn btn-outline-secondary" style="border-radius:12px;">
+        Limpiar
+      </a>
+    @endif
   </form>
 </div>
 
@@ -87,8 +107,8 @@
           {{-- columnas del checklist --}}
           @foreach($CL as [$abbr,$title])
             <th class="text-center" title="{{ $title }}">{{ $abbr }}</th>
-          @endforeach          
-          
+          @endforeach
+
           <th>Kms.</th>
           <th>Próx. Serv.</th>
           <th>Total</th>
@@ -154,7 +174,7 @@
             @endphp
             {{ $fc }}
           </td>
-          <td> 
+          <td>
             <span
               class="text-decoration-underline"
               data-bs-toggle="tooltip"
@@ -193,7 +213,7 @@
           </td>
 
           <td>
-            <span class="badge bg-{{ $ot->estado->badge_class ?? 'dark' }}"> 
+            <span class="badge bg-{{ $ot->estado->badge_class ?? 'dark' }}">
               {{ $ot->estado->nombre ?? '—' }}
             </span>
           </td>
@@ -204,7 +224,7 @@
             <a href="{{ route('ordenes.edit', $ot->id) }}" class="btn btn-sm btn-outline-primary">
               <i class="bi bi-pencil-square"></i> </a>
 
-
+            @role('admin')
             <form action="{{ route('ordenes.destroy',$ot) }}"
                   method="POST"
                   class="d-inline js-del"
@@ -215,6 +235,7 @@
                 <i class="bi bi-trash3"></i>
               </button>
             </form>
+                @endrole
             </div>
           </td>
         </tr>

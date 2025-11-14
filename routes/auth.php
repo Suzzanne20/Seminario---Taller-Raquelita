@@ -11,19 +11,11 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-
-//REGISTRO DESHABILITADO PARA INVITADOS
-/*Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
-*/
-
     //LOGIN / LOGOUT
-    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('/acceso', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest')
-        ->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->name('acceso');
+    Route::post('/access', [AuthenticatedSessionController::class, 'store'])
         ->middleware('guest');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->middleware('auth')

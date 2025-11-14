@@ -107,11 +107,11 @@
         /* === Fondo fijo === */
         body::before{
           content:"";
-          position:fixed;         
-          inset:0;                 
-          z-index:-1;        
+          position:fixed;
+          inset:0;
+          z-index:-1;
           background-image: url('{{ asset('img/GridArt_FONDO.jpg') }}');
-          background-size: cover; 
+          background-size: cover;
           background-position: center center;
           background-repeat: no-repeat;
           background-attachment: fixed;
@@ -255,7 +255,7 @@
       @endhasanyrole
 
       {{-- Bodega (solo admin) --}}
-      @role('admin')
+        @hasanyrole('admin|secretaria')
         <a class="side-link" data-bs-toggle="collapse" href="#secBod" role="button" aria-expanded="false" aria-controls="secBod" data-title="Bodega / Inventario">
           <i class="bi bi-box-seam"></i><span class="text">Bodega</span>
           <i class="bi bi-caret-right-fill side-caret"></i>
@@ -270,17 +270,17 @@
           <a class="side-link" href="{{ route('tipo-insumos.index') }}" data-title="Tipos de Insumo">
             <i class="bi bi-sliders"></i><span class="text">Gestionar Tipos Insumo</span>
           </a>
+            @role('admin')
           <a class="side-link" href="{{ route('ordenes_compras.index') }}" data-title="Ordenes de Compras">
             <i class="bi bi-receipt"></i><span class="text">Ordenes de Compra</span>
           </a>
           <a class="side-link" href="{{ route('proveedores.index') }}" data-title="Proveedores">
             <i class="bi bi-truck"></i><span class="text">Gestión de Proveedores</span>
           </a>
+            @endrole
         </div>
-      @endrole
 
       {{-- Cotizaciones (admin|secretaria) --}}
-      @hasanyrole('admin|secretaria')
         <a class="side-link" data-bs-toggle="collapse" href="#secCoti" role="button" aria-expanded="false" aria-controls="secCoti" data-title="Cotizaciones">
           <i class="bi bi-wallet2"></i><span class="text">Cotizaciones</span>
           <i class="bi bi-caret-right-fill side-caret"></i>
@@ -384,6 +384,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/css/tom-select.css">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.2/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
   @stack('scripts')

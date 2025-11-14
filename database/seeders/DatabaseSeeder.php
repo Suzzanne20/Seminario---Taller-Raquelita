@@ -19,13 +19,16 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TypeInsumoSeeder::class, // Catalogos previos antes de tablas pivote
             ProveedorSeeder::class,
-            InsumoSeeder::class,     // Depende de TypeInsumoSeeder
+            InsumosCsvSeeder::class,     // Depende de TypeInsumoSeeder
+             
         ]);
 
         // NUEVOS SEEDERS PARA VEHÍCULOS (añadidos al final)
         $this->call([
             MarcaSeeder::class,      // Debe ejecutarse primero
-            VehiculoSeeder::class,   // Depende de MarcaSeeder
+            VehiculoSeeder::class, 
+            VehiculosImportSeeder::class,
+            OrdenTrabajoImportSeeder::class,
         ]);
 
     }
