@@ -9,44 +9,30 @@
         .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
         .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
 
-        .badge-pendiente { background:#ffc107; color:#000; }
-        .badge-aprobada { background:#17a2b8; color:#fff; }
-        .badge-recibida { background:#28a745; color:#fff; }
-        .badge-cancelada { background:#dc3545; color:#fff; }
-        .badge-finalizado { background:#6c757d; color:#fff; }
-
         .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
         .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
         .pagination .page-item.active .page-link{ background:#535353; border-color:#1d1d1d;  color:#fff; }
         .pagination .page-item.disabled .page-link{ color:#adb5bd; background:#f8f9fa; border-color:#e9ecef; }
         .pagination .page-link:focus{ box-shadow:0 0 0 .15rem rgba(159,59,59,.15); }
 
-        /* Select de estado */
         .estado-select {
             border: none;
             background: transparent;
             font-weight: 600;
             padding: 2px 4px;
             border-radius: 6px;
+            cursor: pointer;
         }
         .estado-select:focus { outline: none; box-shadow: none; }
-
-        .estado-select option[value="pendiente"] { color: #000; background:#ffc107; }
-        .estado-select option[value="aprobada"] { color: #fff; background:#17a2b8; }
-        .estado-select option[value="recibida"] { color: #fff; background:#28a745; }
-        .estado-select option[value="cancelada"] { color: #fff; background:#dc3545; }
-        .estado-select option[value="finalizado"] { color: #fff; background:#6c757d; }
     </style>
 @endpush
 
 @section('content')
     <div class="container py-4">
-        {{-- Título --}}
         <div class="container"><br><br>
             <h1 class="text-center mb-4" style="color:#C24242;">Gestión de Órdenes de Compra</h1>
         </div>
 
-        {{-- Toolbar --}}
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <a href="{{ route('ordenes_compras.create') }}" class="btn btn-theme" style="border-radius:12px; padding:.55rem 1rem;">
                 <i class="bi bi-plus-lg me-1"></i> Nueva Orden de Compra
@@ -55,30 +41,28 @@
             <form action="{{ route('ordenes_compras.index') }}" method="GET" class="d-flex align-items-center gap-2">
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                    <input type="text" name="q" class="form-control" placeholder="Buscar por número de orden o proveedor…"
-                           value="{{ request('q') }}">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por número de orden o proveedor…" value="{{ request('q') }}">
                 </div>
                 <select name="estado" class="form-select" style="width:auto;">
                     <option value="">Todos los estados</option>
-                    <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="aprobada" {{ request('estado') == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                    <option value="recibida" {{ request('estado') == 'recibida' ? 'selected' : '' }}>Recibida</option>
-                    <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                    <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                    <option value="pendiente" {{ request('estado')=='pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="aprobada" {{ request('estado')=='aprobada' ? 'selected' : '' }}>Aprobada</option>
+                    <option value="recibida" {{ request('estado')=='recibida' ? 'selected' : '' }}>Recibida</option>
+                    <option value="cancelada" {{ request('estado')=='cancelada' ? 'selected' : '' }}>Cancelada</option>
+                    <option value="finalizado" {{ request('estado')=='finalizado' ? 'selected' : '' }}>Finalizado</option>
                 </select>
                 <button class="btn btn-dark" type="submit" style="border-radius:12px;">Buscar</button>
             </form>
         </div>
 
-        {{-- Mensajes --}}
         @if(session('success'))
             <div class="alert alert-success shadow-sm rounded-3">{{ session('success') }}</div>
         @endif
+
         @if(session('warning'))
             <div class="alert alert-warning shadow-sm rounded-3">{{ session('warning') }}</div>
         @endif
 
-        {{-- Tabla --}}
         <div class="table-responsive shadow-sm rounded-3">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-dark">
@@ -92,46 +76,52 @@
                     <th class="text-center" style="width:200px">Acciones</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 @forelse($ordenes as $orden)
                     <tr>
                         <td class="fw-semibold">{{ $orden->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($orden->fecha_orden)->format('d/m/Y') }}</td>
                         <td>{{ $orden->proveedor->nombre ?? '—' }}</td>
+
                         <td>
                             @if($orden->estado !== 'finalizado')
                                 <select class="estado-select" data-id="{{ $orden->id }}">
-                                    <option value="pendiente" {{ $orden->estado == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                    <option value="aprobada" {{ $orden->estado == 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                                    <option value="recibida" {{ $orden->estado == 'recibida' ? 'selected' : '' }}>Recibida</option>
-                                    <option value="cancelada" {{ $orden->estado == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                                    <option value="pendiente" {{ $orden->estado=='pendiente' ? 'selected' : '' }}>Pendiente</option>
+                                    <option value="aprobada"  {{ $orden->estado=='aprobada'  ? 'selected' : '' }}>Aprobada</option>
+                                    <option value="recibida"  {{ $orden->estado=='recibida'  ? 'selected' : '' }}>Recibida</option>
+                                    <option value="cancelada" {{ $orden->estado=='cancelada' ? 'selected' : '' }}>Cancelada</option>
                                 </select>
                             @else
-                                <span class="badge badge-finalizado px-2 py-1">Finalizado</span>
+                                <span class="badge px-2 py-1" style="background:#6c757d; color:#fff;">Finalizado</span>
                             @endif
                         </td>
+
                         <td class="fw-semibold">Q {{ number_format($orden->total, 2) }}</td>
                         <td>{{ $orden->fecha_entrega_esperada ? \Carbon\Carbon::parse($orden->fecha_entrega_esperada)->format('d/m/Y') : '—' }}</td>
+
                         <td class="text-center">
                             <div class="d-inline-flex gap-2">
-                                <a href="{{ route('ordenes_compras.show', $orden->id) }}" class="btn btn-sm btn-outline-info" title="Ver Detalle">
+                                <a href="{{ route('ordenes_compras.show', $orden->id) }}" class="btn btn-sm btn-outline-info">
                                     <i class="bi bi-eye"></i>
                                 </a>
+
                                 @if($orden->estado !== 'finalizado')
-                                    <a href="{{ route('ordenes_compras.edit', $orden->id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <a href="{{ route('ordenes_compras.edit', $orden->id) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <form action="{{ route('ordenes_compras.finalizar', $orden->id) }}" method="POST" onsubmit="return confirm('¿Finalizar esta orden de compra? Se actualizará el stock de insumos.');">
+
+                                    <form action="{{ route('ordenes_compras.finalizar',$orden->id) }}" method="POST" class="form-finalizar-oc">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Finalizar OC">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-check-circle"></i>
                                         </button>
                                     </form>
                                 @endif
-                                <form action="{{ route('ordenes_compras.destroy', $orden->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+
+                                <form action="{{ route('ordenes_compras.destroy',$orden->id) }}" method="POST" class="form-delete-oc">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -139,54 +129,90 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-4">No hay órdenes de compra registradas.</td>
-                    </tr>
+                    <tr><td colspan="7" class="text-center py-4">No hay órdenes de compra registradas.</td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
 
-        {{-- Paginación --}}
-        <div class="mt-3">
-            {{ $ordenes->links() }}
-        </div>
+        <div class="mt-3">{{ $ordenes->links() }}</div>
     </div>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {{-- Script cambio de estado --}}
-    <script>
-        document.addEventListener('change', function (e) {
-            if (e.target.classList.contains('estado-select')) {
-                const id = e.target.getAttribute('data-id');
-                const estado = e.target.value;
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                fetch(`/ordenes_compras/${id}/estado`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ estado })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const toast = document.createElement('div');
-                            toast.className = 'alert alert-success position-fixed bottom-0 end-0 m-3 shadow';
-                            toast.innerText = 'Estado actualizado a ' + data.estado;
-                            document.body.appendChild(toast);
-                            setTimeout(() => toast.remove(), 2500);
-                        } else {
-                            alert('Ocurrió un error al actualizar el estado.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('Error de conexión al servidor.');
-                    });
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+
+            function colorEstado(select){
+                const c = {
+                    pendiente: {bg:'#ffc107', color:'#000'},
+                    aprobada:  {bg:'#17a2b8', color:'#fff'},
+                    recibida:  {bg:'#28a745', color:'#fff'},
+                    cancelada: {bg:'#dc3545', color:'#fff'},
+                    finalizado:{bg:'#6c757d', color:'#fff'}
+                }[select.value] ?? {bg:'#fff', color:'#000'};
+
+                select.style.background = c.bg;
+                select.style.color = c.color;
+                select.style.fontWeight = '600';
             }
+
+            document.querySelectorAll('.estado-select').forEach(s=>colorEstado(s));
+
+            document.addEventListener('change', function(e){
+                if(e.target.classList.contains('estado-select')){
+                    colorEstado(e.target);
+                    const id = e.target.dataset.id;
+                    const estado = e.target.value;
+
+                    fetch(`/ordenes_compras/${id}/estado`, {
+                        method:'PATCH',
+                        headers:{
+                            'Content-Type':'application/json',
+                            'X-CSRF-TOKEN':'{{ csrf_token() }}'
+                        },
+                        body:JSON.stringify({estado})
+                    });
+                }
+            });
+
+            document.querySelectorAll('.form-delete-oc').forEach(form=>{
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    Swal.fire({
+                        title:'¿Eliminar esta orden?',
+                        icon:'warning',
+                        showCancelButton:true,
+                        confirmButtonColor:'#C24242',
+                        cancelButtonColor:'#6c757d',
+                        confirmButtonText:'Eliminar',
+                        cancelButtonText:'Cancelar'
+                    }).then(r=>{
+                        if(r.isConfirmed) form.submit();
+                    });
+                });
+            });
+
+            document.querySelectorAll('.form-finalizar-oc').forEach(form=>{
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    Swal.fire({
+                        title:'¿Finalizar esta orden?',
+                        icon:'question',
+                        showCancelButton:true,
+                        confirmButtonColor:'#28a745',
+                        cancelButtonColor:'#6c757d',
+                        confirmButtonText:'Finalizar',
+                        cancelButtonText:'Cancelar'
+                    }).then(r=>{
+                        if(r.isConfirmed) form.submit();
+                    });
+                });
+            });
+
         });
     </script>
+
 @endsection

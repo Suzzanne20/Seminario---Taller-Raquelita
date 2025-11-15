@@ -173,6 +173,20 @@
         const insumos = @json($insumos);
         let detalleCounter = 0;
 
+        const q = n => 'Q ' + (parseFloat(n||0)).toFixed(2);
+
+        function buscarInsumos(texto){
+            const t = String(texto || '').toLowerCase().trim();
+            let resultados = insumos || [];
+            if (t){
+                resultados = resultados.filter(i =>
+                    String(i.nombre || '').toLowerCase().includes(t) ||
+                    String(i.costo || '').includes(t)
+                );
+            }
+            return resultados.slice(0, 50);
+        }
+
         document.getElementById('btnAgregarDetalle').addEventListener('click', agregarDetalle);
 
         function agregarDetalle() {
@@ -183,30 +197,45 @@
 
             div.innerHTML = `
       <div class="row g-2 align-items-end">
-        <div class="col-md-5">
+        <div class="col-md-5" style="position:relative;">
           <label class="form-label">Insumo</label>
-          <select name="detalles[${detalleCounter}][insumo_id]" class="form-select detalle-insumo" required onchange="actualizarPrecio(this)">
-            <option value="">— Seleccione insumo —</option>
-            ${insumos.map(i => `<option value="${i.id}" data-precio="${i.costo}">${i.nombre}</option>`).join('')}
-          </select>
+          <input type="text"
+                 class="form-control insumo-search"
+                 placeholder="Buscar insumo..." required>
+          <input type="hidden"
+                 name="detalles[${detalleCounter}][insumo_id]"
+                 class="insumo-id">
+          <div class="insumo-results"
+               style="position:absolute; top:58px; left:0; right:0;
+                      background:#fff; border:1px solid #e5e7eb;
+                      border-radius:8px; max-height:220px;
+                      overflow-y:auto; display:none; z-index:999;">
+          </div>
         </div>
         <div class="col-md-2">
           <label class="form-label">Cantidad</label>
-          <input type="number" name="detalles[${detalleCounter}][cantidad]" class="form-control detalle-cantidad"
-                 step="0.01" min="0.01" value="1" required onchange="calcularSubtotal(this)">
+          <input type="number" name="detalles[${detalleCounter}][cantidad]"
+                 class="form-control detalle-cantidad"
+                 step="0.01" min="0.01" value="1" required
+                 onchange="calcularSubtotal(this)">
         </div>
         <div class="col-md-2">
           <label class="form-label">Precio Unit.</label>
-          <input type="number" name="detalles[${detalleCounter}][precio_unitario]" class="form-control detalle-precio"
-                 step="0.01" min="0" value="0" required onchange="calcularSubtotal(this)">
+          <input type="number" name="detalles[${detalleCounter}][precio_unitario]"
+                 class="form-control detalle-precio"
+                 step="0.01" min="0" value="0" required
+                 onchange="calcularSubtotal(this)">
         </div>
         <div class="col-md-2">
           <label class="form-label">Subtotal</label>
-          <input type="text" class="form-control detalle-subtotal" readonly value="Q 0.00" style="font-weight:600;">
-          <input type="hidden" name="detalles[${detalleCounter}][subtotal]" class="detalle-subtotal-value" value="0">
+          <input type="text" class="form-control detalle-subtotal"
+                 readonly value="Q 0.00" style="font-weight:600;">
+          <input type="hidden" name="detalles[${detalleCounter}][subtotal]"
+                 class="detalle-subtotal-value" value="0">
         </div>
         <div class="col-md-1">
-          <button type="button" class="btn btn-danger btn-sm w-100" onclick="eliminarDetalle(this)" title="Eliminar">
+          <button type="button" class="btn btn-danger btn-sm w-100"
+                  onclick="eliminarDetalle(this)" title="Eliminar">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -217,21 +246,13 @@
             detalleCounter++;
         }
 
-        function actualizarPrecio(select) {
-            const row = select.closest('.detalle-row');
-            const precio = select.options[select.selectedIndex].dataset.precio || 0;
-            const inputPrecio = row.querySelector('.detalle-precio');
-            inputPrecio.value = parseFloat(precio).toFixed(2);
-            calcularSubtotal(inputPrecio);
-        }
-
         function calcularSubtotal(input) {
             const row = input.closest('.detalle-row');
             const cantidad = parseFloat(row.querySelector('.detalle-cantidad').value) || 0;
             const precio = parseFloat(row.querySelector('.detalle-precio').value) || 0;
             const subtotal = cantidad * precio;
 
-            row.querySelector('.detalle-subtotal').value = `Q ${subtotal.toFixed(2)}`;
+            row.querySelector('.detalle-subtotal').value = q(subtotal);
             row.querySelector('.detalle-subtotal-value').value = subtotal.toFixed(2);
 
             calcularTotal();
@@ -243,7 +264,7 @@
                 total += parseFloat(input.value) || 0;
             });
 
-            document.getElementById('totalGeneral').textContent = `Q ${total.toFixed(2)}`;
+            document.getElementById('totalGeneral').textContent = q(total);
             document.getElementById('inputTotal').value = total.toFixed(2);
         }
 
@@ -251,6 +272,58 @@
             btn.closest('.detalle-row').remove();
             calcularTotal();
         }
+
+        // Delegados para búsqueda de insumos
+        document.addEventListener('input', function(e){
+            if(!e.target.classList.contains('insumo-search')) return;
+            const row = e.target.closest('.detalle-row');
+            const box = row.querySelector('.insumo-results');
+            const texto = e.target.value;
+            const resultados = buscarInsumos(texto);
+
+            if(!resultados.length){
+                box.style.display = 'none';
+                box.innerHTML = '';
+                return;
+            }
+
+            box.innerHTML = resultados.map(i => `
+              <div class="insumo-option"
+                   data-id="${i.id}"
+                   data-precio="${i.costo || 0}"
+                   data-nombre="${i.nombre}"
+                   style="padding:4px 8px; cursor:pointer; font-size:0.85rem;">
+                ${i.nombre} — Q${Number(i.costo || 0).toFixed(2)}
+              </div>
+            `).join('');
+            box.style.display = 'block';
+        });
+
+        document.addEventListener('click', function(e){
+            const opt = e.target.closest('.insumo-option');
+            if (opt){
+                const row = opt.closest('.detalle-row');
+                const search = row.querySelector('.insumo-search');
+                const idInput = row.querySelector('.insumo-id');
+                const precioInput = row.querySelector('.detalle-precio');
+                const box = row.querySelector('.insumo-results');
+
+                search.value       = opt.dataset.nombre;
+                idInput.value      = opt.dataset.id;
+                precioInput.value  = parseFloat(opt.dataset.precio || 0).toFixed(2);
+                box.style.display  = 'none';
+
+                calcularSubtotal(precioInput);
+                return;
+            }
+
+            // Cerrar dropdowns si se hace clic fuera
+            if(!e.target.closest('.detalle-row')){
+                document.querySelectorAll('.insumo-results').forEach(b=>{
+                    b.style.display = 'none';
+                });
+            }
+        });
 
         // Agregar primer detalle automáticamente
         agregarDetalle();
