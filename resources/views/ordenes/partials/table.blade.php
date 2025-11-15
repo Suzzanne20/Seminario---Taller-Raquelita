@@ -118,7 +118,14 @@
           {{ $ot->vehiculo->placa ?? '—' }}
         </span>
       </td>
-      <td>{{ $ot->servicio->descripcion ?? '—' }}</td>
+      <td>
+        <span
+          data-bs-toggle="tooltip"
+          data-bs-placement="top"
+          title="{{ $ot->descripcion ?: 'Sin descripción registrada' }}">
+          {{ $ot->servicio->descripcion ?? '—' }}
+        </span>
+      </td>
 
       {{-- columnas del checklist: ✅ si está marcado, – si no --}}
       @foreach($CL as $key => [$abbr,$title])
@@ -155,8 +162,15 @@
       <td class="text-center">
         <div class="d-inline-flex gap-2">
 
-        <a href="{{ route('ordenes.edit', $ot->id) }}" class="btn btn-sm btn-outline-primary">
-          <i class="bi bi-pencil-square"></i> </a>
+        @php
+          $filters = request()->only('q','estado','page');
+          $qs = http_build_query($filters);
+        @endphp
+
+        <a href="{{ route('ordenes.edit', $ot->id) }}@if($qs)?{{ $qs }}@endif"
+          class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-pencil-square"></i>
+        </a>
 
         @role('admin')
         <form action="{{ route('ordenes.destroy',$ot) }}"

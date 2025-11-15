@@ -4,7 +4,7 @@
       <th class="text-center" style="width:42px">
         <input type="checkbox" id="selectAll">
       </th>
-      <th>ID</th>
+      <th>CODIGO</th>
       <th>Nombre</th>
       <th>Costo</th>
       <th>Stock</th>
@@ -21,7 +21,7 @@
         <td class="text-center">
           <input type="checkbox" name="ids[]" value="{{ $i->id }}" class="row-checkbox">
         </td>
-        <td class="fw-semibold">{{ $i->id }}</td>
+        <td class="fw-semibold">{{ $i->codigo }}</td>
         <td>
           {{ $i->nombre }}
           @if($i->stock <= $i->stock_minimo && $i->stock > 0)

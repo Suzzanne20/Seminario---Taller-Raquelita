@@ -197,7 +197,13 @@
         <button type="button" class="btn btn-print" id="btn-print">
           <i class="bi bi-printer me-1"></i> Imprimir
         </button>
-        <a href="{{ route('ordenes.index') }}" class="btn btn-muted">Volver</a>
+
+        @php $filters = request()->only('q','estado','page'); @endphp
+
+        <a href="{{ route('ordenes.index', $filters) }}" class="btn btn-outline-secondary">
+          ← Volver al listado
+        </a>        
+
       </div>
     </div>
 

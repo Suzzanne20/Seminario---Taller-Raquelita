@@ -8,6 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('insumo', function (Blueprint $table) {
             $table->id();
+            $table->char('codigo', 4)->unique();
             $table->string('nombre', 50);
             $table->decimal('costo', 10, 2)->nullable();
             $table->integer('stock')->nullable();

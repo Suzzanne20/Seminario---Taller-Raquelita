@@ -64,7 +64,14 @@
                value="{{ old('nombre') }}" required maxlength="50" autofocus>
       </div>
 
-      <div class="row g-3">
+        <div class="row g-3">
+
+        <div class="col-md-6">
+          <label for="codigo" class="form-label">Codigo</label>
+          <input id="codigo" name="codigo" type="number" step="1" min="0"
+                 class="form-control @error('costo') is-invalid @enderror"
+                 value="{{ old('codigo') }}" placeholder=" ">
+        </div>
         <div class="col-md-6">
           <label for="costo" class="form-label">Costo (Q)</label>
           <input id="costo" name="costo" type="number" step="0.01" min="0"

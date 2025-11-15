@@ -5,10 +5,8 @@
   html, body { height:100%; background:#f0f0f0 !important; }
   .page-body { min-height:calc(100vh - 72px); background:rgba(255, 255, 255, 0.144) !important; color:#212529; }
   @media (max-width:576px){ .page-body { min-height:calc(100vh - 64px); } }
-
   .btn-theme{ background:#9F3B3B; border-color:#9F3B3B; color:#fff; }
   .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
-
   .pagination .page-link{ color:#1d1d1d; border-color:#e9ecef; }
   .pagination .page-link:hover{ color:#1d1d1d; background:#f8f9fa; border-color:#e9ecef; }
   .pagination .page-item.active .page-link{ background:#535353; border-color:#1d1d1d;  color:#fff; }
