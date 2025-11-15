@@ -16,6 +16,7 @@ class OrdenTrabajoController extends Controller
     {
         $q        = request('q');                 // búsqueda por placa
         $estadoId = (int) request('estado');      // <-- cast a int
+        $servicioId = (int) request('servicio');  // nuevo filtro por servicio
 
         $ordenes = OrdenTrabajo::with([
                 'vehiculo','servicio','estado',
@@ -31,6 +32,10 @@ class OrdenTrabajoController extends Controller
             ->when($estadoId >= 1 && $estadoId <= 5, function ($query) use ($estadoId) {
                 $query->where('estado_id', $estadoId);
             })
+            // ⬇️ nuevo: filtro por tipo de servicio
+            ->when($servicioId > 0, function ($query) use ($servicioId) {
+                $query->where('type_service_id', $servicioId);
+            })
             ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();
@@ -40,8 +45,11 @@ class OrdenTrabajoController extends Controller
             ->orderBy('id')
             ->get(['id','nombre']);
 
+        // Tipos de servicio para el filtro
+        $servicios = TypeService::orderBy('descripcion')->get(['id','descripcion']);
+
         $view = view()->exists('ordenes.ot_lista') ? 'ordenes.ot_lista' : 'ordenes.index';
-        return view($view, compact('ordenes','q','estados'));
+        return view($view, compact('ordenes','q','estados','servicios'));
     }
 
     public function create()
@@ -388,4 +396,3 @@ public function edit(OrdenTrabajo $orden)
 
 
 }
-
