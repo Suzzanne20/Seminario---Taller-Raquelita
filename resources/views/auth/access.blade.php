@@ -51,7 +51,7 @@
     <div class="split">
         {{-- Lado izquierdo con foto --}}
         <aside class="hero" aria-hidden="true">
-            <img alt="Taller mecánico" src="{{ asset('img/taller-mec.webp') }}"/>
+            <img alt="Taller mecánico" src="{{ asset('img/Login.jpg') }}"/>
             <div class="hero-badge"><span class="dot"></span> Taller Raquelita</div>
             <div class="hero-caption">
                 <h2>Servicio técnico con garantía</h2>
