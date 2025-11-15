@@ -8,20 +8,35 @@ use Illuminate\Http\Request;
 
 class InsumoController extends Controller
 {
-
     public function index(Request $request)
-{
-    $q = trim($request->get('q', ''));
+    {
+        $q = trim($request->get('q', ''));
+        $tipo_insumo = $request->get('tipo_insumo', '');
+        $stock = $request->get('stock', '');
 
-    $insumos = \App\Models\Insumo::with('tipoInsumo')
-        ->when($q, fn($query) =>
-            $query->where('nombre', 'like', "%{$q}%")
-        )
-        ->paginate(10)
-        ->withQueryString();
+        $insumos = Insumo::with('tipoInsumo')
+            ->when($q, fn($query) =>
+                $query->where('nombre', 'like', "%{$q}%")
+            )
+            ->when($tipo_insumo, fn($query) =>
+                $query->where('type_insumo_id', $tipo_insumo)
+            )
+            ->when($stock == 'bajo', fn($query) =>
+                $query->whereRaw('stock <= stock_minimo AND stock > 0')
+            )
+            ->when($stock == 'sin_stock', fn($query) =>
+                $query->where('stock', 0)
+            )
+            ->when($stock == 'normal', fn($query) =>
+                $query->whereRaw('stock > stock_minimo')
+            )
+            ->paginate(10)
+            ->withQueryString();
 
-    return view('insumos.index', compact('insumos', 'q'));
-}
+        $tiposInsumo = TipoInsumo::all();
+
+        return view('insumos.index', compact('insumos', 'q', 'tiposInsumo', 'tipo_insumo', 'stock'));
+    }
 
     public function create()
     {
@@ -60,7 +75,6 @@ class InsumoController extends Controller
         return redirect()->route('insumos.index')
             ->with('success', 'Insumo creado correctamente.');
     }
-
 
     /**
      * Display the specified resource.
@@ -112,7 +126,6 @@ class InsumoController extends Controller
             ->with('success', 'Insumo actualizado exitosamente.');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -136,6 +149,4 @@ class InsumoController extends Controller
         return redirect()->route('insumos.index')
             ->with('success', 'Insumos eliminados correctamente.');
     }
-
-
 }
