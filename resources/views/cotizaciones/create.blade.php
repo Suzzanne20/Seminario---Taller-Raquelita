@@ -127,46 +127,68 @@
 @endsection
 
 @push('scripts')
-<script>
-  // Data desde el backend
-  const INSUMOS = @json($insumos); // [{id, nombre, precio}, ...]
+    <script>
+        // Data desde el backend
+        const INSUMOS = @json($insumos); // [{id, nombre, precio}, ...]
 
-  const container = document.getElementById('insumos-container');
-  const addBtn = document.getElementById('add-insumo');
-  const costoMoEl = document.getElementById('costo_mo');
-  const totalEl = document.getElementById('total-cotizacion');
-  let idx = 0;
+        const container = document.getElementById('insumos-container');
+        const addBtn = document.getElementById('add-insumo');
+        const costoMoEl = document.getElementById('costo_mo');
+        const totalEl = document.getElementById('total-cotizacion');
+        let idx = 0;
 
-  function fmtQ(n){
-    const val = isNaN(n) ? 0 : Number(n);
-    return 'Q ' + val.toFixed(2);
-  }
+        function fmtQ(n){
+            const val = isNaN(n) ? 0 : Number(n);
+            return 'Q ' + val.toFixed(2);
+        }
 
-  function insumoOptionsHtml(selectedId = ''){
-    let html = '<option value="">Seleccione insumo…</option>';
-    for (const i of INSUMOS){
-      html += `<option value="${i.id}" data-precio="${i.precio}" ${String(selectedId)===String(i.id)?'selected':''}>
-                 ${i.nombre} — <span class="badge-precio">Q${Number(i.precio).toFixed(2)}</span>
-               </option>`;
-    }
-    return html;
-  }
+        // Buscar insumos por texto
+        function buscarInsumos(texto){
+            const t = texto.toLowerCase().trim();
+            let resultados = INSUMOS;
 
-  function renderRow(index, selectedId = '', cantidad = 1){
-    const options = insumoOptionsHtml(selectedId);
-    const row = document.createElement('div');
-    row.className = 'row align-items-end insumo-row';
-    row.dataset.index = index;
-    row.innerHTML = `
-      <div class="col-md-6">
+            if (t) {
+                resultados = INSUMOS.filter(i =>
+                    i.nombre.toLowerCase().includes(t) ||
+                    String(i.precio).includes(t)
+                );
+            }
+
+            // limitar resultados para que no sea enorme
+            return resultados.slice(0, 50);
+        }
+
+        function renderRow(index, selectedId = '', cantidad = 1){
+            const row = document.createElement('div');
+            row.className = 'row align-items-end insumo-row';
+            row.dataset.index = index;
+            row.innerHTML = `
+      <div class="col-md-6" style="position:relative;">
         <label class="form-label">Insumo</label>
-        <select name="insumos[${index}][id]" class="form-select insumo-select" required>
-          ${options}
-        </select>
+        <!-- Campo visible de búsqueda -->
+        <input type="text"
+               class="form-control insumo-search"
+               placeholder="Buscar insumo...">
+        <!-- Campo oculto que envía el id al backend -->
+        <input type="hidden"
+               name="insumos[${index}][id]"
+               class="insumo-id">
+        <!-- Precio oculto para cálculos -->
+        <input type="hidden" class="insumo-precio">
+
+        <!-- Lista de resultados -->
+        <div class="insumo-results"
+             style="position:absolute; top:58px; left:0; right:0;
+                    background:#fff; border:1px solid #e5e7eb;
+                    border-radius:8px; max-height:220px;
+                    overflow-y:auto; display:none; z-index:999;">
+        </div>
       </div>
       <div class="col-md-3">
         <label class="form-label">Cantidad</label>
-        <input type="number" name="insumos[${index}][cantidad]" class="form-control cantidad-input" min="1" value="${cantidad}" required>
+        <input type="number" name="insumos[${index}][cantidad]"
+               class="form-control cantidad-input" min="1"
+               value="${cantidad}" required>
       </div>
       <div class="col-md-3 d-flex justify-content-end gap-2">
         <div class="insumo-subtotal align-self-center text-nowrap">Q 0.00</div>
@@ -175,52 +197,104 @@
         </button>
       </div>
     `;
-    container.appendChild(row);
-    updateRowSubtotal(row);
-    calcTotal();
-  }
+            container.appendChild(row);
+            updateRowSubtotal(row);
+            calcTotal();
+        }
 
-  function updateRowSubtotal(row){
-    const select = row.querySelector('.insumo-select');
-    const qty = parseFloat(row.querySelector('.cantidad-input').value) || 0;
-    const opt = select.options[select.selectedIndex];
-    const precio = opt ? parseFloat(opt.getAttribute('data-precio') || '0') : 0;
-    const sub = precio * qty;
-    row.querySelector('.insumo-subtotal').textContent = fmtQ(sub);
-  }
+        function updateRowSubtotal(row){
+            const qty    = parseFloat(row.querySelector('.cantidad-input').value) || 0;
+            const precio = parseFloat(row.querySelector('.insumo-precio').value) || 0;
+            const sub = precio * qty;
+            row.querySelector('.insumo-subtotal').textContent = fmtQ(sub);
+        }
 
-  function calcTotal(){
-    let total = parseFloat(costoMoEl.value) || 0;
-    container.querySelectorAll('.insumo-row').forEach(row=>{
-      const text = row.querySelector('.insumo-subtotal').textContent.replace('Q','').trim();
-      total += parseFloat(text) || 0;
-    });
-    totalEl.textContent = fmtQ(total);
-  }
+        function calcTotal(){
+            let total = parseFloat(costoMoEl.value) || 0;
+            container.querySelectorAll('.insumo-row').forEach(row=>{
+                const text = row.querySelector('.insumo-subtotal').textContent.replace('Q','').trim();
+                total += parseFloat(text) || 0;
+            });
+            totalEl.textContent = fmtQ(total);
+        }
 
-  // eventos globales
-  addBtn.addEventListener('click', ()=> renderRow(idx++));
-  container.addEventListener('click', (e)=>{
-    if(e.target.closest('.remove-insumo')){
-      e.target.closest('.insumo-row').remove();
-      calcTotal();
-    }
-  });
-  container.addEventListener('input', (e)=>{
-    if(e.target.classList.contains('cantidad-input')){ 
-      updateRowSubtotal(e.target.closest('.insumo-row')); 
-      calcTotal();
-    }
-  });
-  container.addEventListener('change', (e)=>{
-    if(e.target.classList.contains('insumo-select')){
-      updateRowSubtotal(e.target.closest('.insumo-row'));
-      calcTotal();
-    }
-  });
-  costoMoEl.addEventListener('input', calcTotal);
+        // Agregar fila
+        addBtn.addEventListener('click', ()=> renderRow(idx++));
 
-  // Fila inicial por defecto
-  renderRow(idx++);
-</script>
+        // Eventos dentro del contenedor de insumos
+        container.addEventListener('input', (e)=>{
+            // Cambia cantidad
+            if(e.target.classList.contains('cantidad-input')){
+                updateRowSubtotal(e.target.closest('.insumo-row'));
+                calcTotal();
+            }
+
+            // Escribir en el buscador
+            if(e.target.classList.contains('insumo-search')){
+                const row = e.target.closest('.insumo-row');
+                const box = row.querySelector('.insumo-results');
+                const texto = e.target.value;
+
+                const resultados = buscarInsumos(texto);
+
+                if (!resultados.length){
+                    box.style.display = 'none';
+                    box.innerHTML = '';
+                    return;
+                }
+
+                box.innerHTML = resultados.map(i => `
+        <div class="insumo-option"
+             data-id="${i.id}"
+             data-precio="${i.precio}"
+             data-nombre="${i.nombre}"
+             style="padding:4px 8px; cursor:pointer; font-size:0.85rem;">
+          ${i.nombre} — Q${Number(i.precio).toFixed(2)}
+        </div>
+      `).join('');
+                box.style.display = 'block';
+            }
+        });
+
+        container.addEventListener('click', (e)=>{
+            // Seleccionar un insumo de la lista
+            const opt = e.target.closest('.insumo-option');
+            if (opt){
+                const row = opt.closest('.insumo-row');
+                const search  = row.querySelector('.insumo-search');
+                const inputId = row.querySelector('.insumo-id');
+                const inputPrecio = row.querySelector('.insumo-precio');
+                const box = row.querySelector('.insumo-results');
+
+                search.value      = opt.dataset.nombre;
+                inputId.value     = opt.dataset.id;
+                inputPrecio.value = opt.dataset.precio;
+
+                box.style.display = 'none';
+                updateRowSubtotal(row);
+                calcTotal();
+                return;
+            }
+
+            // Quitar fila
+            if(e.target.closest('.remove-insumo')){
+                e.target.closest('.insumo-row').remove();
+                calcTotal();
+            }
+        });
+
+        // Ocultar resultados si se hace clic fuera
+        document.addEventListener('click', (e)=>{
+            if (!e.target.closest('.insumo-row')){
+                document.querySelectorAll('.insumo-results').forEach(b=>{
+                    b.style.display = 'none';
+                });
+            }
+        });
+
+        costoMoEl.addEventListener('input', calcTotal);
+
+        // Fila inicial por defecto
+        renderRow(idx++);
+    </script>
 @endpush
