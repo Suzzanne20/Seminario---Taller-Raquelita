@@ -70,7 +70,9 @@
                                 Editar
                             </a>
                             @role('admin')
-                            <form action="{{ route('tipo-insumos.destroy', $type->id) }}" method="POST">
+                            <form action="{{ route('tipo-insumos.destroy', $type->id) }}"
+                                  method="POST"
+                                  class="form-delete-tipo-insumo">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-action btn-delete">
@@ -91,6 +93,55 @@
         </table>
     </div>
 
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    {{-- Confirmación al eliminar --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.form-delete-tipo-insumo').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    const ok = confirm('¿Estás segura de eliminar este tipo de insumo? Esta acción no se puede deshacer.');
+                    if (!ok) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.form-delete-insumo').forEach(form => {
+
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // Evita enviar el form inmediatamente
+
+                    let nombre = form.closest('tr').querySelector('td:nth-child(2)').innerText;
+
+                    Swal.fire({
+                        title: '¿Eliminar este insumo?',
+                        html: `<b>${nombre}</b>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#C24242',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        background: '#fff',
+                        customClass: {
+                            popup: 'shadow-lg rounded'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // Ahora sí envía
+                        }
+                    });
+                });
+
+            });
+
+        });
+    </script>
+
 @endsection
