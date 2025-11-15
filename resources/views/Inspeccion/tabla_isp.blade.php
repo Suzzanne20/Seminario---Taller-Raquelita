@@ -15,7 +15,7 @@
   }
 
   .btn-theme{ background:var(--brand); border-color:var(--brand); color:#fff; border-radius:12px; padding:.55rem 1rem; }
-  .btn-theme:hover{ background:#873131; border-color:#873131; color:#fff; }
+  .btn-theme:hover{ background:var(--brand-2); border-color:var(--brand-2); color:#fff; }
   .control{ height:40px; border-radius:12px; }
 
   .page-header{ text-align:center; margin:48px 0 16px; }
@@ -46,7 +46,21 @@
   .table tbody tr:hover{ background:#fafafa; }
   .table td,.table th{ vertical-align:middle; }
 
-  .btn-round{ width:38px; height:38px; border-radius:999px; display:inline-grid; place-items:center; }
+  /* BOTONES REDONDOS DE ACCIONES (ver / editar / eliminar) */
+  .btn-round{
+    width:38px;
+    height:38px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;               /* quitamos padding que descentraba el icono */
+  }
+  .btn-round i{
+    font-size:1.05rem;
+    line-height:1;           /* centra visualmente el ícono */
+    display:block;
+  }
 
   .chip{
     display:inline-block; padding:.25rem .55rem; border-radius:999px; font-weight:700;
@@ -161,7 +175,7 @@
             <th style="width:150px">Placa</th>
             <th style="width:140px">Tipo</th>
             <th>Observaciones</th>
-            <th class="text-end" style="width:200px">Acciones</th>
+            <th class="text-center" style="width:200px">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -181,9 +195,8 @@
             <td class="text-start">
               {{ \Illuminate\Support\Str::limit($r->observaciones ?? '—', 120) }}
             </td>
-            <td class="text-end">
-              <div class="d-inline-flex gap-2">
-
+            <td class="text-center">
+              <div class="d-inline-flex justify-content-center gap-2">
                 @if(Route::has('inspecciones.show'))
                   <a href="{{ route('inspecciones.show', $r) }}"
                      class="btn btn-outline-secondary btn-round" data-title="Ver">
@@ -195,8 +208,8 @@
                    class="btn btn-outline-primary btn-round" data-title="Editar">
                   <i class="bi bi-pencil-square"></i>
                 </a>
-                    @role('admin')
-                {{-- IMPORTANTE: quitamos confirm() y usamos modal --}}
+
+                @role('admin')
                 <form action="{{ route('inspecciones.destroy', $r) }}" method="POST"
                       class="d-inline js-delete-form" data-item-id="{{ $r->id }}">
                   @csrf @method('DELETE')
@@ -204,8 +217,7 @@
                     <i class="bi bi-trash"></i>
                   </button>
                 </form>
-                  @endrole
-
+                @endrole
               </div>
             </td>
           </tr>
@@ -274,13 +286,11 @@
       const textEl   = document.getElementById('confirmText');
       let currentForm = null;
 
-      // Intercepta todos los formularios de borrado
       document.querySelectorAll('form.js-delete-form').forEach(f => {
         f.addEventListener('submit', function(e){
           e.preventDefault();
           currentForm = this;
 
-          // Texto dinámico con el ID
           const id = this.dataset.itemId || '';
           titleEl.textContent = id ? `¿Eliminar inspección #${id}?` : '¿Eliminar inspección?';
           textEl.textContent  = 'Esta acción no se puede deshacer. Se eliminarán también sus fotos asociadas.';
@@ -296,14 +306,12 @@
       btnNo.addEventListener('click', closeModal);
       backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) closeModal(); });
 
-      // Accesibilidad: ESC cierra y Enter confirma
       document.addEventListener('keydown', (e)=>{
         if(!backdrop.classList.contains('is-open')) return;
         if(e.key === 'Escape') closeModal();
         if(e.key === 'Enter')  { e.preventDefault(); btnOk.click(); }
       });
 
-      // focus trap
       let lastFocus = null;
       function trapFocus(){ lastFocus = document.activeElement; btnNo.focus(); }
       function releaseFocus(){ if(lastFocus) lastFocus.focus(); }
