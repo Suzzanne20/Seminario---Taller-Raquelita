@@ -5,23 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Insumo;
 use App\Models\TipoInsumo;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class InsumoController extends Controller
 {
-
     public function index(Request $request)
-{
-    $q = trim($request->get('q', ''));
+    {
+        $q = trim($request->get('q', ''));
 
-    $insumos = \App\Models\Insumo::with('tipoInsumo')
-        ->when($q, fn($query) =>
-            $query->where('nombre', 'like', "%{$q}%")
-        )
-        ->paginate(10)
-        ->withQueryString();
+        $insumos = Insumo::with('tipoInsumo')
+            ->when($q, fn($query) =>
+                $query->where('nombre', 'like', "%{$q}%")
+                      ->orWhere('codigo', 'like', "%{$q}%")
+            )
+            ->paginate(10)
+            ->withQueryString();
 
-    return view('insumos.index', compact('insumos', 'q'));
-}
+        return view('insumos.index', compact('insumos', 'q'));
+    }
 
     public function create()
     {
@@ -29,50 +30,40 @@ class InsumoController extends Controller
         return view('insumos.create', compact('tiposInsumo'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'nombre'        => 'required|string|max:50',
-            'costo'         => 'nullable|numeric|min:0',
-            'stock'         => 'required|integer|min:0',
-            'stock_minimo'  => 'required|integer|min:0',
-            'descripcion'   => 'required|string|max:200',
-            'type_insumo_id'=> 'required|exists:type_insumo,id',
+            // 1–4 dígitos; si envían "12" lo rellenamos luego a "0012"
+            'codigo'         => ['required','regex:/^\d{1,4}$/','unique:insumo,codigo'],
+            'nombre'         => ['required','string','max:50'],
+            'costo'          => ['nullable','numeric','min:0'],
+            'stock'          => ['required','integer','min:0'],
+            'stock_minimo'   => ['required','integer','min:0'],
+            'descripcion'    => ['required','string','max:200'],
+            'type_insumo_id' => ['required','exists:type_insumo,id'],
         ]);
 
-        $costo = $request->costo ?? 0;
-        $porcentajeGanancia = 20; // ⚡ Porcentaje fijo (puedes hacerlo dinámico más adelante)
-        $precio = $costo + ($costo * $porcentajeGanancia / 100) + ($costo * 0.12);
+        // Normaliza código: solo dígitos y pad a 4
+        $codigo = str_pad(preg_replace('/\D+/', '', $request->codigo), 4, '0', STR_PAD_LEFT);
+
+        $costo = (float) ($request->costo ?? 0);
+        $porcentajeGanancia = 20;               // margen 20%
+        $precio = $costo + ($costo * 0.20) + ($costo * 0.12); // margen + IVA (12%)
 
         Insumo::create([
+            'codigo'         => $codigo,               // <— AHORA SI ENTRA
             'nombre'         => $request->nombre,
             'costo'          => $costo,
-            'stock'          => $request->stock,
-            'stock_minimo'   => $request->stock_minimo,
+            'stock'          => (int) $request->stock,
+            'stock_minimo'   => (int) $request->stock_minimo,
             'descripcion'    => $request->descripcion,
-            'type_insumo_id' => $request->type_insumo_id,
+            'type_insumo_id' => (int) $request->type_insumo_id,
             'precio'         => $precio,
         ]);
 
-        return redirect()->route('insumos.index')
-            ->with('success', 'Insumo creado correctamente.');
+        return redirect()->route('insumos.index')->with('success', 'Insumo creado correctamente.');
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Insumo $insumo)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         $tiposInsumo = TipoInsumo::all();
@@ -80,62 +71,62 @@ class InsumoController extends Controller
         return view('insumos.edit', compact('insumo', 'tiposInsumo'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Insumo $insumo)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'costo' => 'nullable|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'stock_minimo' => 'required|integer|min:0',
-            'descripcion' => 'required|string|max:200',
-            'type_insumo_id' => 'required|integer|exists:type_insumo,id',
-        ]);
+        $rules = [
+            'nombre'         => ['required','string','max:50'],
+            'costo'          => ['nullable','numeric','min:0'],
+            'stock'          => ['required','integer','min:0'],
+            'stock_minimo'   => ['required','integer','min:0'],
+            'descripcion'    => ['required','string','max:200'],
+            'type_insumo_id' => ['required','integer','exists:type_insumo,id'],
+        ];
 
-        $costo = $request->costo ?? 0;
-        $porcentajeGanancia = 20;
-        $precio = $costo + ($costo * $porcentajeGanancia / 100) + ($costo * 0.12);
+        // Si quieres permitir editar el código, descomenta esto:
+        /*
+        $rules['codigo'] = [
+            'required','regex:/^\d{1,4}$/',
+            Rule::unique('insumo','codigo')->ignore($insumo->id,'id'),
+        ];
+        */
 
-        $insumo->update([
+        $request->validate($rules);
+
+        $costo = (float) ($request->costo ?? 0);
+        $precio = $costo + ($costo * 0.20) + ($costo * 0.12);
+
+        $payload = [
             'nombre'         => $request->nombre,
             'costo'          => $costo,
-            'stock'          => $request->stock,
-            'stock_minimo'   => $request->stock_minimo,
+            'stock'          => (int) $request->stock,
+            'stock_minimo'   => (int) $request->stock_minimo,
             'descripcion'    => $request->descripcion,
-            'type_insumo_id' => $request->type_insumo_id,
+            'type_insumo_id' => (int) $request->type_insumo_id,
             'precio'         => $precio,
-        ]);
+        ];
 
-        return redirect()->route('insumos.index')
-            ->with('success', 'Insumo actualizado exitosamente.');
+        // Si permites editar código:
+        /*
+        if ($request->filled('codigo')) {
+            $payload['codigo'] = str_pad(preg_replace('/\D+/', '', $request->codigo), 4, '0', STR_PAD_LEFT);
+        }
+        */
+
+        $insumo->update($payload);
+
+        return redirect()->route('insumos.index')->with('success', 'Insumo actualizado exitosamente.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        $insumo = Insumo::findOrFail($id);
-        $insumo->delete();
-
-        return redirect()->route('insumos.index')
-        ->with('success', 'Insumo eliminado correctamente');
+        Insumo::findOrFail($id)->delete();
+        return redirect()->route('insumos.index')->with('success', 'Insumo eliminado correctamente');
     }
 
     public function destroyMultiple(Request $request)
     {
-        $ids = $request->input('ids'); // array de IDs seleccionados
-
-         if ($ids && count($ids) > 0) {
-        Insumo::whereIn('id', $ids)->delete();
-        }
-
-        return redirect()->route('insumos.index')
-            ->with('success', 'Insumos eliminados correctamente.');
+        $ids = (array) $request->input('ids');
+        if ($ids) { Insumo::whereIn('id', $ids)->delete(); }
+        return redirect()->route('insumos.index')->with('success', 'Insumos eliminados correctamente.');
     }
-
-
 }

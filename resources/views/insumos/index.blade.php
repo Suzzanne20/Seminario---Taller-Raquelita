@@ -58,7 +58,7 @@
             <th class="text-center" style="width:42px">
               <input type="checkbox" id="selectAll">
             </th>
-            <th>ID</th>
+            <th>Codigo</th>
             <th>Nombre</th>
             <th>Costo</th>
             <th>Stock</th>
@@ -75,7 +75,7 @@
               <td class="text-center">
                 <input type="checkbox" name="ids[]" value="{{ $i->id }}" class="row-checkbox">
               </td>
-              <td class="fw-semibold">{{ $i->id }}</td>
+              <td class="fw-semibold">{{ $i->codigo }}</td>
               <td>{{ $i->nombre }}</td>
               <td>{{ number_format($i->costo, 2) }}</td>
               <td>{{ $i->stock }}</td>

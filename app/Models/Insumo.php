@@ -12,6 +12,7 @@ class Insumo extends Model
     protected $table = 'insumo';
 
     protected $fillable = [
+        'codigo',
         'nombre',
         'costo',
         'stock',
@@ -22,6 +23,12 @@ class Insumo extends Model
     ];
 
     public $timestamps = false;
+
+    public function setCodigoAttribute($v)
+    {
+        $s = preg_replace('/\D+/', '', (string)$v);
+        $this->attributes['codigo'] = str_pad($s, 4, '0', STR_PAD_LEFT);
+    }
 
     public function tipoInsumo()
     {
