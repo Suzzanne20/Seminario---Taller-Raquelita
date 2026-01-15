@@ -104,7 +104,7 @@
       <td>{{ $ot->id }}</td>
       <td>
         @php
-          $fc = $ot->fecha_creacion ? \Illuminate\Support\Carbon::parse($ot->fecha_creacion)->format('d/m/Y H:i') : '—';
+          $fc = $ot->fecha_creacion ? \Illuminate\Support\Carbon::parse($ot->fecha_creacion)->format('d/m/Y') : '—';
         @endphp
         {{ $fc }}
       </td>
@@ -141,8 +141,8 @@
         </td>
       @endforeach
 
-      <td>{{ $ot->kilometraje ?? '—' }}</td>
-      <td>{{ $ot->proximo_servicio ?? '—' }}</td>
+      <td>{{ $ot->kilometraje !== null ? number_format($ot->kilometraje, 0) : '—'  }}</td>
+      <td>{{ $ot->proximo_servicio !== null ? number_format($ot->proximo_servicio, 0) : '—'  }}</td>
 
       {{-- Total con desglose en tooltip --}}
       <td>

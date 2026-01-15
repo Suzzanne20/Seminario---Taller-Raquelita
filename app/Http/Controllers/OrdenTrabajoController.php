@@ -77,6 +77,7 @@ class OrdenTrabajoController extends Controller
         }
 
         $data = $request->validate([
+            'fecha_creacion'   => 'required|date',
             'vehiculo_placa'   => 'required|string|exists:vehiculo,placa',
             'type_service_id'  => 'required|integer|exists:type_service,id',
             'descripcion'      => 'nullable|string|max:100',
@@ -154,7 +155,7 @@ class OrdenTrabajoController extends Controller
 
             // crear OT
             $orden = OrdenTrabajo::create([
-                'fecha_creacion'     => now(),
+                'fecha_creacion'     => $data['fecha_creacion'],
                 'descripcion'        => $descripcion,
                 'kilometraje'        => $data['kilometraje'] ?? null,
                 'proximo_servicio'   => $data['proximo_servicio'] ?? null,
@@ -277,6 +278,7 @@ public function edit(OrdenTrabajo $orden)
         }
 
         $data = $request->validate([
+            'fecha_creacion'   => 'required|date',
             'vehiculo_placa'   => 'required|string|exists:vehiculo,placa',
             'type_service_id'  => 'required|integer|exists:type_service,id',
             'descripcion'      => 'nullable|string|max:100',
@@ -317,6 +319,7 @@ public function edit(OrdenTrabajo $orden)
             }
 
             $orden->update([
+                'fecha_creacion'     => $data['fecha_creacion'],
                 'vehiculo_placa'     => $data['vehiculo_placa'],
                 'type_service_id'    => $data['type_service_id'],
                 'descripcion'        => $data['descripcion'] ?? null,
@@ -362,6 +365,37 @@ public function edit(OrdenTrabajo $orden)
                     $wa = new UltraMsg;
                     $wa->sendText($to, OrderWaTemplates::statusChanged($orden, $oldEstadoName, $newEstadoName));
                 }
+            
+            
+                // 🔥 DESCONTAR INSUMOS SI PASA A FINALIZADA
+                $estadoFinalizadaId = Estado::whereRaw('LOWER(nombre) = ?', ['finalizada'])
+                    ->value('id');
+
+                $pasoAFinalizada =
+                    (int)$data['estado_id'] === (int)$estadoFinalizadaId
+                    && $oldEstadoId !== (int)$estadoFinalizadaId;
+
+                if ($pasoAFinalizada) {
+                    DB::transaction(function () use ($orden) {
+
+                        $orden->load('items');
+
+                        foreach ($orden->items as $item) {
+                            $insumo = Insumo::lockForUpdate()->find($item->insumo_id);
+                            if (!$insumo) continue;
+
+                            if ($insumo->stock < $item->cantidad) {
+                                throw new \Exception(
+                                    "Stock insuficiente para {$insumo->nombre}"
+                                );
+                            }
+
+                            $insumo->decrement('stock', $item->cantidad);
+                        }
+                    });
+                }            
+            
+            
             } catch (\Throwable $e) {
                 \Log::warning('WA status change failed: '.$e->getMessage());
             }

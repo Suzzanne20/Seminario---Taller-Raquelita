@@ -176,6 +176,24 @@
     .btn-print, .btn-muted, .btn-theme {
       display: none !important;
     }
+
+    .fecha-editable:hover::after{
+      content:" ✎";
+      color:#9F3B3B;
+      font-weight:600;
+    }
+
+    /* ===== BLOQUEO DE INSUMOS (OT FINALIZADA) ===== */
+    .insumos-lock {
+      opacity: .65;
+      pointer-events: none;
+    }
+
+    .insumos-lock input {
+      cursor: not-allowed;
+    }
+
+
   }
 </style>
 @endpush
@@ -419,8 +437,27 @@
                   <span class="client-title">{{ $owner?->nombre ?? 'Cliente sin asignar' }}</span>
                   @if($owner && $owner->telefono)<span class="client-tag">{{ $owner->telefono }}</span>@endif
                 </div>
-                <div class="client-sub">
-                  Creada: {{ optional($orden->fecha_creacion)->format('d/m/Y H:i') }} · por {{ $admin }}
+                <div class="client-sub">               
+
+                    {{-- Texto visible --}}
+                    <div id="fecha_texto"
+                        class="fw-semibold"
+                        style="cursor:default;">
+                      {{ optional($orden->fecha_creacion)->format('d/m/Y') }}
+                        
+                      <a type="button" id="btn-edit-fecha" style="margin-left: 5px;"> <i class="bi bi-pencil-fill"></i>  </a>
+                    </div>
+
+                    {{-- Input oculto --}}
+                    <input
+                      type="date"
+                      name="fecha_creacion"
+                      id="fecha_creacion"
+                      class="form-control mt-2"
+                      value="{{ old('fecha_creacion', optional($orden->fecha_creacion)->toDateString()) }}"
+                      max="{{ now()->toDateString() }}"
+                      style="display:none;"
+                    >                  
                 </div>
               </div>
               <div>
@@ -482,15 +519,33 @@
               <div>
                 <div class="fw-bold">{{ $orden->vehiculo->marca->nombre ?? 'Vehículo' }} · {{ $orden->vehiculo->linea ?? '' }} {{ $orden->vehiculo->modelo ?? '' }}</div>
                 <div class="form-label mb-0">Placa</div>
-                <input name="vehiculo_placa" id="vehiculo_placa" list="lista_placas"
-                       class="form-control @error('vehiculo_placa') is-invalid @enderror"
-                       value="{{ old('vehiculo_placa', $orden->vehiculo_placa) }}" maxlength="7" style="text-transform:uppercase">
-                <datalist id="lista_placas">
-                  @foreach($vehiculos as $v)
-                    <option value="{{ $v->placa }}">{{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}</option>
-                  @endforeach
-                </datalist>
-                @error('vehiculo_placa') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                  <div style="position:relative;">
+                      <input
+                          type="text"
+                          id="vehiculo_placa_search"
+                          class="form-control @error('vehiculo_placa') is-invalid @enderror"
+                          placeholder="Escribe la placa..."
+                          autocomplete="off"
+                          value="{{ old('vehiculo_placa', $orden->vehiculo_placa) }}"
+                          required
+                      >
+
+                      <input type="hidden"
+                            name="vehiculo_placa"
+                            id="vehiculo_placa"
+                            value="{{ old('vehiculo_placa', $orden->vehiculo_placa) }}">
+
+                      <div id="vehiculo_results"
+                          style="position:absolute; top:58px; left:0; right:0;
+                                  background:#fff; border:1px solid #e5e7eb;
+                                  border-radius:8px; max-height:220px;
+                                  overflow-y:auto; display:none; z-index:999;">
+                      </div>
+                  </div>
+
+                  @error('vehiculo_placa')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                  @enderror
               </div>
               <div class="text-end">
                 <a href="{{ route('vehiculos.edit', $orden->vehiculo_placa) }}" class="btn btn-outline-dark btn-sm">
@@ -577,7 +632,7 @@
             @error('estado_id')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
           </div>
 
-          {{-- Vínculos --}}
+          {{-- Vínculos 
           <div class="d-flex gap-2 mb-3">
             @if($inspeccion)
               <a class="btn btn-dark flex-fill" href="{{ route('inspecciones.show', $inspeccion->id) }}">
@@ -599,7 +654,7 @@
               </button>
             @endif
           </div>
-
+--}}
           <div class="d-flex justify-content-end">
             <button class="btn btn-theme px-4"><i class="bi bi-save me-1"></i> Guardar cambios</button>
           </div>
@@ -613,6 +668,85 @@
 
 @push('scripts')
 <script>
+
+  // ===== Edición sutil de fecha OT =====
+  (function(){
+    const btn   = document.getElementById('btn-edit-fecha');
+    const input = document.getElementById('fecha_creacion');
+    const texto = document.getElementById('fecha_texto');
+
+    if(!btn || !input || !texto) return;
+
+    btn.addEventListener('click', ()=>{
+      texto.style.display = 'none';
+      input.style.display = 'block';
+      input.focus();
+    });
+
+    input.addEventListener('change', ()=>{
+      if(input.value){
+        const d = new Date(input.value + 'T00:00:00');
+        texto.textContent = d.toLocaleDateString('es-GT');
+      }
+    });
+  })();
+
+
+
+    // ===== BUSCADOR DE PLACAS (EDITAR) =====
+    const VEHICULOS = @json($vehiculos);
+
+    function buscarVehiculos(texto){
+      const t = String(texto||'').toUpperCase().trim();
+      if(!t) return [];
+      return VEHICULOS.filter(v =>
+        v.placa.toUpperCase().includes(t) ||
+        `${v.linea} ${v.modelo}`.toUpperCase().includes(t)
+      ).slice(0, 50);
+    }
+
+    const placaInput  = document.getElementById('vehiculo_placa_search');
+    const placaHidden = document.getElementById('vehiculo_placa');
+    const placaBox    = document.getElementById('vehiculo_results');
+
+    if(placaInput){
+      placaInput.addEventListener('input', ()=>{
+        placaInput.value = placaInput.value.toUpperCase();
+        const res = buscarVehiculos(placaInput.value);
+
+        if(!res.length){
+          placaBox.style.display = 'none';
+          placaHidden.value = '';
+          return;
+        }
+
+        placaBox.innerHTML = res.map(v=>`
+          <div class="vehiculo-option"
+              data-placa="${v.placa}"
+              style="padding:6px 10px; cursor:pointer;">
+            <strong>${v.placa}</strong>
+            <span class="text-muted"> — ${v.linea} ${v.modelo}</span>
+          </div>
+        `).join('');
+
+        placaBox.style.display = 'block';
+      });
+    }
+
+    document.addEventListener('click', e=>{
+      const opt = e.target.closest('.vehiculo-option');
+      if(opt){
+        placaInput.value  = opt.dataset.placa;
+        placaHidden.value = opt.dataset.placa;
+        placaBox.style.display = 'none';
+      }
+      if(!e.target.closest('#vehiculo_results') &&
+        !e.target.closest('#vehiculo_placa_search')){
+        placaBox.style.display = 'none';
+      }
+    });
+
+
 
   (function(){
     const estadoHidden = document.getElementById('estado_id');
@@ -649,64 +783,204 @@
   });
 
   // Insumos dinámicos
-  const INSUMOS   = @json($insumos->map(fn($i)=>['id'=>$i->id,'nombre'=>$i->nombre,'precio'=>(float)$i->precio]));
-  const OT_ITEMS  = @json($orden->items->map(fn($x)=>['id'=>$x->insumo_id,'cantidad'=>(float)$x->cantidad])->values());
-  const q         = n => 'Q ' + (parseFloat(n||0)).toFixed(2);
+  
+  // =======================================================
+  //  INSUMOS – BUSCADOR TIPO PLACA (EDITAR OT)
+  //  ✔ Sin filas vacías
+  //  ✔ Mantiene cálculos
+  // =======================================================
+
+  const INSUMOS = @json(
+    $insumos->map(fn($i)=>[
+      'id'=>$i->id,
+      'nombre'=>$i->nombre,
+      'precio'=>(float)$i->precio
+    ])
+  );
+
+  const OT_ITEMS = @json(
+    $orden->items->map(fn($x)=>[
+      'id'=>$x->insumo_id,
+      'cantidad'=>(float)$x->cantidad
+    ])->values()
+  );
+
+  const q = n => 'Q ' + (parseFloat(n||0)).toFixed(2);
+  const OT_FINALIZADA = {{ $orden->estado->nombre === 'Finalizada' ? 'true' : 'false' }};
 
   let idx = 0;
-  const cont  = document.getElementById('insumos-container');
-  const addBtn= document.getElementById('add-insumo');
+  const cont   = document.getElementById('insumos-container');
+  const addBtn = document.getElementById('add-insumo');
 
-  function insumoOptions(selId){
-    let html = '<option value="">Seleccione insumo…</option>';
-    INSUMOS.forEach(i=>{
-      const pr = Number(i.precio||0).toFixed(2);
-      const selected = selId && Number(selId)===Number(i.id) ? 'selected' : '';
-      html += `<option value="${i.id}" ${selected} data-precio="${pr}">${i.nombre} (Q${pr})</option>`;
-    });
-    return html;
+  if (OT_FINALIZADA) {
+    addBtn.disabled = true;
+    addBtn.classList.add('disabled');
+    addBtn.title = 'La orden está finalizada';
   }
-  function renderRow(i, preset){
-    const idSel = preset?.id ?? '';
-    const cant  = preset?.cantidad ?? 1;
+
+  // ================= BUSCADOR =================
+  function buscarInsumos(txt){
+    const t = String(txt||'').toUpperCase().trim();
+    if(!t) return [];
+    return INSUMOS.filter(i =>
+      i.nombre.toUpperCase().includes(t)
+    ).slice(0, 50);
+  }
+
+  // ================= RENDER FILA =================
+  function renderRow(preset=null){
+    const i = idx++;
+    const ins = preset
+      ? INSUMOS.find(x => Number(x.id) === Number(preset.id))
+      : null;
+    const lock = OT_FINALIZADA ? 'readonly' : '';
+    const disabled = OT_FINALIZADA ? 'disabled' : '';
+
+
     return `
-      <div class="row align-items-center i-row" data-i="${i}">
-        <div class="col-md-6 mb-2 mb-md-0">
-          <select name="insumos[${i}][id]" class="form-select insumo-select" required>
-            ${insumoOptions(idSel)}
-          </select>
+    <div class="row align-items-center i-row">
+      <div class="col-md-6 position-relative">
+        <input type="text"
+          class="form-control insumo-search"   ${lock}
+          placeholder="Buscar insumo..."
+          autocomplete="off"
+          value="${ins ? ins.nombre : ''}"
+        >
+
+        <input type="hidden"
+          name="insumos[${i}][id]"
+          class="insumo-id"
+          value="${ins ? ins.id : ''}"
+        >
+
+        <div class="insumo-results"
+          style="position:absolute; top:58px; left:0; right:0;
+                background:#fff; border:1px solid #e5e7eb;
+                border-radius:8px; max-height:220px;
+                overflow-y:auto; display:none; z-index:999;">
         </div>
-        <div class="col-md-2">
-          <input type="number" min="1" value="${cant}" name="insumos[${i}][cantidad]" class="form-control cantidad-input" required>
-        </div>
-        <div class="col-md-2 text-end"><span class="precio-unit">Q 0.00</span></div>
-        <div class="col-md-2 text-end"><button type="button" class="i-remove">X</button></div>
-      </div>`;
+      </div>
+
+      <div class="col-md-2">
+        <input type="number"
+          min="1"
+          name="insumos[${i}][cantidad]"
+          class="form-control cantidad-input"   ${lock}
+          value="${preset?.cantidad ?? 1}">
+      </div>
+
+      <div class="col-md-2 text-end">
+        <span class="precio-unit">${ins ? q(ins.precio) : 'Q 0.00'}</span>
+      </div>
+
+      <div class="col-md-2 text-end">
+        <button type="button" class="i-remove" style="${OT_FINALIZADA ? 'display:none' : ''}">X</button>
+      </div>
+    </div>`;
   }
+
+  // ================= AUTOCOMPLETE =================
+  document.addEventListener('input', e=>{
+    if (OT_FINALIZADA) return;
+    if(!e.target.classList.contains('insumo-search')) return;
+
+    const input = e.target;
+    const row   = input.closest('.i-row');
+    const box   = row.querySelector('.insumo-results');
+    const hid   = row.querySelector('.insumo-id');
+
+    const res = buscarInsumos(input.value);
+
+    if(!res.length){
+      box.style.display = 'none';
+      hid.value = '';
+      recalc();
+      return;
+    }
+
+    box.innerHTML = res.map(i=>`
+      <div class="insumo-option"
+        data-id="${i.id}"
+        data-precio="${i.precio}"
+        data-nombre="${i.nombre}"
+        style="padding:6px 10px; cursor:pointer;">
+        <span>${i.nombre}</span>
+        <span class="text-muted"> — Q${i.precio.toFixed(2)}</span>
+      </div>
+    `).join('');
+
+    box.style.display = 'block';
+  });
+
+  document.addEventListener('click', e=>{
+    if (OT_FINALIZADA) return;
+    const opt = e.target.closest('.insumo-option');
+    if(!opt) return;
+
+    const row   = opt.closest('.i-row');
+    row.querySelector('.insumo-search').value = opt.dataset.nombre;
+    row.querySelector('.insumo-id').value     = opt.dataset.id;
+    row.querySelector('.precio-unit').textContent = q(opt.dataset.precio);
+
+    row.querySelector('.insumo-results').style.display = 'none';
+    recalc();
+  });
+
+  // ================= CÁLCULOS =================
   function recalc(){
     let sub = 0;
-    document.querySelectorAll('#insumos-container .i-row').forEach(row=>{
-      const sel = row.querySelector('.insumo-select');
-      const qty = parseFloat(row.querySelector('.cantidad-input').value)||0;
-      const price = parseFloat(sel?.selectedOptions[0]?.getAttribute('data-precio')||0);
-      row.querySelector('.precio-unit').textContent = q(price);
-      if(qty>0) sub += price * qty;
+
+    document.querySelectorAll('.i-row').forEach(row=>{
+      const id  = row.querySelector('.insumo-id').value;
+      const qty = parseFloat(row.querySelector('.cantidad-input').value||0);
+
+      const ins = INSUMOS.find(i => Number(i.id) === Number(id));
+      if(ins && qty>0){
+        sub += ins.precio * qty;
+        row.querySelector('.precio-unit').textContent = q(ins.precio);
+      }
     });
+
     const mo = parseFloat(document.getElementById('costo_mo').value||0);
     document.getElementById('sub_insumos').textContent = q(sub);
-    document.getElementById('mo_view').textContent   = q(mo);
-    document.getElementById('total_view').textContent= q(sub+mo);
+    document.getElementById('mo_view').textContent    = q(mo);
+    document.getElementById('total_view').textContent = q(sub + mo);
   }
-  if (cont){
-    if (Array.isArray(OT_ITEMS) && OT_ITEMS.length){
-      OT_ITEMS.forEach(it => { cont.insertAdjacentHTML('beforeend', renderRow(idx, it)); idx++; });
-    } else { cont.insertAdjacentHTML('beforeend', renderRow(idx)); idx++; }
+
+  // ================= PRECARGA (CLAVE) =================
+  if(Array.isArray(OT_ITEMS) && OT_ITEMS.length){
+    OT_ITEMS.forEach(it=>{
+      cont.insertAdjacentHTML('beforeend', renderRow(it));
+    });
     recalc();
   }
-  addBtn?.addEventListener('click', ()=>{ cont.insertAdjacentHTML('beforeend', renderRow(idx)); idx++; recalc(); });
-  document.addEventListener('change', e=>{ if(e.target.classList.contains('insumo-select')) recalc(); });
-  document.addEventListener('input',  e=>{ if(e.target.classList.contains('cantidad-input') || e.target.id==='costo_mo') recalc(); });
-  document.addEventListener('click',  e=>{ if(e.target.classList.contains('i-remove')){ e.target.closest('.i-row').remove(); recalc(); }});
+
+  // ================= EVENTOS =================
+  addBtn.addEventListener('click', ()=>{
+    if (OT_FINALIZADA) return;
+    cont.insertAdjacentHTML('beforeend', renderRow());
+  });
+
+  document.addEventListener('input', e=>{
+    if(e.target.classList.contains('cantidad-input') || e.target.id==='costo_mo'){
+      recalc();
+    }
+  });
+
+  document.addEventListener('click', e=>{
+    if (OT_FINALIZADA) return;
+    if(e.target.classList.contains('i-remove')){
+      e.target.closest('.i-row').remove();
+      recalc();
+    }
+  });
+  
+  if (OT_FINALIZADA) {
+    cont.classList.add('insumos-lock');
+  };
+
+
+
 
   // Funcionalidad de impresión mejorada
   const printBtn = document.getElementById('btn-print');
