@@ -149,7 +149,7 @@
   /* switches compactos */
   .form-check-input[type="checkbox"].form-switch{ width:2.6em; }
 
-  /* Estilos para impresión */
+  /* Estilos para impresión en PDF*/
   @media print {
     body * {
       visibility: hidden;
