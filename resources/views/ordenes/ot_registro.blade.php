@@ -66,6 +66,15 @@
             .resume{ position: sticky; bottom: 0; }
         }
 
+        input[type="date"]{
+            padding-right: 0;
+            cursor: pointer;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator{
+            filter: invert(32%) sepia(56%) saturate(500%) hue-rotate(330deg);
+            cursor: pointer;
+        }
+
     </style>
 @endpush
 
@@ -92,17 +101,28 @@
                 <hr class="hr-soft">
                 <div class="row g-4">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Cotización previa (opcional)</label>
-                        <select name="cotizacion_id" id="cotizacion_id"
-                                class="form-select @error('cotizacion_id') is-invalid @enderror">
-                            <option value="">— Sin cotización —</option>
-                            @foreach($cotizaciones as $c)
-                                <option value="{{ $c->id }}" @selected(old('cotizacion_id')==$c->id)>
-                                    #{{ $c->id }} — {{ $c->servicio->descripcion ?? 'Servicio' }} — Total Q{{ number_format($c->total,2) }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('cotizacion_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        <label class="form-label fw-semibold d-flex align-items-center gap-1">
+                            <i class="bi bi-calendar-event text-danger"></i>
+                            Fecha de creación
+                        </label>
+
+                        <input
+                            type="date"
+                            name="fecha_creacion"
+                            id="fecha_creacion"
+                            class="form-control @error('fecha_creacion') is-invalid @enderror"
+                            value="{{ old('fecha_creacion', now()->toDateString()) }}"
+                            max="{{ now()->toDateString() }}"
+                            required
+                        >
+
+                        @error('fecha_creacion')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+
+                        <small class="text-muted">
+                            Fecha en que se registra la orden de trabajo
+                        </small>
                     </div>
 
                     <div class="col-md-6">
@@ -133,17 +153,32 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Vehículo (placa)</label>
-                        <select name="vehiculo_placa" id="vehiculo_placa"
-                                class="form-select @error('vehiculo_placa') is-invalid @enderror" required>
-                            <option value="">— Seleccione —</option>
-                            @foreach($vehiculos as $v)
-                                <option value="{{ $v->placa }}">
-                                    {{ $v->placa }} — {{ $v->linea }} {{ $v->modelo }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('vehiculo_placa') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                        <small class="text-muted">Escribe para buscar por placa</small>
+
+                        <div style="position:relative;">
+                            <input
+                                type="text"
+                                id="vehiculo_placa_search"
+                                class="form-control @error('vehiculo_placa') is-invalid @enderror"
+                                placeholder="Escribe la placa..."
+                                autocomplete="off"
+                                required
+                            >
+
+                            <input type="hidden" name="vehiculo_placa" id="vehiculo_placa">
+
+                            <div id="vehiculo_results"
+                                style="position:absolute; top:58px; left:0; right:0;
+                                        background:#fff; border:1px solid #e5e7eb;
+                                        border-radius:8px; max-height:220px;
+                                        overflow-y:auto; display:none; z-index:999;">
+                            </div>
+                        </div>
+
+                        @error('vehiculo_placa')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+
+                        <small class="text-muted">Busca por placa</small>
                     </div>
 
                     {{-- Placa en mayúsculas --}}
@@ -354,13 +389,15 @@
                             <input name="direccion" type="text" class="form-control" maxlength="60">
                         </div>
                         <div id="quickCliErrors" class="text-danger small mt-2" style="display:none;"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-muted" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-theme">Guardar</button>
+                    </div>
                     </form>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-muted" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="btnSaveQuickCliente" class="btn btn-theme">Guardar</button>
-                </div>
+
             </div>
         </div>
     </div>
@@ -532,26 +569,6 @@
                     }
                 });
 
-                new TomSelect('#vehiculo_placa', {
-                    maxOptions: 2000,
-                    searchField: ['value','text'],
-                    allowEmptyOption: true,
-                    create: false,
-                    render: {
-                        option: (data) => `<div><strong>${data.value}</strong> <span class="text-muted">${data.text.replace(data.value+' — ','')}</span></div>`
-                    },
-                    onChange: (val)=>{
-                        if(val){
-                            const sel = document.querySelector('#vehiculo_placa');
-                            if(sel){
-                                const opts = Array.from(sel.options);
-                                const opt  = opts.find(o=>o.value.toUpperCase()===val.toUpperCase());
-                                if(opt) sel.value = opt.value.toUpperCase();
-                            }
-                        }
-                    }
-                });
-
                 // helper para cuando se crea un cliente desde el modal
                 window.__addClienteToSelect = function(id, nombre){
                     const ddl   = document.getElementById('cliente_id').tomselect;
@@ -562,56 +579,129 @@
             }
 
             // === Quick cliente por modal ===
-            (function(){
-                const form  = document.getElementById('formQuickCliente');
-                const save  = document.getElementById('btnSaveQuickCliente');
-                const ddl   = document.getElementById('cliente_id');
-                const errs  = document.getElementById('quickCliErrors');
 
-                function getCsrf(){
-                    const el = document.querySelector('input[name="_token"]');
-                    return el ? el.value : '';
-                }
-
-                async function quickStore(){
-                    errs.style.display = 'none';
-                    errs.innerHTML = '';
-
-                    const fd = new FormData(form);
-
-                    const resp = await fetch("{{ route('clientes.quickStore') }}", {
-                        method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': getCsrf(), 'Accept':'application/json' },
-                        body: fd
-                    });
-
-                    if (resp.ok){
-                        const data = await resp.json();
-                        if(window.__addClienteToSelect){
-                            window.__addClienteToSelect(data.cliente.id, data.cliente.nombre);
-                        }
-                        ddl.dispatchEvent(new Event('change'));
-
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoCliente'));
-                        modal.hide();
-                        form.reset();
-                        return;
-                    }
-
-                    const j = await resp.json().catch(()=>({}));
-                    const list = [];
-                    if (j.errors){
-                        Object.values(j.errors).forEach(arr => arr.forEach(msg => list.push(msg)));
-                    } else if (j.message){ list.push(j.message); }
-                    errs.innerHTML = list.map(m=>`• ${m}`).join('<br>');
-                    errs.style.display = 'block';
-                }
-
-                if(save){
-                    save.addEventListener('click', quickStore);
-                }
-            })();
 
         });
+
+                // ===== BUSCADOR DE PLACAS (estilo insumos) =====
+        const VEHICULOS = @json($vehiculos);
+
+        function buscarVehiculos(texto){
+            const t = String(texto || '').toUpperCase().trim();
+            if(!t) return [];
+            return VEHICULOS.filter(v =>
+                v.placa.toUpperCase().includes(t) ||
+                `${v.linea} ${v.modelo}`.toUpperCase().includes(t)
+            ).slice(0, 50);
+        }
+
+        const placaInput  = document.getElementById('vehiculo_placa_search');
+        const placaHidden = document.getElementById('vehiculo_placa');
+        const placaBox    = document.getElementById('vehiculo_results');
+
+        if(placaInput){
+            placaInput.addEventListener('input', () => {
+                const resultados = buscarVehiculos(placaInput.value);
+
+                if(!resultados.length){
+                    placaBox.style.display = 'none';
+                    placaBox.innerHTML = '';
+                    placaHidden.value = '';
+                    return;
+                }
+
+                placaBox.innerHTML = resultados.map(v => `
+                    <div class="vehiculo-option"
+                        data-placa="${v.placa}"
+                        style="padding:6px 10px; cursor:pointer; font-size:.9rem;">
+                        <strong>${v.placa}</strong>
+                        <span class="text-muted"> — ${v.linea} ${v.modelo}</span>
+                    </div>
+                `).join('');
+
+                placaBox.style.display = 'block';
+            });
+        }
+
+        document.addEventListener('click', e => {
+            const opt = e.target.closest('.vehiculo-option');
+            if(opt){
+                placaInput.value  = opt.dataset.placa;
+                placaHidden.value = opt.dataset.placa;
+                placaBox.style.display = 'none';
+                return;
+            }
+
+            if(!e.target.closest('#vehiculo_results') &&
+            !e.target.closest('#vehiculo_placa_search')){
+                placaBox.style.display = 'none';
+            }
+        });
+
     </script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function(){
+
+  const form = document.getElementById('formQuickCliente');
+  const errs = document.getElementById('quickCliErrors');
+  const ddl  = document.getElementById('cliente_id');
+
+  if(!form) return;
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    errs.style.display = 'none';
+    errs.innerHTML = '';
+
+    const fd = new FormData(form);
+
+    try {
+      const resp = await fetch("{{ route('clientes.quickStore') }}", {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+          'Accept': 'application/json'
+        },
+        body: fd
+      });
+
+      if (!resp.ok) {
+        const j = await resp.json().catch(()=>({}));
+        throw j;
+      }
+
+      const data = await resp.json();
+
+      // 👉 agregar al select (TomSelect)
+      if (window.__addClienteToSelect) {
+        window.__addClienteToSelect(data.cliente.id, data.cliente.nombre);
+      }
+
+      ddl.dispatchEvent(new Event('change'));
+
+      bootstrap.Modal
+        .getInstance(document.getElementById('modalNuevoCliente'))
+        .hide();
+
+      form.reset();
+
+    } catch (err) {
+      const list = [];
+      if (err.errors) {
+        Object.values(err.errors).forEach(a => a.forEach(m => list.push(m)));
+      } else if (err.message) {
+        list.push(err.message);
+      } else {
+        list.push('No se pudo guardar el cliente.');
+      }
+
+      errs.innerHTML = list.map(m => `• ${m}`).join('<br>');
+      errs.style.display = 'block';
+    }
+  });
+
+});
+</script>
 @endpush
