@@ -53,28 +53,25 @@ class InsumoController extends Controller
             'codigo'         => ['required','regex:/^\d{1,4}$/','unique:insumo,codigo'],
             'nombre'         => ['required','string','max:50'],
             'costo'          => ['nullable','numeric','min:0'],
+            'precio'         => ['required','numeric','min:0'],
             'stock'          => ['required','integer','min:0'],
             'stock_minimo'   => ['required','integer','min:0'],
-            'descripcion'    => ['required','string','max:200'],
+            'descripcion'    => ['nullable','string','max:200'],
             'type_insumo_id' => ['required','exists:type_insumo,id'],
         ]);
 
         // Normaliza código: solo dígitos y pad a 4
         $codigo = str_pad(preg_replace('/\D+/', '', $request->codigo), 4, '0', STR_PAD_LEFT);
 
-        $costo = (float) ($request->costo ?? 0);
-        $porcentajeGanancia = 20;               // margen 20%
-        $precio = $costo + ($costo * 0.20) + ($costo * 0.12); // margen + IVA (12%)
-
         Insumo::create([
-            'codigo'         => $codigo,               // <— AHORA SI ENTRA
+            'codigo'         => $codigo,          
             'nombre'         => $request->nombre,
-            'costo'          => $costo,
+            'costo'          => (float)$request->costo,
+            'precio'         => (float)$request->precio, 
             'stock'          => (int) $request->stock,
             'stock_minimo'   => (int) $request->stock_minimo,
             'descripcion'    => $request->descripcion,
             'type_insumo_id' => (int) $request->type_insumo_id,
-            'precio'         => $precio,
         ]);
 
         return redirect()->route('insumos.index')->with('success', 'Insumo creado correctamente.');
@@ -92,9 +89,10 @@ class InsumoController extends Controller
         $rules = [
             'nombre'         => ['required','string','max:50'],
             'costo'          => ['nullable','numeric','min:0'],
+            'precio'         => ['required','numeric','min:0'],
             'stock'          => ['required','integer','min:0'],
             'stock_minimo'   => ['required','integer','min:0'],
-            'descripcion'    => ['required','string','max:200'],
+            'descripcion'    => ['nullable','string','max:200'],
             'type_insumo_id' => ['required','integer','exists:type_insumo,id'],
         ];
 
@@ -108,17 +106,14 @@ class InsumoController extends Controller
 
         $request->validate($rules);
 
-        $costo = (float) ($request->costo ?? 0);
-        $precio = $costo + ($costo * 0.20) + ($costo * 0.12);
-
         $payload = [
             'nombre'         => $request->nombre,
-            'costo'          => $costo,
+            'costo'          => (float)$request->costo,
+            'precio'         => (float)$request->precio, 
             'stock'          => (int) $request->stock,
             'stock_minimo'   => (int) $request->stock_minimo,
             'descripcion'    => $request->descripcion,
             'type_insumo_id' => (int) $request->type_insumo_id,
-            'precio'         => $precio,
         ];
 
         // Si permites editar código:
