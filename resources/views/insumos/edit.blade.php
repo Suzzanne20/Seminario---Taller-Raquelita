@@ -1,103 +1,137 @@
 @extends('layouts.app')
 
 @push('styles')
-    <style>
-        html, body { height:100%; background:#f0f0f0 !important; }
-        .page-body { min-height:calc(100vh - 72px); background:rgba(255, 255, 255, 0.144) !important; color:#212529; }
-        @media (max-width:576px){ .page-body{ min-height:calc(100vh - 64px);} }
+<style>
+  html, body { height:100%; background:#f0f0f0 !important; }
+  .page-body { min-height:calc(100vh - 72px); background:rgba(255, 255, 255, 0.144) !important; color:#212529; }
+  @media (max-width:576px){ .page-body{ min-height:calc(100vh - 64px);} }
 
-        .md-card{
-            max-width: 720px;
-            margin: 32px auto 64px;
-            background:#fff;
-            border-radius:12px;
-            box-shadow:0 10px 30px rgba(0,0,0,.08);
-            padding:28px;
-        }
-        .md-title{
-            font-weight:700; color:#C24242; text-align:center; margin-bottom:18px;
-        }
+  .md-card{
+    max-width: 720px;
+    margin: 32px auto 64px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    padding:28px;
+  }
+  .md-title{
+    font-weight:700; color:#C24242; text-align:center; margin-bottom:18px;
+  }
 
-        .form-control{
-            border:none; border-bottom:2px solid #e6e6e6;
-            border-radius:0; background:transparent; padding-left:0;
-        }
-        .form-select{
-            border:none; border-bottom:2px solid #e6e6e6; border-radius:0; background:transparent;
-            padding-left:0;
-        }
-        .form-control:focus, .form-select:focus{
-            box-shadow:none; border-color:#3f51b5;
-        }
-        .form-label{ font-size:.9rem; color:#6b7280; }
-        .help{ font-size:.8rem; color:#9CA3AF; }
+  .form-control{
+    border:none; border-bottom:2px solid #e6e6e6;
+    border-radius:0; background:transparent; padding-left:0;
+  }
+  .form-select{
+    border:none; border-bottom:2px solid #e6e6e6; border-radius:0; background:transparent;
+    padding-left:0;
+  }
+  .form-control:focus, .form-select:focus{
+    box-shadow:none; border-color:#3f51b5;
+  }
+  .form-label{ font-size:.9rem; color:#6b7280; }
+  .help{ font-size:.8rem; color:#9CA3AF; }
 
-        .btn-theme{ background:#9F3B3B; border:none; color:#fff; }
-        .btn-theme:hover{ background:#873131; color:#fff; }
-        .btn-muted{ background:#e5e7eb; color:#111827; border:none; }
-    </style>
+  .btn-theme{ background:#9F3B3B; border:none; color:#fff; }
+  .btn-theme:hover{ background:#873131; color:#fff; }
+  .btn-muted{ background:#e5e7eb; color:#111827; border:none; }
+</style>
 @endpush
 
 @section('content')
-    <div class="container" style="padding: 20px;">
-        <br><br>
-        <div class="card">
-            <div class="card-header">
-                <h4>Editar Insumo: {{ $insumo->nombre }}</h4>
-            </div>
-            <div class="card-body">
-                @if($errors->any())
-                    <div style="background:#F8D7DA; color:#721C24; padding:10px; border-radius:8px; margin:10px 0;">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                <form action="{{ route('insumos.update', $insumo->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ old('nombre', $insumo->nombre) }}" required maxlength="50">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="costo" class="form-label">Costo</label>
-                            <input type="number" step="0.01" class="form-control" id="costo" name="costo" value="{{ old('costo', $insumo->costo) }}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="stock" class="form-label">Stock</label>
-                            <input type="number" class="form-control" id="stock" name="stock" value="{{ old('stock', $insumo->stock) }}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="stock_minimo" class="form-label">Stock Mínimo</label>
-                            <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" value="{{ old('stock_minimo', $insumo->stock_minimo) }}" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required maxlength="200">{{ old('descripcion', $insumo->descripcion) }}</textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="type_insumo_id" class="form-label">Tipo de Insumo</label>
-                            <select class="form-control" id="type_insumo_id" name="type_insumo_id" required>
-                                <option value="">-- Seleccione un tipo --</option>
-                                @foreach($tiposInsumo as $tipo)
-                                    <option value="{{ $tipo->id }}" {{ old('type_insumo_id', $insumo->type_insumo_id) == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+<div class="container">
+  <div class="md-card">
+    <h2 class="md-title">Editar Insumo</h2>
 
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="background-color: #C24242; border-color: #C24242;">Guardar cambios</button>
-                    <a href="{{ route('insumos.index') }}" class="btn btn-secondary">Cancelar</a>
-                </form>
-            </div>
+    {{-- Errores de validación --}}
+    @if($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
+    <form action="{{ route('insumos.update', $insumo->id) }}" method="POST" novalidate>
+      @csrf
+      @method('PUT')
+
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input id="nombre" name="nombre" type="text"
+               class="form-control @error('nombre') is-invalid @enderror"
+               value="{{ old('nombre', $insumo->nombre) }}"
+               required maxlength="50" autofocus>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="codigo" class="form-label">Codigo</label>
+          <input id="codigo" name="codigo" type="number" step="1" min="0"
+                 class="form-control"
+                 value="{{ old('codigo', $insumo->codigo) }}" disabled>
+          <small class="help">El código no se puede modificar</small>
         </div>
-    </div>
+
+        <div class="col-md-4">
+          <label for="costo" class="form-label">Costo (Q)</label>
+          <input id="costo" name="costo" type="number" step="0.01" min="0"
+                 class="form-control @error('costo') is-invalid @enderror"
+                 value="{{ old('costo', $insumo->costo) }}">
+        </div>
+
+        <div class="col-md-4">
+          <label for="precio" class="form-label">Venta (Q)</label>
+          <input id="precio" name="precio" type="number" step="0.01" min="0"
+                 class="form-control @error('precio') is-invalid @enderror"
+                 value="{{ old('precio', $insumo->precio) }}" required>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label for="stock" class="form-label">Stock</label>
+          <input id="stock" name="stock" type="number" min="0"
+                 class="form-control @error('stock') is-invalid @enderror"
+                 value="{{ old('stock', $insumo->stock) }}" required>
+        </div>
+
+        <div class="col-md-4">
+          <label for="stock_minimo" class="form-label">Stock mínimo</label>
+          <input id="stock_minimo" name="stock_minimo" type="number" min="0"
+                 class="form-control @error('stock_minimo') is-invalid @enderror"
+                 value="{{ old('stock_minimo', $insumo->stock_minimo) }}" required>
+        </div>
+
+        <div class="col-md-4">
+          <label for="type_insumo_id" class="form-label">Tipo de insumo</label>
+          <select id="type_insumo_id" name="type_insumo_id"
+                  class="form-select @error('type_insumo_id') is-invalid @enderror" required>
+            <option value="">— Seleccione un tipo —</option>
+            @foreach($tiposInsumo as $tipo)
+              <option value="{{ $tipo->id }}"
+                {{ old('type_insumo_id', $insumo->type_insumo_id) == $tipo->id ? 'selected' : '' }}>
+                {{ $tipo->nombre }}
+              </option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <label for="descripcion" class="form-label">Descripción</label>
+        <textarea id="descripcion" name="descripcion" rows="3" maxlength="200" required
+                  class="form-control @error('descripcion') is-invalid @enderror"
+                  placeholder="Detalle breve del insumo…">{{ old('descripcion', $insumo->descripcion) }}</textarea>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-theme px-4">Guardar cambios</button>
+        <a href="{{ route('insumos.index') }}" class="btn btn-muted px-4">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 @endsection
