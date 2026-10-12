@@ -59,7 +59,7 @@
       $label1 = trim($marca.' '.$linea) ?: '—';
 
       // Teléfono del primer cliente asociado
-      $telRaw = optional($ot->vehiculo->clientes)->first()->telefono ?? '';
+      $telRaw = $ot->vehiculo?->clientes?->first()?->telefono ?? '';
 
       // Formatear 8 dígitos como 0000-0000
       $telDigits = preg_replace('/\D+/', '', (string)$telRaw);
@@ -115,7 +115,7 @@
           data-bs-html="true"
           data-bs-custom-class="tt-placa"
           title="{!! $tooltipHtml !!}">
-          {{ $ot->vehiculo->placa ?? '—' }}
+          {{ $ot->vehiculo->placa ?? $ot->vehiculo_placa ?? '—' }}
         </span>
       </td>
       <td>
