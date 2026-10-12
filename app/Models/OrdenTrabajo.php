@@ -33,6 +33,13 @@ class OrdenTrabajo extends Model
         'mantenimiento_json'=> 'array', 
     ];
 
+    // Las importaciones antiguas pueden contener placas en minúsculas.
+    // Eloquent necesita la misma clave que Vehiculo para asociar la carga anticipada.
+    public function getVehiculoPlacaAttribute($value): ?string
+    {
+        return $value === null ? null : strtoupper(trim($value));
+    }
+
     // --- Relaciones principales ---
 
     public function vehiculo(): BelongsTo
